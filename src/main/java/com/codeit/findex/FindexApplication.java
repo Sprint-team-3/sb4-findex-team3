@@ -1,4 +1,4 @@
-package com.example.Findex;
+package com.codeit.findex;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
