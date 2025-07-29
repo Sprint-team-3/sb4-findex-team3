@@ -1,3 +1,15 @@
 spring:
   application:
     name: Findex
+  config:
+    import: application-secret.yml
+
+
+external:
+  api:
+    baseurl: https://apis.data.go.kr/1160100/service/GetMarketIndexInfoService
+
+
+
+
+
