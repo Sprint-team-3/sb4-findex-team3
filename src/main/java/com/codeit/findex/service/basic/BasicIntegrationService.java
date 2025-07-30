@@ -153,7 +153,7 @@ public class BasicIntegrationService implements IntegrationService {
 
   private SyncJobDto buildSyncJob(IndexData indexData, String worker) {
     return new SyncJobDto(
-        ,
+        UUID.randomUUID(),
         JobType.INDEX_DATA,
         indexData.getId(),
         indexData.getBaseDate(),
