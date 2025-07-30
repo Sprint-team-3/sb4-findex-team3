@@ -1,0 +1,12 @@
+package com.codeit.findex.dto;
+
+import java.util.List;
+import java.util.UUID;
+
+public record CursorPageResponseSyncJobDto(
+    List<SyncJobDto> content,
+    String nextCursor,
+    UUID nextIdAfter,
+    int size,
+    long totalElements,
+    boolean hasNext) {}

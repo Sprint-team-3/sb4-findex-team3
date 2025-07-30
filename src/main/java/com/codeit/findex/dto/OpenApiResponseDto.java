@@ -3,13 +3,14 @@ package com.codeit.findex.dto;
 import java.util.List;
 
 public record OpenApiResponseDto(HeadAndBodyDto response) {
-  public record HeadAndBodyDto(HeaderDto header, BodyDto body) {}
 
-  public record HeaderDto(String resultCode, String resultMsg) {}
+  public record HeadAndBodyDto(HeaderDto header, BodyDto body) {}
 
   public record BodyDto(Integer numOfRows, Integer pageNo, Integer totalCount, ItemsDto items) {}
 
   public record ItemsDto(List<IndexItemDto> item) {}
+
+  public record HeaderDto(String resultCode, String resultMsg) {}
 
   public record IndexItemDto(
       String basPntm,
