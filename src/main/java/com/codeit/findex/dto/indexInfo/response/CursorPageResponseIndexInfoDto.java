@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CursorPageResponseIndexDataDto {
+public class CursorPageResponseIndexInfoDto {
     private List<IndexInfoDto> content;
 
     private String nextCursor;

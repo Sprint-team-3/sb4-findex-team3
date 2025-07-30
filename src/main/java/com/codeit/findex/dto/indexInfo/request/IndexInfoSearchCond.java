@@ -4,18 +4,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.sql.Date;
-import java.time.LocalDate;
-
-
 @Getter
 @Setter
 @NoArgsConstructor
-public class IndexInfoCreateRequest {
+public class IndexInfoSearchCond {
+
     private String indexClassification;
     private String indexName;
-    private int employedItemsCount;
-    private LocalDate basePointInTime;
-    private double baseIndex;
     private boolean favorite;
+
+    private long idAfter;
+    private String cursor;
+
+    private String sortField = "indexClassification";  // 기본값
+    private String sortDirection = "asc";
+    private int size = 10;
 }

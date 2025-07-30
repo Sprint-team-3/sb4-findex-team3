@@ -4,13 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
+import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class IndexInfoSummaryDto {
-    private UUID id;
-    private String indexClassification;
-    private String indexName;
+public class ErrorResponse {
+
+    private LocalDate timestamp;
+    private int status;
+    private String message;
+    private String details;
 }
