@@ -9,6 +9,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,7 +31,7 @@ public class IndexData extends BaseEntity {
    * 기준 날짜
    */
   @Column(name = "base_date", nullable = false)
-  private Timestamp baseDate;
+  private LocalDate baseDate;
 
   /**
    * 소스 타입 (예: USER, OPEN_API)
@@ -42,60 +43,60 @@ public class IndexData extends BaseEntity {
    * 시가 (정규시장 개시 후 최초 가격)
    */
   @Column(name = "market_price", nullable = false) // ERD의 'market_price' 컬럼명과 매핑
-  private BigDecimal openPrice; // '시가'는 보통 openPrice로 명명합니다.
+  private double openPrice; // '시가'는 보통 openPrice로 명명합니다.
 
   /**
    * 종가 (정규시장 종료시 최종 가격)
    */
   @Column(name = "closing_price", nullable = false)
-  private BigDecimal closingPrice;
+  private double closingPrice;
 
   /**
    * 고가 (하루 중 최고치)
    */
   @Column(name = "high_price", nullable = false)
-  private BigDecimal highPrice;
+  private double highPrice;
 
   /**
    * 저가 (하루 중 최저치) - 일반적인 시세 데이터에 포함되므로 추가
    */
   @Column(name = "low_price", nullable = false)
-  private BigDecimal lowPrice;
+  private double lowPrice;
 
   /**
    * 전일 대비 변동 값
    */
   @Column(name = "versus", nullable = false)
-  private BigDecimal changeValue; // '대비'는 보통 changeValue로 명명합니다.
+  private double changeValue; // '대비'는 보통 changeValue로 명명합니다.
 
   /**
    * 등락률 (%)
    */
   @Column(name = "fluctuation_rate", nullable = false)
-  private BigDecimal fluctuationRate;
+  private double fluctuationRate;
 
   /**
    * 거래량
    */
   @Column(name = "trading_quantity", nullable = false)
-  private Integer tradingVolume; // '거래량'은 보통 tradingVolume으로 명명합니다.
+  private int tradingVolume; // '거래량'은 보통 tradingVolume으로 명명합니다.
 
   /**
    * 거래대금
    */
   @Column(name = "trading_price", nullable = false) // ERD의 'trading_price' 컬럼명과 매핑
-  private Long tradingValue; // '거래대금'은 보통 tradingValue로 명명하며, 큰 값을 다루므로 Long 타입이 적합합니다.
+  private long tradingValue; // '거래대금'은 보통 tradingValue로 명명하며, 큰 값을 다루므로 Long 타입이 적합합니다.
 
   /**
    * 상장 시가 총액
    */
   @Column(name = "market_total_amount", nullable = false)
-  private Long marketTotalAmount;
+  private long marketTotalAmount;
 
 
   /**
    * 활성화 여부
    */
   @Column(name = "enabled", nullable = false)
-  private Boolean enabled;
+  private boolean enabled;
 }
