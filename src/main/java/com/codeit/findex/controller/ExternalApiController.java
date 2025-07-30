@@ -1,7 +1,7 @@
 package com.codeit.findex.controller;
 
-import com.codeit.findex.dto.OpenApiResponseDto;
-import com.codeit.findex.dto.OpenApiResponseDto.*;
+import com.codeit.findex.dto.dashboard.OpenApiResponseDto;
+import com.codeit.findex.dto.dashboard.OpenApiResponseDto.*;
 import com.codeit.findex.service.ExternalApiService;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
