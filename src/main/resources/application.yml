@@ -3,6 +3,10 @@ spring:
     name: Findex
   config:
     import: application-secret.yml
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
 
 
 external:
