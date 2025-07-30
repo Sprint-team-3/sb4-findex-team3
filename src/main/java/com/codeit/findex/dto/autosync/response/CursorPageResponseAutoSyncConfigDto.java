@@ -1,13 +1,13 @@
-package com.codeit.findex.dto;
+package com.codeit.findex.dto.autosync.response;
 
 import java.util.List;
 
 public record CursorPageResponseAutoSyncConfigDto(
         List<AutoSyncConfigDto> content,
         String nextCursor,
-        Long nextIdAfter,
+        long nextIdAfter,
         int size,
-        Long totalElements,
+        long totalElements,
         boolean hasNext
 ) {
 }

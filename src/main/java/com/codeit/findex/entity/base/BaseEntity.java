@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
@@ -20,17 +21,17 @@ public class BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
-  private UUID id;
+  private long id;
 
   @CreatedDate
   @Column(name = "created_at", updatable = false, nullable = false)
-  private Instant createdAt;
+  private LocalDate createdAt;
 
   @LastModifiedDate
   @Column(name = "updated_at")
-  Instant updatedAt;
+  LocalDate updatedAt;
 
   protected void updateTimeStamp() {
-    this.updatedAt = Instant.now();
+    this.updatedAt = LocalDate.now();
   }
 }
