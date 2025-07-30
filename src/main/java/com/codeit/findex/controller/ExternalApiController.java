@@ -20,5 +20,5 @@ public class ExternalApiController {
   public OpenApiResponseDto getStockMarketIndex() {
     return externalApiService.fetchStockMarketIndex();
   }
-
+  
 }
