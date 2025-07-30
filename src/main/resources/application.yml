@@ -11,23 +11,20 @@ spring:
     properties:
       hibernate:
         format_sql: true # SQL 포맷팅 가독성
+  application:
+    name: Findex
+  config:
+    import: application-secret.yml
+#  sql:
+#    init:
+#      mode: update
+#      schema-locations: classpath:schema.sql
 
 # Logging 설정
 logging:
   level:
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
-
-
-  application:
-    name: Findex
-  config:
-    import: application-secret.yml
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:schema.sql
-
 
 external:
   api:
