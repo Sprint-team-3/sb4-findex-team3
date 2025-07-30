@@ -1,13 +1,30 @@
 spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/team3 # DB이름 설정 필요
+    username: team3
+    password: team3123
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update # 개발 단계는 update, 운영은 none 권장
+    show-sql: true       # 실행 쿼리 확인
+    properties:
+      hibernate:
+        format_sql: true # SQL 포맷팅 가독성
   application:
     name: Findex
   config:
     import: application-secret.yml
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:schema.sql
+#  sql:
+#    init:
+#      mode: update
+#      schema-locations: classpath:schema.sql
 
+# Logging 설정
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace
 
 external:
   api:
