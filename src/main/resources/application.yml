@@ -30,4 +30,3 @@ logging:
 external:
   api:
     baseurl: https://apis.data.go.kr/1160100/service/GetMarketIndexInfoService
-    apiKey: AdnlabkeYXkd8dnXuRWY333vhwElKTmoGdjFXfNct8lv0vC/eomtQSvXL0jD1EQPUonqNROfH7vvBjzVAt3ZIQ==
