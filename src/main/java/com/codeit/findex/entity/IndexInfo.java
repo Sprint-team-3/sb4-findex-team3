@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -32,7 +33,7 @@ public class IndexInfo extends BaseEntity {
 
   /** 지수 산출의 기준이 되는 날짜 및 시간 */
   @Column(name = "basepoint_intime", nullable = false)
-  private int basepointInTime;
+  private LocalDate basepointInTime;
 
   /** 기준 시점의 지수 값 (보통 100 또는 1000) */
   @Column(name = "base_index", nullable = false)
