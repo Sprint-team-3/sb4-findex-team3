@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface IndexInfoRepository extends JpaRepository<IndexInfo, Long> {
     @Query("SELECT i FROM IndexInfo i WHERE i.indexName LIKE %:indexName%")
@@ -23,4 +24,5 @@ public interface IndexInfoRepository extends JpaRepository<IndexInfo, Long> {
 
     Optional<IndexInfo> findById(UUID id);
 
+  Optional<IndexInfo> findByIndexName(String indexName);
 }
