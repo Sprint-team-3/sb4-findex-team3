@@ -1,7 +1,7 @@
 package com.codeit.findex.service;
 
-import com.codeit.findex.dto.IndexDataSyncRequest;
-import com.codeit.findex.dto.SyncJobDto;
+import com.codeit.findex.dto.integration.IndexDataSyncRequest;
+import com.codeit.findex.dto.integration.SyncJobDto;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 

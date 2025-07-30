@@ -1,4 +1,4 @@
-package com.codeit.findex.dto;
+package com.codeit.findex.dto.integration;
 
 import java.util.List;
 import java.util.UUID;

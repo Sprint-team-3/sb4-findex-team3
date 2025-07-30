@@ -1,10 +1,10 @@
 package com.codeit.findex.service.basic;
 
-import com.codeit.findex.dto.IndexDataDto;
-import com.codeit.findex.dto.IndexDataSyncRequest;
-import com.codeit.findex.dto.IndexInfoDto;
+import com.codeit.findex.dto.integration.IndexDataDto;
+import com.codeit.findex.dto.integration.IndexDataSyncRequest;
+import com.codeit.findex.dto.integration.IndexInfoDto;
 import com.codeit.findex.dto.OpenApiResponseDto;
-import com.codeit.findex.dto.SyncJobDto;
+import com.codeit.findex.dto.integration.SyncJobDto;
 import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.entity.IndexInfo;
 import com.codeit.findex.entityEnum.JobType;

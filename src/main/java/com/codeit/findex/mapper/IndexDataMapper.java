@@ -1,6 +1,6 @@
 package com.codeit.findex.mapper;
 
-import com.codeit.findex.dto.IndexDataDto;
+import com.codeit.findex.dto.integration.IndexDataDto;
 import com.codeit.findex.entity.IndexData;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;

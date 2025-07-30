@@ -1,4 +1,4 @@
-package com.codeit.findex.dto;
+package com.codeit.findex.dto.integration;
 
 import com.codeit.findex.entityEnum.SourceType;
 import java.time.LocalDate;
