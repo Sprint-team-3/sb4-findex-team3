@@ -3,6 +3,7 @@ package com.codeit.findex.repository;
 import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.entity.IndexInfo;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -31,5 +32,5 @@ public interface DashboardRepository extends JpaRepository<IndexData, UUID> {
    * @return 기준 날짜 혹은 그 이전의 가장 최신 IndexData 객체 (없으면 Optional.empty())
    */
   Optional<IndexData> findTopByIndexInfoIdAndBaseDateLessThanEqualOrderByBaseDateDesc(
-      UUID indexInfoId, LocalDateTime baseDate);
+      UUID indexInfoId, LocalDate baseDate);
 }

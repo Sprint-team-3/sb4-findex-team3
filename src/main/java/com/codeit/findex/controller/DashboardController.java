@@ -1,21 +1,17 @@
 package com.codeit.findex.controller;
 
-import com.codeit.findex.dto.IndexDataDto;
-import com.codeit.findex.dto.IndexInfoDto;
+import com.codeit.findex.dto.dashboard.IndexDataDto;
+import com.codeit.findex.dto.dashboard.IndexInfoDto;
 import com.codeit.findex.dto.dashboard.IndexChartDto;
 import com.codeit.findex.dto.dashboard.PerformanceDto;
 import com.codeit.findex.dto.dashboard.PeriodType;
 import com.codeit.findex.dto.dashboard.RankedIndexPerformanceDto;
-import com.codeit.findex.entity.IndexData;
-import com.codeit.findex.service.DashboardService;
+import com.codeit.findex.service.dashboard.DashboardService;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.UUID;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,8 +48,6 @@ public class DashboardController {
     //    return favoriteInfoDtos.stream()
     //        .map(i -> {
     //          UUID indexInfoId = i.infoId;
-    //
-    //// get list of indexData for that Index info
     //          List<IndexDataDto> indexDataDto = dummyIndexData.get(indexInfoId);
     //
     //          IndexDataDto current = indexDataDto.get(0);

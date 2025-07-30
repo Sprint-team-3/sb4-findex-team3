@@ -1,13 +1,12 @@
-package com.codeit.findex.service;
+package com.codeit.findex.service.dashboard;
 
-import com.codeit.findex.dto.IndexInfoDto;
+import com.codeit.findex.dto.dashboard.IndexInfoDto;
 import com.codeit.findex.dto.dashboard.PerformanceDto;
 import com.codeit.findex.dto.dashboard.PeriodType;
 import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.repository.DashboardRepository;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,19 +27,18 @@ public class DashboardService {
             .orElseThrow(() -> new NoSuchElementException("IndexData does not exist"));
 
     LocalDate currentDate = current.getBaseDate();
-    LocalDateTime currentDateTime = currentDate.atStartOfDay();
 
     Optional<IndexData> comparisonData =
         switch (periodType) {
           case DAILY ->
              findPastIndexData(
-                  indexInfoId, currentDateTime.minus(Duration.ofDays(1)));
+                  indexInfoId, currentDate.minus(Duration.ofDays(1)));
           case WEEKLY ->
               findPastIndexData(
-                  indexInfoId, currentDateTime.minus(Duration.ofDays(7)));
+                  indexInfoId, currentDate.minus(Duration.ofDays(7)));
           case MONTHLY ->
               findPastIndexData(
-                  indexInfoId, currentDateTime.minus(Duration.ofDays(30)));
+                  indexInfoId, currentDate.minus(Duration.ofDays(30)));
         };
 
     // *** GRACEFUL HANDLING ***
@@ -67,9 +65,9 @@ public class DashboardService {
     return dashboardRepository.findTopByIndexInfoIdOrderByBaseDateDesc(indexInfoId);
   }
 
-  public Optional<IndexData> findPastIndexData(UUID indexInfoId, LocalDateTime localDateTime) {
+  public Optional<IndexData> findPastIndexData(UUID indexInfoId, LocalDate localDate) {
 
-    return dashboardRepository.findTopByIndexInfoIdAndBaseDateLessThanEqualOrderByBaseDateDesc(indexInfoId, localDateTime);
+    return dashboardRepository.findTopByIndexInfoIdAndBaseDateLessThanEqualOrderByBaseDateDesc(indexInfoId, localDate);
 
   }
 }
