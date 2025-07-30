@@ -19,6 +19,7 @@ CREATE TABLE IndexData (
                            market_price DECIMAL,
                            closing_price DECIMAL,
                            high_price DECIMAL,
+                           low_price DECIMAL,
                            versus DECIMAL,
                            fluctuation_rate DECIMAL,
                            trading_quantity INT,
