@@ -1,0 +1,53 @@
+CREATE TABLE IndexInfo (
+                           info_id UUID PRIMARY KEY,
+                           index_classification VARCHAR(100),
+                           index_name VARCHAR(255),
+                           employed_items_count INT,
+                           basepoint_intime TIMESTAMPTZ,
+                           base_index DECIMAL,
+                           source_type VARCHAR(20),
+                           favorite BOOLEAN,
+                           created_at TIMESTAMPTZ,
+                           updated_at TIMESTAMPTZ,
+                           enabled BOOLEAN
+);
+CREATE TABLE IndexData (
+                           id UUID PRIMARY KEY,
+                           indexInfoId UUID NOT NULL,
+                           base_date TIMESTAMPTZ,
+                           source_type VARCHAR(20),
+                           market_price DECIMAL,
+                           closing_price DECIMAL,
+                           high_price DECIMAL,
+                           versus DECIMAL,
+                           fluctuation_rate DECIMAL,
+                           trading_quantity INT,
+                           trading_price INT,
+                           market_total_amount BIGINT,
+                           created_at TIMESTAMPTZ,
+                           enabled BOOLEAN,
+
+                           CONSTRAINT fk_indexdata_indexinfo FOREIGN KEY (indexInfoId)
+                               REFERENCES IndexInfo(info_id)
+                               ON DELETE CASCADE
+);
+CREATE TABLE Integration (
+                             id UUID PRIMARY KEY,
+                             indexInfoId UUID NOT NULL,
+                             data_id UUID NOT NULL,
+                             job_type VARCHAR(100),
+                             base_date_from TIMESTAMPTZ,
+                             base_date_to TIMESTAMPTZ,
+                             worker VARCHAR(100),
+                             job_time_from TIMESTAMPTZ,
+                             job_time_to TIMESTAMPTZ,
+                             result BOOLEAN,
+
+                             CONSTRAINT fk_integration_indexinfo FOREIGN KEY (indexInfoId)
+                                 REFERENCES IndexInfo(info_id)
+                                 ON DELETE CASCADE,
+
+                             CONSTRAINT fk_integration_data FOREIGN KEY (data_id)
+                                 REFERENCES IndexData(id)
+                                 ON DELETE CASCADE
+);
