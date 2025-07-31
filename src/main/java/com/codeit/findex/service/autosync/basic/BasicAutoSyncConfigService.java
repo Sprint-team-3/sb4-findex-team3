@@ -5,7 +5,7 @@ import com.codeit.findex.dto.autosync.response.CursorPageResponseAutoSyncConfigD
 import com.codeit.findex.entity.IndexInfo;
 import com.codeit.findex.mapper.AutoSyncMapper;
 import com.codeit.findex.repository.IndexInfoRepository;
-import com.codeit.findex.repository.autosync.AutoSyncRepository;
+import com.codeit.findex.repository.AutoSyncRepository;
 import com.codeit.findex.service.autosync.AutoSyncConfigService;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
