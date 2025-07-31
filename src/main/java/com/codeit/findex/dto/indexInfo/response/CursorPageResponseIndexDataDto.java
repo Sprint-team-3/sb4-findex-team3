@@ -13,8 +13,8 @@ public class CursorPageResponseIndexDataDto {
     private List<IndexInfoDto> content;
 
     private String nextCursor;
-    private Long nextIdAfter;
-    private Integer size;
-    private Long totalElements;
-    private Boolean hasNext;
+    private long nextIdAfter;
+    private int size;
+    private long totalElements;
+    private boolean hasNext;
 }

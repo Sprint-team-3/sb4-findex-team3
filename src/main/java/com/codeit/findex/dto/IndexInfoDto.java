@@ -1,11 +1,11 @@
-package com.codeit.findex.dto.integration;
+package com.codeit.findex.dto;
 
 import com.codeit.findex.entityEnum.SourceType;
 import java.time.LocalDate;
 import java.util.UUID;
 
 public record IndexInfoDto(
-    UUID id,
+    long id,
     String indexClassification,
     String indexName,
     int employedItemsCount,

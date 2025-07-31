@@ -1,8 +1,9 @@
-package com.codeit.findex.dto.autosync.response;
+package com.codeit.findex.dto;
 
+import java.util.UUID;
 
 public record AutoSyncConfigDto(
-        Long id,
+        long id,
         long indexInfoId,
         String indexClassification,
         String indexName,

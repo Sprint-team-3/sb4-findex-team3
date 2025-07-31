@@ -1,12 +1,12 @@
-package com.codeit.findex.dto.integration;
+package com.codeit.findex.dto;
 
 import com.codeit.findex.entityEnum.SourceType;
 import java.time.LocalDate;
 import java.util.UUID;
 
 public record IndexDataDto(
-    UUID id,
-    UUID indexInfoId,
+    long id,
+    long indexInfoId,
     LocalDate baseDate,
     SourceType sourceType,
     double marketPrice,

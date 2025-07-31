@@ -7,7 +7,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.UUID;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
@@ -20,18 +19,18 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public class BaseEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
+  @GeneratedValue(strategy = GenerationType.AUTO)
   private long id;
 
   @CreatedDate
   @Column(name = "created_at", updatable = false, nullable = false)
-  private LocalDate createdAt;
+  private Instant createdAt;
 
   @LastModifiedDate
   @Column(name = "updated_at")
-  LocalDate updatedAt;
+  Instant updatedAt;
 
   protected void updateTimeStamp() {
-    this.updatedAt = LocalDate.now();
+    this.updatedAt = Instant.now();
   }
 }
