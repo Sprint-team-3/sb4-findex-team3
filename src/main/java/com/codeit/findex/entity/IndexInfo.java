@@ -1,11 +1,10 @@
 package com.codeit.findex.entity;
 
 import com.codeit.findex.entity.base.BaseEntity;
+import com.codeit.findex.entityEnum.SourceType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,7 +23,7 @@ public class IndexInfo extends BaseEntity {
   private String indexClassification;
 
   /** 지수의 분류명 (예: 코스피 200) */
-  @Column(name = "index_name", length = 255, nullable = false, unique = true)
+  @Column(name = "index_name", length = 255, nullable = false)
   private String indexName;
 
   /** 해당 지수를 구성하는 종목의 총 개수 */
@@ -41,7 +40,7 @@ public class IndexInfo extends BaseEntity {
 
   /** 정보가 입력된 출처 (예: "USER", "OPEN_API") */
   @Column(name = "source_type", length = 20, nullable = false)
-  private String sourceType;
+  private SourceType sourceType;
 
   /** 사용자의 즐겨찾기 여부 */
   @Column(name = "favorite", nullable = false)

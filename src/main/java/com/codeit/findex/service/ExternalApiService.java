@@ -25,8 +25,7 @@ public class ExternalApiService {
   }
 
   public OpenApiResponseDto fetchStockMarketIndex() {
-
-    return restClient
+  return restClient
         .get()
         .uri(
             uriBuilder ->
@@ -34,6 +33,7 @@ public class ExternalApiService {
                     .path("/getStockMarketIndex")
                     .queryParam("serviceKey", apiKey)
                     .queryParam("resultType", "json")
+                    .queryParam("numOfRows", 50)
                     .build())
         .retrieve()
         .body(OpenApiResponseDto.class);

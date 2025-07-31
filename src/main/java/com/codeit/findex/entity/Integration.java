@@ -1,6 +1,8 @@
 package com.codeit.findex.entity;
 
 import com.codeit.findex.entity.base.BaseEntity;
+import com.codeit.findex.entityEnum.JobType;
+import com.codeit.findex.entityEnum.Result;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,7 +11,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.Getter;
@@ -23,7 +24,7 @@ public class Integration extends BaseEntity {
 
   /** 작업 대상이 된 지수 정보 (외래 키) IndexInfo 엔티티와 다대일(N:1) 관계를 맺습니다. */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "indexInfoId") // ERD의 'indexInfoId' 컬럼명과 매핑
+  @JoinColumn(name = "indexInfoId", nullable = false) // ERD의 'indexInfoId' 컬럼명과 매핑
   private IndexInfo indexInfo;
 
   /**
@@ -33,12 +34,6 @@ public class Integration extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "data_id")
   private IndexData indexData;
-
-  /** 연동 작업의 유형을 나타내는 Enum */
-  public enum JobType {
-    INDEX_INFO, // 지수 정보 연동
-    INDEX_DATA // 지수 데이터 연동
-  }
 
   /** 연동 작업의 유형 (지수 정보, 지수 데이터) */
   @Enumerated(EnumType.STRING)
@@ -67,5 +62,5 @@ public class Integration extends BaseEntity {
 
   /** 작업 결과 (성공/실패) */
   @Column(name = "result", nullable = false)
-  private boolean result;
+  private Result result;
 }

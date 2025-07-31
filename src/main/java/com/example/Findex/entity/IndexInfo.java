@@ -1,4 +1,3 @@
 package com.example.Findex.entity;
 
-public class IndexInfo {
-}
+public class IndexInfo {}

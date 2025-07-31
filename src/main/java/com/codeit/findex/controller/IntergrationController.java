@@ -24,7 +24,7 @@ public class IntergrationController {
   }
 
   @PostMapping("/index-data")
-  public List<SyncJobDto> IntegrateIndexData(
+  public List<SyncJobDto> integrateIndexData(
       @RequestBody IndexDataSyncRequest indexDataSyncRequest, HttpServletRequest request) {
     return integrationService.integrateIndexData(indexDataSyncRequest, request);
   }

@@ -19,7 +19,6 @@ public class ExternalApiController {
 
   @GetMapping
   public OpenApiResponseDto getStockMarketIndex() {
-    OpenApiResponseDto openApiResponseDto = externalApiService.fetchStockMarketIndex();
-    return null;
+    return externalApiService.fetchStockMarketIndex();
   }
 }
