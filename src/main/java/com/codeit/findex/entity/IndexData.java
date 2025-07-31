@@ -1,6 +1,7 @@
 package com.codeit.findex.entity;
 
 import com.codeit.findex.entity.base.BaseEntity;
+import com.codeit.findex.entityEnum.SourceType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -28,7 +29,7 @@ public class IndexData extends BaseEntity {
 
   /** 소스 타입 (예: USER, OPEN_API) */
   @Column(name = "source_type", length = 20, nullable = false)
-  private String sourceType;
+  private SourceType sourceType;
 
   /** 시가 (정규시장 개시 후 최초 가격) */
   @Column(name = "market_price", nullable = false) // ERD의 'market_price' 컬럼명과 매핑

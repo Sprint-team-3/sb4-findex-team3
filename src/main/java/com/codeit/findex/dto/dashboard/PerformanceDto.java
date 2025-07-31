@@ -1,8 +1,5 @@
 package com.codeit.findex.dto.dashboard;
 
-import java.math.BigDecimal;
-import java.util.UUID;
-
 public record PerformanceDto(
     long indexInfoId,
     String indexClassification,
