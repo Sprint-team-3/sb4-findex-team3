@@ -26,7 +26,12 @@ public class IndexInfoService {
 
     @Transactional
     public CursorPageResponseIndexInfoDto findIndexInfoByCondition(IndexInfoSearchCond cond ) {
-        List<IndexInfo> indexInfos;
+        String indexName = cond.getIndexName();
+        String classification = cond.getIndexClassification();
+        boolean favorite = cond.isFavorite();
+        if (indexName !=null && classification != null && favorite != false) {
+
+        }
     }
 
     @Transactional
