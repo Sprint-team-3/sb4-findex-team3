@@ -1,4 +1,4 @@
-package com.codeit.findex.dto;
+package com.codeit.findex.dto.autosync.response;
 
 import java.util.UUID;
 
