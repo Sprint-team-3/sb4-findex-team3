@@ -4,7 +4,7 @@ import com.codeit.findex.entityEnum.SourceType;
 import java.time.LocalDate;
 
 public record IndexInfoDto(
-    long id,
+    Long id,
     String indexClassification,
     String indexName,
     int employedItemsCount,

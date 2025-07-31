@@ -4,8 +4,8 @@ import com.codeit.findex.entityEnum.SourceType;
 import java.time.LocalDate;
 
 public record IndexDataDto(
-    long id,
-    long indexInfoId,
+    Long id,
+    Long indexInfoId,
     LocalDate baseDate,
     SourceType sourceType,
     double marketPrice,
