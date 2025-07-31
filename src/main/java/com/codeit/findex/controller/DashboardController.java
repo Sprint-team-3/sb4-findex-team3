@@ -1,14 +1,16 @@
 package com.codeit.findex.controller;
 
-import com.codeit.findex.dto.dashboard.IndexDataDto;
-import com.codeit.findex.dto.dashboard.IndexInfoDto;
+import com.codeit.findex.dto.IndexDataDto;
+import com.codeit.findex.dto.IndexInfoDto;
+import com.codeit.findex.dto.dashboard.ChartPeriodType;
 import com.codeit.findex.dto.dashboard.IndexChartDto;
 import com.codeit.findex.dto.dashboard.PerformanceDto;
 import com.codeit.findex.dto.dashboard.PeriodType;
 import com.codeit.findex.dto.dashboard.RankedIndexPerformanceDto;
+import com.codeit.findex.entityEnum.SourceType;
 import com.codeit.findex.service.dashboard.DashboardService;
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,28 +78,24 @@ public class DashboardController {
     //        .toList();
   }
 
-
-
   // 2번째 부분 (차트)
   @GetMapping("/index-data/{id}/chart")
   public IndexChartDto getChart(
-      @PathVariable("id") UUID id, @RequestParam("periodType") String periodType) {
-    // search info service by id and get IndexInfo
-    // IndexInfo to IndexChartDto
-    return null;
+      @PathVariable("id") long id, @RequestParam("periodType") ChartPeriodType periodType) {
+    return dashboardService.getChartData(id, periodType);
   }
 
   // 3번째 부분 (성과)
   @GetMapping("/index-data/performance/rank")
   public List<RankedIndexPerformanceDto> getPerformanceRank(
       @RequestParam("indexInfoId") String indexInfoId,
-      @RequestParam("periodType") String periodType,
+      @RequestParam("periodType") ChartPeriodType chartPeriodType,
       @RequestParam("limit") String limit) {
     return null;
   }
 
-  UUID kospiId = UUID.randomUUID();
-  UUID kosdaqId = UUID.randomUUID();
+  long kospiId = 1L;
+  long kosdaqId = 2L;
   // =============================  dummy data =============================
   IndexInfoDto kospiInfo =
       new IndexInfoDto(
@@ -105,9 +103,9 @@ public class DashboardController {
           "주가지수", // index_classification: Stock Index
           "KOSPI", // index_name
           200, // employed_items_count
-          LocalDateTime.now(), // basepoint_intime
+          LocalDate.now(), // basepoint_intime
           100.00, // base_index
-          "KRX", // source_type: Korea Exchange
+          SourceType.USER, // source_type
           true // favorite
       );
 
@@ -117,62 +115,186 @@ public class DashboardController {
           "주가지수", // index_classification: Stock Index
           "KOSDAQ", // index_name
           1500, // employed_items_count
-          LocalDateTime.now(), // basepoint_intime
+          LocalDate.now(), // basepoint_intime
           1000.00, // base_index
-          "KRX", // source_type: Korea Exchange
+          SourceType.USER, // source_type
           true // favorite
       );
 
-  private Map<UUID, List<IndexDataDto>> createDummyIndexData() {
+  private Map<Long, List<IndexDataDto>> createDummyIndexData() {
 
-    Map<UUID, List<IndexDataDto>> dummyIndexData = new HashMap<>();
-    LocalDateTime now = LocalDateTime.now();
+    Map<Long, List<IndexDataDto>> dummyIndexData = new HashMap<>();
+    LocalDate now = LocalDate.now();
     List<IndexDataDto> kospiData =
         List.of(
-            new IndexDataDto(UUID.randomUUID(), kospiId, now, "Open API", 2800.00), // Today
+            new IndexDataDto(1L, kospiId, now, SourceType.USER, 2800.00, 0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0), // Today
             new IndexDataDto(
-                UUID.randomUUID(),
+                2L,
                 kospiId,
                 now.minus(Duration.ofDays(1)),
-                "Open API",
-                2795.50), // Yesterday
+                SourceType.OPEN_API,
+                2795.50,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+                ), // Yesterday
             // Last Week
             new IndexDataDto(
-                UUID.randomUUID(), kospiId, now.minus(Duration.ofDays(4)), "Open API", 2705.25),
+                3L, kospiId, now.minus(Duration.ofDays(4)),                 SourceType.OPEN_API,
+                2115.11,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ),
             new IndexDataDto(
-                UUID.randomUUID(), kospiId, now.minus(Duration.ofDays(7)), "Open API", 2815.20),
+                4L, kospiId, now.minus(Duration.ofDays(7)),                 SourceType.OPEN_API,
+                2892.57,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ),
             // last month
             new IndexDataDto(
-                UUID.randomUUID(), kospiId, now.minus(Duration.ofDays(10)), "Open API", 2650.75),
+                5L, kospiId, now.minus(Duration.ofDays(10)),                 SourceType.OPEN_API,
+                2119.50,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ),
             new IndexDataDto(
-                UUID.randomUUID(), kospiId, now.minus(Duration.ofDays(26)), "Open API", 2650.75),
+                6L, kospiId, now.minus(Duration.ofDays(26)),                 SourceType.OPEN_API,
+                2000.50,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ),
             new IndexDataDto(
-                UUID.randomUUID(),
+                7L,
                 kospiId,
                 now.minus(Duration.ofDays(31)),
-                "Open API",
-                2750.75) // Last Month
+                SourceType.OPEN_API,
+                2900.50,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ) // Last Month
         );
 
     List<IndexDataDto> kosdaqData =
         List.of(
-            new IndexDataDto(UUID.randomUUID(), kosdaqId, now, "Open API", 2800.00), // Today
+            new IndexDataDto(8L, kosdaqId, now,                 SourceType.OPEN_API,
+                2795.50,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ), // Today
             new IndexDataDto(
-                UUID.randomUUID(),
+                9L,
                 kosdaqId,
                 now.minus(Duration.ofDays(1)),
-                "Open API",
-                2795.50), // Yesterday
+                SourceType.OPEN_API,
+                2800.16,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ), // Yesterday
             // Last Week
             new IndexDataDto(
-                UUID.randomUUID(), kosdaqId, now.minus(Duration.ofDays(3)), "Open API", 2919.90),
+                10L, kosdaqId, now.minus(Duration.ofDays(3)),                 SourceType.OPEN_API,
+                2335.50,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ),
             new IndexDataDto(
-                UUID.randomUUID(), kosdaqId, now.minus(Duration.ofDays(7)), "Open API", 2815.20),
+                11L, kosdaqId, now.minus(Duration.ofDays(7)),                 SourceType.OPEN_API,
+                2225.50,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ),
             // Last Month
             new IndexDataDto(
-                UUID.randomUUID(), kosdaqId, now.minus(Duration.ofDays(20)), "Open API", 2620.45),
+                12L, kosdaqId, now.minus(Duration.ofDays(20)),                 SourceType.OPEN_API,
+                2999.50,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ),
             new IndexDataDto(
-                UUID.randomUUID(), kosdaqId, now.minus(Duration.ofDays(31)), "Open API", 2750.75));
+                13L, kosdaqId, now.minus(Duration.ofDays(31)),                 SourceType.OPEN_API,
+                2111.50,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ));
 
     dummyIndexData.put(kospiId, kospiData);
     dummyIndexData.put(kosdaqId, kosdaqData);

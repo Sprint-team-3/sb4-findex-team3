@@ -1,15 +1,12 @@
 package com.codeit.findex.repository;
 
 import com.codeit.findex.entity.IndexData;
-import com.codeit.findex.entity.IndexInfo;
-import java.sql.Timestamp;
+import jakarta.persistence.Index;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 
 public interface DashboardRepository extends JpaRepository<IndexData, UUID> {
@@ -21,7 +18,7 @@ public interface DashboardRepository extends JpaRepository<IndexData, UUID> {
    * @return 가장 최신의 IndexData 객체 (데이터가 없으면 Optional.empty())
    */
 
-  Optional<IndexData> findTopByIndexInfoIdOrderByBaseDateDesc(UUID indexInfoId);
+  Optional<IndexData> findTopByIndexInfoIdOrderByBaseDateDesc(long indexInfoId);
 
   /**
    * 특정 날짜(targetDate) 혹은 그 이전의 가장 최신 IndexData를 조회합니다.
@@ -32,5 +29,12 @@ public interface DashboardRepository extends JpaRepository<IndexData, UUID> {
    * @return 기준 날짜 혹은 그 이전의 가장 최신 IndexData 객체 (없으면 Optional.empty())
    */
   Optional<IndexData> findTopByIndexInfoIdAndBaseDateLessThanEqualOrderByBaseDateDesc(
-      UUID indexInfoId, LocalDate baseDate);
+      long indexInfoId, LocalDate baseDate);
+
+
+  //============= chart ===============
+  // Asc - oldest to newest (e.g., Jan 1, Jan 2, Jan 3, ...).
+  List<IndexData> findByIndexInfoIdAndBaseDateBetweenOrderByBaseDateAsc(long indexInfoId,
+      LocalDate startDate, LocalDate endDate);
+
 }

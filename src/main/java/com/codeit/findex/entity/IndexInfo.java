@@ -19,6 +19,7 @@ public class IndexInfo extends BaseEntity {
   //  @OneToMany(mappedBy = "IndexInfo", cascade = CascadeType.ALL, orphanRemoval = true)
   //  private List<IndexData> indexDataList;
 
+
   /** 지수의 분류명 */
   @Column(name = "index_classification", length = 100, nullable = false)
   private String indexClassification;
@@ -50,4 +51,7 @@ public class IndexInfo extends BaseEntity {
   /** 활성화 여부 (예: 자동 연동 설정의 활성/비활성 상태) */
   @Column(name = "enabled", nullable = false)
   private boolean enabled;
+
+  // 새로 추가
+
 }

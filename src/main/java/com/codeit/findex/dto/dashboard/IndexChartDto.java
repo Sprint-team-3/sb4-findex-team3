@@ -8,9 +8,10 @@ public record IndexChartDto(
     long indexInfoId,
     String indexClassification,
     String indexName,
-    String periodType,
+    ChartPeriodType periodType,
     List<ChartDataPoint> dataPoints,
     List<ChartDataPoint> ma5DataPoints,
     List<ChartDataPoint> ma20DataPoints) {}
 
-record ChartDataPoint(Date date, double number) {}
+// basedate, ClosingPrice
+
