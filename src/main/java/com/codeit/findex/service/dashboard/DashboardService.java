@@ -29,7 +29,7 @@ public class DashboardService {
     IndexInfoDto indexInfoDto =
         new IndexInfoDto(
             1L,
-            "주가지수", // index_classification: Stock Index
+            "주가지수", // index_classification
             "KOSPI", // index_name
             200, // employed_items_count
             LocalDate.now(), // basepoint_intime
@@ -41,13 +41,14 @@ public class DashboardService {
     //        indexInfoRepository.find(indexInfoId)
     //            .orElseThrow(() -> new NoSuchElementException("IndexData does not exist"));
 
-    // fetches the latest IndexData
+    // 가장 최신 IndexData fetch
     IndexData latestIndexData =
         findRecentIndexData(indexInfoId)
             .orElseThrow(() -> new NoSuchElementException("IndexData does not exist"));
 
-    // get the latest date and startDate based on chartPeriodType
+    // endDate 계산
     LocalDate endDate = latestIndexData.getBaseDate();
+    // chartPeriodType에 따른 startDate 계산
     LocalDate startDate =
         switch (chartPeriodType) {
           case MONTHLY -> endDate.minusMonths(1L);
@@ -55,12 +56,12 @@ public class DashboardService {
           case YEARLY -> endDate.minusYears(1L);
         };
 
-    // Fetching *ALL* historical IndexData from 30 days before startDate to endDate
-    // Data buffer for sliding window
+    // startDate 30일전 - endDate의 모든 IndexData을 fetch
+    // sliding window를 위한 data buffer
     List<IndexData> indexDataList =
         findRangeIndexData(
             indexInfoId,
-            startDate.minusDays(30L), // one month before
+            startDate.minusDays(30L), // 한달 전
             endDate);
 
     List<ChartDataPoint> dataPoints = new ArrayList<>();
@@ -71,7 +72,7 @@ public class DashboardService {
 
       IndexData indexData = indexDataList.get(i);
       LocalDate currentDate = indexData.getBaseDate();
-      // 지수 - blue line
+      // 지수 - 메인 파란 선
       if (currentDate.isAfter(startDate) || currentDate.equals(startDate)) {
         dataPoints.add(new ChartDataPoint(indexData.getBaseDate(), indexData.getClosingPrice()));
 
@@ -123,7 +124,6 @@ public class DashboardService {
           case MONTHLY -> findPastIndexData(indexInfoId, currentDate.minus(Duration.ofDays(30)));
         };
 
-    // *** GRACEFUL HANDLING ***
     if (comparisonData.isEmpty()) {
       return null;
     }
@@ -143,8 +143,9 @@ public class DashboardService {
         beforePrice);
   }
 
-  // private methods
+  // ==================================== private 메서드 ====================================
 
+  // 즐겨찾기 성과 메서드
   private Optional<IndexData> findRecentIndexData(long indexInfoId) {
     return dashboardRepository.findTopByIndexInfoIdOrderByBaseDateDesc(indexInfoId);
   }
@@ -154,7 +155,7 @@ public class DashboardService {
         indexInfoId, localDate);
   }
 
-  // chart
+  // 차트 메서드
   private List<IndexData> findRangeIndexData(
       long indexInfoId, LocalDate startDate, LocalDate endDate) {
     return dashboardRepository.findByIndexInfoIdAndBaseDateBetweenOrderByBaseDateAsc(
