@@ -49,4 +49,7 @@ public class IndexInfo extends BaseEntity {
   /** 활성화 여부 (예: 자동 연동 설정의 활성/비활성 상태) */
   @Column(name = "enabled", nullable = false)
   private boolean enabled;
+
+  // 새로 추가
+
 }

@@ -51,7 +51,8 @@ public class BasicIntegrationService implements IntegrationService {
         .map(
             dto -> {
               Optional<IndexInfo> existingOpt =
-                  indexInfoRepository.findByIndexClassificationAndIndexName(dto.indexClassification(),dto.indexName());
+                  indexInfoRepository.findByIndexClassificationAndIndexName(
+                      dto.indexClassification(), dto.indexName());
               IndexInfo indexInfo = new IndexInfo();
 
               if (existingOpt.isPresent()) {
@@ -105,7 +106,9 @@ public class BasicIntegrationService implements IntegrationService {
                           indexDataRepository.save(indexData);
                         }
 
-                        Integration integration = saveIntegrationDataLog(indexInfo, indexData, baseDateFrom, baseDateTo, now, workerIp);
+                        Integration integration =
+                            saveIntegrationDataLog(
+                                indexInfo, indexData, baseDateFrom, baseDateTo, now, workerIp);
 
                         return buildSyncJob(integration.getId(), indexData, workerIp);
                       });
@@ -187,10 +190,7 @@ public class BasicIntegrationService implements IntegrationService {
   }
 
   private Integration saveIntegrationInfoLog(
-      IndexInfo indexInfo,
-      LocalDateTime jobStartTime,
-      String workerIp
-  ) {
+      IndexInfo indexInfo, LocalDateTime jobStartTime, String workerIp) {
     if (indexInfo == null) {
       throw new IllegalArgumentException("indexInfo must not be null");
     }
@@ -214,8 +214,7 @@ public class BasicIntegrationService implements IntegrationService {
       LocalDate baseDateFrom,
       LocalDate baseDateTo,
       LocalDateTime jobStartTime,
-      String workerIp
-  ) {
+      String workerIp) {
     if (indexInfo == null) {
       throw new IllegalArgumentException("indexInfo must not be null");
     }

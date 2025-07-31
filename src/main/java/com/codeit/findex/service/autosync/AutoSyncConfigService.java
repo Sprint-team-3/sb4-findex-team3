@@ -1,7 +1,6 @@
 package com.codeit.findex.service.autosync;
 
 import com.codeit.findex.dto.autosync.response.AutoSyncConfigDto;
-import com.codeit.findex.dto.autosync.response.CursorPageResponseAutoSyncConfigDto;
 
 public interface AutoSyncConfigService {
 
@@ -14,18 +13,4 @@ public interface AutoSyncConfigService {
    * @return 업데이트된 설정 정보 DTO
    */
   AutoSyncConfigDto updateEnabled(Long id, Boolean enabled);
-
-  /**
-   * 자동 연동 설정 목록 조회
-   *
-   * @param indexId (optional) 지수 ID 필터
-   * @param enabled (optional) 활성화 여부 필터
-   * @param lastId (optional) 이전 페이지 마지막 요소 ID (커서)
-   * @param size (optional) 한 페이지 크기
-   * @param sortBy (optional) 정렬 컬럼
-   * @param sortDir (optional) 정렬 방향
-   * @return 커서 기반 페이지 응답 DTO
-   */
-  CursorPageResponseAutoSyncConfigDto listAutoSyncConfigs(
-      Long indexId, Boolean enabled, Long lastId, int size, String sortBy, String sortDir);
 }
