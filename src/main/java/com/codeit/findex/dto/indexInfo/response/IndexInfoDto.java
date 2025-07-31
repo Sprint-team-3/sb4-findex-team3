@@ -10,12 +10,12 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class IndexInfoDto {
-    private long id;
+    private Long id;
     private String indexClassification;
     private String indexName;
-    private int employedItemsCount;
+    private Integer employedItemsCount;
     private Date basePointInTime;
     private Double baseIndex;
     private String SourceType;
-    private boolean favorite;
+    private Boolean favorite;
 }

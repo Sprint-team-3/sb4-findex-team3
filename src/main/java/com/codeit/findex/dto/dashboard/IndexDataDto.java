@@ -4,8 +4,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record IndexDataDto(
-    long id,
-    long indexInfoId,
+    UUID id,
+    UUID indexInfoId,
     LocalDateTime baseDate, // date
     String sourceType,
     double closingPrice // current price

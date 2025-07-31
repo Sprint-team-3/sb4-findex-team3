@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record IndexInfoDto(
-    long infoId,
+    UUID infoId,
     String indexClassification,
     String indexName,
     int employedItemsCount,
