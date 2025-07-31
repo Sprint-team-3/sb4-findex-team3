@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class IndexInfoSummaryDto {
-    private Long id;
+    private long id;
     private String indexClassification;
     private String indexName;
 }

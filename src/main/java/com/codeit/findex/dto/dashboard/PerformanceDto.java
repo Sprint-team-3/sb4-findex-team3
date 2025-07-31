@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 public record PerformanceDto(
-    UUID indexInfoId,
+    long indexInfoId,
     String indexClassification,
     String indexName,
     double versus,
