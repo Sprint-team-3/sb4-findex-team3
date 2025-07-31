@@ -28,7 +28,7 @@ public class DashboardService {
 
     IndexInfoDto indexInfoDto =
         new IndexInfoDto(
-            1,
+            1L,
             "주가지수", // index_classification: Stock Index
             "KOSPI", // index_name
             200, // employed_items_count

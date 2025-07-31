@@ -5,11 +5,10 @@ import jakarta.persistence.Index;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 
-public interface DashboardRepository extends JpaRepository<IndexData, UUID> {
+public interface DashboardRepository extends JpaRepository<IndexData, Long> {
 
   /**
    * 특정 indexInfoId에 해당하는 가장 최신 IndexData를 조회합니다.
