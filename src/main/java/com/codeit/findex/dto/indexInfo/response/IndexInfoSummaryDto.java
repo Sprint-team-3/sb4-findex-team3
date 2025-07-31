@@ -4,13 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
-
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class IndexInfoSummaryDto {
-    private UUID id;
+    private long id;
     private String indexClassification;
     private String indexName;
 }

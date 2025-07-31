@@ -11,6 +11,10 @@ spring:
     properties:
       hibernate:
         format_sql: true # SQL 포맷팅 가독성
+  application:
+    name: Findex
+  config:
+    import: application-secret.yml
 
 # Logging 설정
 logging:
@@ -18,10 +22,6 @@ logging:
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
 
-  application:
-    name: Findex
-  config:
-    import: application-secret.yml
 #  sql:
 #    init:
 #      mode: update
@@ -30,4 +30,3 @@ logging:
 external:
   api:
     baseurl: https://apis.data.go.kr/1160100/service/GetMarketIndexInfoService
-    apiKey: AdnlabkeYXkd8dnXuRWY333vhwElKTmoGdjFXfNct8lv0vC/eomtQSvXL0jD1EQPUonqNROfH7vvBjzVAt3ZIQ==

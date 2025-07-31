@@ -1,7 +1,11 @@
 package com.codeit.findex.entity.base;
 
-import jakarta.persistence.*;
-
+import jakarta.persistence.Column;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.Getter;
@@ -15,8 +19,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public class BaseEntity {
 
   @Id
-  @GeneratedValue(strategy= GenerationType.UUID)
-  private UUID id;
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private long id;
 
   @CreatedDate
   @Column(name = "created_at", updatable = false, nullable = false)
@@ -29,5 +33,4 @@ public class BaseEntity {
   protected void updateTimeStamp() {
     this.updatedAt = Instant.now();
   }
-
 }
