@@ -18,7 +18,6 @@ public class IndexInfo extends BaseEntity {
   //  @OneToMany(mappedBy = "IndexInfo", cascade = CascadeType.ALL, orphanRemoval = true)
   //  private List<IndexData> indexDataList;
 
-
   /** 지수의 분류명 */
   @Column(name = "index_classification", length = 100, nullable = false)
   private String indexClassification;

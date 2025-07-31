@@ -40,7 +40,9 @@ public class DashboardController {
   public List<PerformanceDto> getPerformanceFav(@RequestParam("periodType") PeriodType periodType) {
     // 나중에 서비스로 바꾸기
     List<IndexInfoDto> favoriteInfoDtos = List.of(kospiInfo, kosdaqInfo);
-    return favoriteInfoDtos.stream().map(i -> dashboardService.getPerformanceDto(i, periodType)).toList();
+    return favoriteInfoDtos.stream()
+        .map(i -> dashboardService.getPerformanceDto(i, periodType))
+        .toList();
 
     //    Map<UUID, List<IndexDataDto>> dummyIndexData = createDummyIndexData();
     //          List<IndexDataDto> indexDataDto = dummyIndexData.get(indexInfoId);
@@ -106,7 +108,7 @@ public class DashboardController {
           100.00, // base_index
           SourceType.USER, // source_type
           true // favorite
-      );
+          );
 
   IndexInfoDto kosdaqInfo =
       new IndexInfoDto(
@@ -118,7 +120,7 @@ public class DashboardController {
           1000.00, // base_index
           SourceType.USER, // source_type
           true // favorite
-      );
+          );
 
   private Map<Long, List<IndexDataDto>> createDummyIndexData() {
 
@@ -126,14 +128,8 @@ public class DashboardController {
     LocalDate now = LocalDate.now();
     List<IndexDataDto> kospiData =
         List.of(
-            new IndexDataDto(1L, kospiId, now, SourceType.USER, 2800.00, 0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0), // Today
+            new IndexDataDto(
+                1L, kospiId, now, SourceType.USER, 2800.00, 0, 0, 0, 0, 0, 0, 0, 0), // Today
             new IndexDataDto(
                 2L,
                 kospiId,
@@ -147,11 +143,13 @@ public class DashboardController {
                 0,
                 0,
                 0,
-                0
-                ), // Yesterday
+                0), // Yesterday
             // Last Week
             new IndexDataDto(
-                3L, kospiId, now.minus(Duration.ofDays(4)),                 SourceType.OPEN_API,
+                3L,
+                kospiId,
+                now.minus(Duration.ofDays(4)),
+                SourceType.OPEN_API,
                 2115.11,
                 0,
                 0,
@@ -160,10 +158,12 @@ public class DashboardController {
                 0,
                 0,
                 0,
-                0
-            ),
+                0),
             new IndexDataDto(
-                4L, kospiId, now.minus(Duration.ofDays(7)),                 SourceType.OPEN_API,
+                4L,
+                kospiId,
+                now.minus(Duration.ofDays(7)),
+                SourceType.OPEN_API,
                 2892.57,
                 0,
                 0,
@@ -172,11 +172,13 @@ public class DashboardController {
                 0,
                 0,
                 0,
-                0
-            ),
+                0),
             // last month
             new IndexDataDto(
-                5L, kospiId, now.minus(Duration.ofDays(10)),                 SourceType.OPEN_API,
+                5L,
+                kospiId,
+                now.minus(Duration.ofDays(10)),
+                SourceType.OPEN_API,
                 2119.50,
                 0,
                 0,
@@ -185,10 +187,12 @@ public class DashboardController {
                 0,
                 0,
                 0,
-                0
-            ),
+                0),
             new IndexDataDto(
-                6L, kospiId, now.minus(Duration.ofDays(26)),                 SourceType.OPEN_API,
+                6L,
+                kospiId,
+                now.minus(Duration.ofDays(26)),
+                SourceType.OPEN_API,
                 2000.50,
                 0,
                 0,
@@ -197,8 +201,7 @@ public class DashboardController {
                 0,
                 0,
                 0,
-                0
-            ),
+                0),
             new IndexDataDto(
                 7L,
                 kospiId,
@@ -212,23 +215,13 @@ public class DashboardController {
                 0,
                 0,
                 0,
-                0
-            ) // Last Month
-        );
+                0) // Last Month
+            );
 
     List<IndexDataDto> kosdaqData =
         List.of(
-            new IndexDataDto(8L, kosdaqId, now,                 SourceType.OPEN_API,
-                2795.50,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0
-            ), // Today
+            new IndexDataDto(
+                8L, kosdaqId, now, SourceType.OPEN_API, 2795.50, 0, 0, 0, 0, 0, 0, 0, 0), // Today
             new IndexDataDto(
                 9L,
                 kosdaqId,
@@ -242,11 +235,13 @@ public class DashboardController {
                 0,
                 0,
                 0,
-                0
-            ), // Yesterday
+                0), // Yesterday
             // Last Week
             new IndexDataDto(
-                10L, kosdaqId, now.minus(Duration.ofDays(3)),                 SourceType.OPEN_API,
+                10L,
+                kosdaqId,
+                now.minus(Duration.ofDays(3)),
+                SourceType.OPEN_API,
                 2335.50,
                 0,
                 0,
@@ -255,10 +250,12 @@ public class DashboardController {
                 0,
                 0,
                 0,
-                0
-            ),
+                0),
             new IndexDataDto(
-                11L, kosdaqId, now.minus(Duration.ofDays(7)),                 SourceType.OPEN_API,
+                11L,
+                kosdaqId,
+                now.minus(Duration.ofDays(7)),
+                SourceType.OPEN_API,
                 2225.50,
                 0,
                 0,
@@ -267,11 +264,13 @@ public class DashboardController {
                 0,
                 0,
                 0,
-                0
-            ),
+                0),
             // Last Month
             new IndexDataDto(
-                12L, kosdaqId, now.minus(Duration.ofDays(20)),                 SourceType.OPEN_API,
+                12L,
+                kosdaqId,
+                now.minus(Duration.ofDays(20)),
+                SourceType.OPEN_API,
                 2999.50,
                 0,
                 0,
@@ -280,10 +279,12 @@ public class DashboardController {
                 0,
                 0,
                 0,
-                0
-            ),
+                0),
             new IndexDataDto(
-                13L, kosdaqId, now.minus(Duration.ofDays(31)),                 SourceType.OPEN_API,
+                13L,
+                kosdaqId,
+                now.minus(Duration.ofDays(31)),
+                SourceType.OPEN_API,
                 2111.50,
                 0,
                 0,
@@ -292,13 +293,11 @@ public class DashboardController {
                 0,
                 0,
                 0,
-                0
-            ));
+                0));
 
     dummyIndexData.put(kospiId, kospiData);
     dummyIndexData.put(kosdaqId, kosdaqData);
 
     return dummyIndexData;
   }
-
 }
