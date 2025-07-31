@@ -1,5 +1,6 @@
 package com.codeit.findex.dto.indexInfo.request;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,9 +13,16 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 public class IndexInfoCreateRequest {
+
+    @NotBlank(message = "분류를 입력해주세요.")
     private String indexClassification;
+
+    @NotBlank(message = "지수명을 입력해주세요.")
     private String indexName;
+
+    @NotBlank(message = "채용 종목 수는 0보다 커야 합니다.")
     private int employedItemsCount;
+
     private LocalDate basePointInTime;
     private double baseIndex;
     private boolean favorite;

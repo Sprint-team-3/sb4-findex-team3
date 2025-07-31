@@ -11,7 +11,7 @@ public class IndexInfoSearchCond {
 
     private String indexClassification;
     private String indexName;
-    private boolean favorite;
+    private Boolean favorite;
 
     private long idAfter;
     private String cursor;

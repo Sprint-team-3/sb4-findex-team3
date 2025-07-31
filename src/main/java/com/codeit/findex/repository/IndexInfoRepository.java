@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface IndexInfoRepository extends JpaRepository<IndexInfo, Long> {
     @Query("SELECT i FROM IndexInfo i WHERE i.indexName LIKE %:indexName%")
@@ -20,9 +19,28 @@ public interface IndexInfoRepository extends JpaRepository<IndexInfo, Long> {
     @Query("SELECT i FROM IndexInfo i WHERE i.favorite = :favorite")
     List<IndexInfo> findByFavorite(@Param("favorite") Boolean favorite);
 
-    @Query("")
+    @Query("SELECT i FROM IndexInfo i WHERE i.indexName LIKE %:indexName% " +
+            "AND i.indexClassification LIKE %:classification%")
+    List<IndexInfo> findByIndexNameAndIndexClassification(@Param("indexName") String indexName, @Param("classification") String classification);
+
+    @Query("SELECT i FROM IndexInfo i WHERE i.indexName LIKE %:indexName% " +
+            "AND i.favorite = :favorite")
+    List<IndexInfo> findByIndexNameAndFavorite(@Param("indexName") String indexName, @Param("favorite") Boolean favorite);
+
+    @Query("SELECT i FROM IndexInfo i WHERE i.indexClassification LIKE %:classification% " +
+            "AND i.favorite = :favorite")
+    List<IndexInfo> findByIndexClassificationAndFavorite(@Param("classification") String classification, @Param("favorite") Boolean favorite);
+
+    @Query("SELECT i FROM IndexInfo i WHERE i.indexName LIKE %:indexName% " +
+            "AND i.indexClassification LIKE %:classification% " +
+            "AND i.favorite = :favorite")
+    List<IndexInfo> findByIndexNameAndIndexClassificationAndFavorite(
+            @Param("indexName") String indexName,
+            @Param("classification") String classification,
+            @Param("favorite") Boolean favorite);
+
 
     Optional<IndexInfo> findById(UUID id);
 
-  Optional<IndexInfo> findByIndexName(String indexName);
+    boolean existsByIndexName(String indexName);
 }

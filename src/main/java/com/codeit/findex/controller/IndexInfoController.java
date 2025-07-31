@@ -7,8 +7,9 @@ import com.codeit.findex.dto.indexInfo.response.CursorPageResponseIndexInfoDto;
 import com.codeit.findex.dto.indexInfo.response.ErrorResponse;
 import com.codeit.findex.dto.indexInfo.response.IndexInfoDto;
 import com.codeit.findex.dto.indexInfo.response.IndexInfoSummaryDto;
-import com.codeit.findex.service.IndexInfoService;
+import com.codeit.findex.service.basic.BasicIndexInfoService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -18,14 +19,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/index-infos")
 public class IndexInfoController {
 
-    private final IndexInfoService indexInfoService;
+    private final BasicIndexInfoService basicIndexInfoService;
 
     @ApiResponses({
             @ApiResponse(
@@ -71,7 +72,7 @@ public class IndexInfoController {
     })
     @GetMapping
     public ResponseEntity<CursorPageResponseIndexInfoDto> getIndexInfoList(@ModelAttribute IndexInfoSearchCond searchCond) {
-        return ResponseEntity.ok(indexInfoService.findIndexInfoByCondition(searchCond));
+        return ResponseEntity.ok(basicIndexInfoService.findIndexInfoByCondition(searchCond));
     }
 
     @ApiResponses({
@@ -109,8 +110,8 @@ public class IndexInfoController {
             )
     })
     @GetMapping("/{id}")
-    public ResponseEntity<IndexInfoDto> getIndexInfo(@PathVariable UUID id) {
-        return ResponseEntity.ok(indexInfoService.findIndexInfoById(id));
+    public ResponseEntity<IndexInfoDto> getIndexInfo(@PathVariable long id) {
+        return ResponseEntity.ok(basicIndexInfoService.findIndexInfoById(id));
     }
 
     @Operation(summary = "지수 정보 요약 목록 조회", description = "지수 ID, 분류, 이름만 포함한 전체 지수 목록을 조회합니다.")
@@ -155,8 +156,8 @@ public class IndexInfoController {
             )
     })
     @GetMapping("/summaries")
-    public ResponseEntity<IndexInfoSummaryDto> getIndexInfoSummaries() {
-        return ResponseEntity.ok(indexInfoService.findIndexInfoSummaries());
+    public ResponseEntity<List<IndexInfoSummaryDto>> getIndexInfoSummaries() {
+        return ResponseEntity.ok(basicIndexInfoService.findIndexInfoSummaries());
     }
 
     @Operation(summary = "지수 정보 등록", description = "새로운 지수 정보를 등록합니다")
@@ -216,7 +217,7 @@ public class IndexInfoController {
     })
     @PostMapping
     public ResponseEntity<IndexInfoDto> registerIndexInfo(@RequestBody IndexInfoCreateRequest request) {
-        IndexInfoDto response = indexInfoService.registerIndexInfo(request);
+        IndexInfoDto response = basicIndexInfoService.registerIndexInfo(request);
         return ResponseEntity.ok(response);
     }
 
@@ -284,9 +285,9 @@ public class IndexInfoController {
             )
     })
     @PatchMapping("/{id}")
-    public ResponseEntity<IndexInfoDto> updateIndexInfo(@PathVariable UUID id,
+    public ResponseEntity<IndexInfoDto> updateIndexInfo(@PathVariable long id,
                                                         @RequestBody IndexInfoUpdateRequest request) {
-        IndexInfoDto response = indexInfoService.updateIndexInfo(request);
+        IndexInfoDto response = basicIndexInfoService.updateIndexInfo(id, request);
         return ResponseEntity.ok(response);
     }
 
@@ -322,8 +323,8 @@ public class IndexInfoController {
             )
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity deleteIndexInfo(@PathVariable UUID id) {
-        indexInfoService.deleteIndexInfo(id);
+    public ResponseEntity deleteIndexInfo(@PathVariable long id) {
+        basicIndexInfoService.deleteIndexInfo(id);
         return ResponseEntity.ok().build();
     }
 }

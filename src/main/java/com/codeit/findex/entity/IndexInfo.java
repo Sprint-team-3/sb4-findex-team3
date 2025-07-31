@@ -4,8 +4,6 @@ import com.codeit.findex.entity.base.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDate;
 
 import lombok.Getter;
