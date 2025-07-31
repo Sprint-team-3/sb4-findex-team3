@@ -13,6 +13,7 @@ import com.codeit.findex.entityEnum.Result;
 import com.codeit.findex.entityEnum.SourceType;
 import com.codeit.findex.mapper.IndexDataMapper;
 import com.codeit.findex.mapper.IndexInfoMapper;
+import com.codeit.findex.mapper.IntegrationMapper;
 import com.codeit.findex.repository.IndexDataRepository;
 import com.codeit.findex.repository.IndexInfoRepository;
 import com.codeit.findex.repository.IntegrationRepository;
@@ -38,6 +39,7 @@ public class BasicIntegrationService implements IntegrationService {
   private final ExternalApiService externalApiService;
   private final IndexInfoMapper indexInfoMapper;
   private final IndexDataMapper indexDataMapper;
+  private final IntegrationMapper integrationMapper;
 
   @Override
   public List<SyncJobDto> integrateIndexInfo(HttpServletRequest request) {
@@ -64,7 +66,7 @@ public class BasicIntegrationService implements IntegrationService {
 
               Integration integration = saveIntegrationInfoLog(indexInfo, now, workerIp);
 
-              return buildSyncJob(integration.getId(), indexInfo, workerIp);
+              return integrationMapper.toSyncJobDto(integration.getId(), indexInfo, workerIp);
             })
         .toList();
   }
@@ -107,7 +109,7 @@ public class BasicIntegrationService implements IntegrationService {
 
                         Integration integration = saveIntegrationDataLog(indexInfo, indexData, baseDateFrom, baseDateTo, now, workerIp);
 
-                        return buildSyncJob(integration.getId(), indexData, workerIp);
+                        return integrationMapper.toSyncJobDto(integration.getId(), indexData, workerIp);
                       });
             })
         .toList();
@@ -164,36 +166,11 @@ public class BasicIntegrationService implements IntegrationService {
         .toList();
   }
 
-  private SyncJobDto buildSyncJob(long integrationId, IndexInfo indexInfo, String worker) {
-    return new SyncJobDto(
-        integrationId,
-        JobType.INDEX_INFO,
-        indexInfo.getId(),
-        indexInfo.getBasepointInTime(),
-        worker,
-        LocalDateTime.now(),
-        Result.SUCCESS);
-  }
-
-  private SyncJobDto buildSyncJob(long integrationId, IndexData indexData, String worker) {
-    return new SyncJobDto(
-        integrationId,
-        JobType.INDEX_DATA,
-        indexData.getIndexInfo().getId(),
-        indexData.getBaseDate(),
-        worker,
-        LocalDateTime.now(),
-        Result.SUCCESS);
-  }
-
   private Integration saveIntegrationInfoLog(
       IndexInfo indexInfo,
       LocalDateTime jobStartTime,
       String workerIp
   ) {
-    if (indexInfo == null) {
-      throw new IllegalArgumentException("indexInfo must not be null");
-    }
     Integration integration = new Integration();
     integration.setIndexInfo(indexInfo);
     integration.setIndexData(null);
@@ -216,9 +193,6 @@ public class BasicIntegrationService implements IntegrationService {
       LocalDateTime jobStartTime,
       String workerIp
   ) {
-    if (indexInfo == null) {
-      throw new IllegalArgumentException("indexInfo must not be null");
-    }
     Integration integration = new Integration();
     integration.setIndexInfo(indexInfo);
     integration.setIndexData(indexData);

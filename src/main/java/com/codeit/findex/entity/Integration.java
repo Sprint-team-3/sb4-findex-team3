@@ -22,6 +22,7 @@ import lombok.Setter;
 @Table(name = "Integration")
 public class Integration extends BaseEntity {
 
+
   /** 작업 대상이 된 지수 정보 (외래 키) IndexInfo 엔티티와 다대일(N:1) 관계를 맺습니다. */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "indexInfoId", nullable = false) // ERD의 'indexInfoId' 컬럼명과 매핑
@@ -63,4 +64,5 @@ public class Integration extends BaseEntity {
   /** 작업 결과 (성공/실패) */
   @Column(name = "result", nullable = false)
   private Result result;
+
 }
