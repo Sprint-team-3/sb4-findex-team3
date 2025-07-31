@@ -1,4 +1,4 @@
-/*package com.codeit.findex.controller;
+package com.codeit.findex.controller;
 
 import com.codeit.findex.dto.dashboard.IndexChartDto;
 import com.codeit.findex.dto.dashboard.IndexDataDto;
@@ -179,4 +179,4 @@ public class DashboardController {
 
     return dummyIndexData;
   }
-}*/
+}
