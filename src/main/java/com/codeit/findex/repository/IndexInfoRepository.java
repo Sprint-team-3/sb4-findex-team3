@@ -1,11 +1,13 @@
 package com.codeit.findex.repository;
 
 import com.codeit.findex.entity.IndexInfo;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
-import java.util.UUID;
+public interface IndexInfoRepository extends JpaRepository<IndexInfo, Long> {
 
-@Repository
-public interface IndexInfoRepository extends JpaRepository<IndexInfo, UUID> {
+  Optional<IndexInfo> findByIndexName(String indexName);
+
+  Optional<IndexInfo> findByIndexClassificationAndIndexName(
+      String indexClassification, String indexName);
 }
