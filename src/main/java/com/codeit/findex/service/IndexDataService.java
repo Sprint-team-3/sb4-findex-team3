@@ -4,13 +4,19 @@ import com.codeit.findex.dto.IndexDataDto;
 import com.codeit.findex.request.IndexDataDateRequest;
 import com.codeit.findex.request.IndexDataSaveRequest;
 import com.codeit.findex.request.IndexDataSearchRequest;
+import com.codeit.findex.request.IndexDataUpdateRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.util.UUID;
 
 
 public interface IndexDataService {
     // 지수 데이터 등록
     IndexDataDto registerIndexData(IndexDataSaveRequest request);
+
+    // 지수 데이터 수정
+    IndexDataDto updateIndexData(IndexDataUpdateRequest request);
 
     // 지수, 날짜로 지수 데이터 목록을 조회하는 메서드
     Page<IndexDataDto> searchByIndexAndDate(IndexDataDateRequest request, Pageable pageable);

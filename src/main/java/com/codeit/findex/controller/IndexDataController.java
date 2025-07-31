@@ -3,6 +3,7 @@ package com.codeit.findex.controller;
 import com.codeit.findex.dto.IndexDataDto;
 import com.codeit.findex.request.IndexDataDateRequest;
 import com.codeit.findex.request.IndexDataSaveRequest;
+import com.codeit.findex.request.IndexDataUpdateRequest;
 import com.codeit.findex.service.IndexDataService;
 import lombok.RequiredArgsConstructor;
 
@@ -16,24 +17,35 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/index-data")
+@RequestMapping("/api")
 public class IndexDataController {
 
     private final IndexDataService indexDataService;
 
-    @PostMapping("/register")
+    // 지수 데이터 등록
+    @PostMapping("/index-data")
     public ResponseEntity<IndexDataDto> register(@RequestBody IndexDataSaveRequest request) {
         IndexDataDto indexDataDto = indexDataService.registerIndexData(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(indexDataDto);
         // return ResponseEntity.ok(indexDataDto);
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<Page<IndexDataDto>> search(
+    // 지수 데이터 목록 조회
+    @GetMapping("/index-data")
+    public ResponseEntity<Page<IndexDataDto>> searchData(
             @PageableDefault(sort = "baseDate", direction = Sort.Direction.DESC) Pageable pageable,
             @ModelAttribute IndexDataDateRequest request) {
 
             Page<IndexDataDto> searchData = indexDataService.searchByIndexAndDate(request, pageable);
             return ResponseEntity.ok(searchData);
     }
+
+    // 지수 데이터 수정
+    @PatchMapping("/index-data/{id}")
+    public ResponseEntity<IndexDataDto> updateData(
+            @RequestBody IndexDataUpdateRequest request) {
+
+    }
+
+
 }

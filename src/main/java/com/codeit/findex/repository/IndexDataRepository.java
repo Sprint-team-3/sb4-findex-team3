@@ -1,6 +1,5 @@
 package com.codeit.findex.repository;
 
-import com.codeit.findex.dto.IndexDataDto;
 import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.entity.IndexInfo;
 import org.springframework.data.domain.Page;
@@ -9,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -17,6 +17,9 @@ public interface IndexDataRepository extends JpaRepository<IndexData, UUID> {
     // 지수 데이터 등록
 //    if(dataRepository.exists(request.indexInfo()) && dataRepository.exists(request.baseDate())) {}
     boolean existsByIndexInfoAndBaseDate(IndexInfo indexInfo, LocalDate baseDate);
+
+    // 지수 데이터 수정, 지수 날짜를 제외한 모든 속성을 수정할 수 있다
+    Optional<IndexData> updateIndexDataById(IndexData indexData);
 
     // 지수 데이터 목록 조회
     Page<IndexData> findByIndexInfoAndBaseDateBetween(IndexInfo indexInfo, LocalDate startDate, LocalDate endDate, Pageable pageable);

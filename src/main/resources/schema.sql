@@ -1,5 +1,5 @@
 CREATE TABLE IndexInfo (
-                           info_id UUID PRIMARY KEY,
+                           info_id BIGINT PRIMARY KEY,
                            index_classification VARCHAR(100),
                            index_name VARCHAR(255),
                            employed_items_count INT,
@@ -11,9 +11,10 @@ CREATE TABLE IndexInfo (
                            updated_at TIMESTAMPTZ,
                            enabled BOOLEAN
 );
+
 CREATE TABLE IndexData (
-                           id UUID PRIMARY KEY,
-                           indexInfoId UUID NOT NULL,
+                           id BIGINT PRIMARY KEY,
+                           indexInfoId BIGINT NOT NULL,
                            base_date TIMESTAMPTZ,
                            source_type VARCHAR(20),
                            market_price DECIMAL,
@@ -32,17 +33,18 @@ CREATE TABLE IndexData (
                                REFERENCES IndexInfo(info_id)
                                ON DELETE CASCADE
 );
+
 CREATE TABLE Integration (
-                             id UUID PRIMARY KEY,
-                             indexInfoId UUID NOT NULL,
-                             data_id UUID NOT NULL,
+                             id BIGINT PRIMARY KEY,
+                             indexInfoId BIGINT NOT NULL,
+                             data_id BIGINT,
                              job_type VARCHAR(100),
                              base_date_from TIMESTAMPTZ,
                              base_date_to TIMESTAMPTZ,
                              worker VARCHAR(100),
                              job_time_from TIMESTAMPTZ,
                              job_time_to TIMESTAMPTZ,
-                             result BOOLEAN,
+                             result SMALLINT,
 
                              CONSTRAINT fk_integration_indexinfo FOREIGN KEY (indexInfoId)
                                  REFERENCES IndexInfo(info_id)

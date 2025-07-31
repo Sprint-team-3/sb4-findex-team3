@@ -9,12 +9,15 @@ import com.codeit.findex.repository.IndexInfoRepository;
 import com.codeit.findex.request.IndexDataDateRequest;
 import com.codeit.findex.request.IndexDataSaveRequest;
 import com.codeit.findex.request.IndexDataSearchRequest;
+import com.codeit.findex.request.IndexDataUpdateRequest;
 import com.codeit.findex.service.IndexDataService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 
 @Service
@@ -50,6 +53,25 @@ public class BasicIndexDataService implements IndexDataService {
         dataRepository.save(indexData); // dataRepository에 indexData 타입으로 저장
 
         return mapper.toDto(indexData); // 여기에서 Dto로 바꿨다
+    }
+
+//    IndexData의 ID를 repository에서 찾은 다음
+//    그 ID에 해당하는 IndexData의 지수, 날짜를 제외한 값을 변경한다
+    @Override
+    public IndexDataDto updateIndexData(IndexDataUpdateRequest request) {
+        // 만약 id로 indexData를 못찾으면 예외가 뜸
+        IndexData indexData = dataRepository.findById(request.id())
+                .orElseThrow(() -> new EntityNotFoundException("IndexData를 찾을 수 없어요!"));
+
+        indexData.setOpenPrice(request.openPrice());
+        indexData.setClosingPrice(request.closingPrice());
+        indexData.setHighPrice(request.highPrice());
+        indexData.setLowPrice(request.lowPrice());
+        indexData.setTradingVolume(request.tradingVolume());
+        indexData.setChangeValue(request.changeValue());
+        indexData.setFluctuationRate(request.fluctuationRate());
+
+        return mapper.toDto(indexData);
     }
 
     @Override
