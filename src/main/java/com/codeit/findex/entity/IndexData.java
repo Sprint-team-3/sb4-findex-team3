@@ -2,6 +2,7 @@ package com.codeit.findex.entity;
 
 import com.codeit.findex.entity.base.BaseEntity;
 import com.codeit.findex.entity.base.SourceType;
+import com.codeit.findex.request.IndexDataSaveRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -103,4 +104,5 @@ public class IndexData extends BaseEntity {
    */
   @Column(name = "enabled", nullable = false)
   private boolean enabled;
+
 }

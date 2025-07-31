@@ -3,6 +3,7 @@ package com.codeit.findex.mapper.file;
 import com.codeit.findex.dto.IndexDataDto;
 import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.mapper.GenericMapper;
+import com.codeit.findex.request.IndexDataSaveRequest;
 import org.mapstruct.Mapper;
 import org.springframework.data.domain.Page;
 
@@ -17,4 +18,5 @@ public interface IndexDataMapper extends GenericMapper<IndexDataDto, IndexData> 
     List<IndexDataDto> toDtos(List<IndexData> entities);
     List<IndexData> toEntities(List<IndexDataDto> dtos);
 
+    IndexDataDto toDto(IndexDataSaveRequest request);
 }
