@@ -15,10 +15,6 @@ spring:
     name: Findex
   config:
     import: application-secret.yml
-#  sql:
-#    init:
-#      mode: update
-#      schema-locations: classpath:schema.sql
 
 # Logging 설정
 logging:
@@ -26,11 +22,11 @@ logging:
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
 
+#  sql:
+#    init:
+#      mode: update
+#      schema-locations: classpath:schema.sql
+
 external:
   api:
     baseurl: https://apis.data.go.kr/1160100/service/GetMarketIndexInfoService
-
-
-
-
-
