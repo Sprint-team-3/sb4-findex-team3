@@ -6,13 +6,15 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
+
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
-@Table(name="IndexInfo")
+@Table(name="indexinfo")
 public class IndexInfo extends BaseEntity {
 
 //  @OneToMany(mappedBy = "IndexInfo", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -34,19 +36,19 @@ public class IndexInfo extends BaseEntity {
    * 해당 지수를 구성하는 종목의 총 개수
    */
   @Column(name = "employed_items_count")
-  private Integer employedItemsCount;
+  private int employedItemsCount;
 
   /**
    * 지수 산출의 기준이 되는 날짜 및 시간
    */
   @Column(name = "basepoint_intime", nullable = false)
-  private Instant basepointInTime;
+  private LocalDate basepointInTime;
 
   /**
    * 기준 시점의 지수 값 (보통 100 또는 1000)
    */
   @Column(name = "base_index", nullable = false)
-  private BigDecimal baseIndex;
+  private double baseIndex;
 
   /**
    * 정보가 입력된 출처 (예: "USER", "OPEN_API")

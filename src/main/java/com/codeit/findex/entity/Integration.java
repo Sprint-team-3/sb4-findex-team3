@@ -10,13 +10,15 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.time.LocalDateTime;
+
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
-@Table(name = "Integration")
+@Table(name = "integration")
 public class Integration extends BaseEntity {
 
   /**
@@ -55,13 +57,13 @@ public class Integration extends BaseEntity {
    * 연동 대상 날짜 범위의 시작일
    */
   @Column(name = "base_date_from")
-  private Instant baseDateFrom;
+  private int baseDateFrom;
 
   /**
    * 연동 대상 날짜 범위의 종료일
    */
   @Column(name = "base_date_to")
-  private Instant baseDateTo;
+  private int baseDateTo;
 
   /**
    * 작업을 실행한 주체 (사용자 IP 또는 "system")
@@ -73,13 +75,13 @@ public class Integration extends BaseEntity {
    * 작업 실행 시간 범위의 시작 시간 (조회용)
    */
   @Column(name = "job_time_from")
-  private Instant jobTimeFrom;
+  private LocalDateTime jobTimeFrom;
 
   /**
    * 작업 실행 시간 범위의 종료 시간 (조회용)
    */
   @Column(name = "job_time_to")
-  private Instant jobTimeTo;
+  private LocalDateTime jobTimeTo;
 
   /**
    * 작업 결과 (성공/실패)
