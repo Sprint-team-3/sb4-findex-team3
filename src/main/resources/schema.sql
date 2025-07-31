@@ -11,6 +11,7 @@ CREATE TABLE IndexInfo (
                            updated_at TIMESTAMPTZ,
                            enabled BOOLEAN
 );
+
 CREATE TABLE IndexData (
                            id BIGINT PRIMARY KEY,
                            indexInfoId BIGINT NOT NULL,
@@ -32,17 +33,18 @@ CREATE TABLE IndexData (
                                REFERENCES IndexInfo(info_id)
                                ON DELETE CASCADE
 );
+
 CREATE TABLE Integration (
                              id BIGINT PRIMARY KEY,
                              indexInfoId BIGINT NOT NULL,
-                             data_id BIGINT NOT NULL,
+                             data_id BIGINT,
                              job_type VARCHAR(100),
                              base_date_from TIMESTAMPTZ,
                              base_date_to TIMESTAMPTZ,
                              worker VARCHAR(100),
                              job_time_from TIMESTAMPTZ,
                              job_time_to TIMESTAMPTZ,
-                             result BOOLEAN,
+                             result SMALLINT,
 
                              CONSTRAINT fk_integration_indexinfo FOREIGN KEY (indexInfoId)
                                  REFERENCES IndexInfo(info_id)

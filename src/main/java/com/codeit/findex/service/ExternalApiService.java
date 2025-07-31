@@ -25,8 +25,7 @@ public class ExternalApiService {
   }
 
   public OpenApiResponseDto fetchStockMarketIndex() {
-
-    return restClient
+  return restClient
         .get()
         .uri(
             uriBuilder ->

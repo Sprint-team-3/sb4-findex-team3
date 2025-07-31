@@ -7,6 +7,7 @@ import com.codeit.findex.dto.integration.IndexDataSyncRequest;
 import com.codeit.findex.dto.integration.SyncJobDto;
 import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.entity.IndexInfo;
+import com.codeit.findex.entity.Integration;
 import com.codeit.findex.entityEnum.JobType;
 import com.codeit.findex.entityEnum.Result;
 import com.codeit.findex.entityEnum.SourceType;
@@ -14,6 +15,7 @@ import com.codeit.findex.mapper.IndexDataMapper;
 import com.codeit.findex.mapper.IndexInfoMapper;
 import com.codeit.findex.repository.IndexDataRepository;
 import com.codeit.findex.repository.IndexInfoRepository;
+import com.codeit.findex.repository.IntegrationRepository;
 import com.codeit.findex.service.ExternalApiService;
 import com.codeit.findex.service.IntegrationService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,6 +34,7 @@ import org.springframework.stereotype.Service;
 public class BasicIntegrationService implements IntegrationService {
   private final IndexInfoRepository indexInfoRepository;
   private final IndexDataRepository indexDataRepository;
+  private final IntegrationRepository integrationRepository;
   private final ExternalApiService externalApiService;
   private final IndexInfoMapper indexInfoMapper;
   private final IndexDataMapper indexDataMapper;
@@ -42,12 +45,14 @@ public class BasicIntegrationService implements IntegrationService {
     List<IndexInfoDto> indexInfoDtosInOpenApi = toIndexInfoDtoList(openApiDto);
     String workerIp = request.getRemoteAddr();
 
+    LocalDateTime now = LocalDateTime.now();
+
     return indexInfoDtosInOpenApi.stream()
         .map(
             dto -> {
               Optional<IndexInfo> existingOpt =
-                  indexInfoRepository.findByIndexName(dto.indexName());
-              IndexInfo indexInfo;
+                  indexInfoRepository.findByIndexClassificationAndIndexName(dto.indexClassification(),dto.indexName());
+              IndexInfo indexInfo = new IndexInfo();
 
               if (existingOpt.isPresent()) {
                 indexInfo = existingOpt.get();
@@ -57,7 +62,9 @@ public class BasicIntegrationService implements IntegrationService {
                 indexInfoRepository.save(indexInfo);
               }
 
-              return buildSyncJob(indexInfo, workerIp);
+              Integration integration = saveIntegrationInfoLog(indexInfo, now, workerIp);
+
+              return buildSyncJob(integration.getId(), indexInfo, workerIp);
             })
         .toList();
   }
@@ -70,6 +77,10 @@ public class BasicIntegrationService implements IntegrationService {
     List<IndexInfo> indexInfos =
         indexInfoRepository.findAllById(indexDataSyncRequest.indexInfoIds());
     String workerIp = request.getRemoteAddr();
+
+    LocalDate baseDateFrom = indexDataSyncRequest.baseDateFrom();
+    LocalDate baseDateTo = indexDataSyncRequest.baseDateTo();
+    LocalDateTime now = LocalDateTime.now();
 
     return indexInfos.stream()
         .flatMap(
@@ -94,7 +105,9 @@ public class BasicIntegrationService implements IntegrationService {
                           indexDataRepository.save(indexData);
                         }
 
-                        return buildSyncJob(indexData, workerIp);
+                        Integration integration = saveIntegrationDataLog(indexInfo, indexData, baseDateFrom, baseDateTo, now, workerIp);
+
+                        return buildSyncJob(integration.getId(), indexData, workerIp);
                       });
             })
         .toList();
@@ -151,9 +164,9 @@ public class BasicIntegrationService implements IntegrationService {
         .toList();
   }
 
-  private SyncJobDto buildSyncJob(IndexInfo indexInfo, String worker) {
+  private SyncJobDto buildSyncJob(long integrationId, IndexInfo indexInfo, String worker) {
     return new SyncJobDto(
-        indexInfo.getId(),
+        integrationId,
         JobType.INDEX_INFO,
         indexInfo.getId(),
         indexInfo.getBasepointInTime(),
@@ -162,14 +175,61 @@ public class BasicIntegrationService implements IntegrationService {
         Result.SUCCESS);
   }
 
-  private SyncJobDto buildSyncJob(IndexData indexData, String worker) {
+  private SyncJobDto buildSyncJob(long integrationId, IndexData indexData, String worker) {
     return new SyncJobDto(
-        indexData.getId(),
+        integrationId,
         JobType.INDEX_DATA,
         indexData.getIndexInfo().getId(),
         indexData.getBaseDate(),
         worker,
         LocalDateTime.now(),
         Result.SUCCESS);
+  }
+
+  private Integration saveIntegrationInfoLog(
+      IndexInfo indexInfo,
+      LocalDateTime jobStartTime,
+      String workerIp
+  ) {
+    if (indexInfo == null) {
+      throw new IllegalArgumentException("indexInfo must not be null");
+    }
+    Integration integration = new Integration();
+    integration.setIndexInfo(indexInfo);
+    integration.setIndexData(null);
+    integration.setJobType(JobType.INDEX_INFO);
+    integration.setBaseDateFrom(null);
+    integration.setBaseDateTo(null);
+    integration.setWorker(workerIp);
+    integration.setJobTimeFrom(jobStartTime);
+    integration.setJobTimeTo(LocalDateTime.now());
+    integration.setResult(Result.SUCCESS);
+
+    return integrationRepository.save(integration);
+  }
+
+  private Integration saveIntegrationDataLog(
+      IndexInfo indexInfo,
+      IndexData indexData,
+      LocalDate baseDateFrom,
+      LocalDate baseDateTo,
+      LocalDateTime jobStartTime,
+      String workerIp
+  ) {
+    if (indexInfo == null) {
+      throw new IllegalArgumentException("indexInfo must not be null");
+    }
+    Integration integration = new Integration();
+    integration.setIndexInfo(indexInfo);
+    integration.setIndexData(indexData);
+    integration.setJobType(JobType.INDEX_DATA);
+    integration.setBaseDateFrom(baseDateFrom);
+    integration.setBaseDateTo(baseDateTo);
+    integration.setWorker(workerIp);
+    integration.setJobTimeFrom(jobStartTime);
+    integration.setJobTimeTo(LocalDateTime.now());
+    integration.setResult(Result.SUCCESS);
+
+    return integrationRepository.save(integration);
   }
 }
