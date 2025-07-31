@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -68,35 +69,36 @@ public class DashboardService {
     List<ChartDataPoint> ma5DataPoints = new ArrayList<>();
     List<ChartDataPoint> ma20DataPoints = new ArrayList<>();
 
-    for (int i = 0; i < indexDataList.size(); i++) {
+    IntStream.range(0, indexDataList.size())
+        .filter(i -> !indexDataList.get(i).getBaseDate().isBefore(startDate))
+        .forEach(i -> {
 
-      IndexData indexData = indexDataList.get(i);
-      LocalDate currentDate = indexData.getBaseDate();
-      // 지수 - 메인 파란 선
-      if (currentDate.isAfter(startDate) || currentDate.equals(startDate)) {
-        dataPoints.add(new ChartDataPoint(indexData.getBaseDate(), indexData.getClosingPrice()));
+              IndexData currentData = indexDataList.get(i);
+              LocalDate currentDate = currentData.getBaseDate();
+              dataPoints.add(new ChartDataPoint(currentDate, currentData.getClosingPrice()));
 
-        // 5일 이동평균선
-        if (i >= 4) {
-          double closingPricetotal = 0;
-          for (int j = 0; j < 5; j++) {
-            closingPricetotal += indexDataList.get(i - j).getClosingPrice();
-          }
-          closingPricetotal /= 5;
-          ma5DataPoints.add(new ChartDataPoint(indexData.getBaseDate(), closingPricetotal));
-        }
+              // 5일 이동평균선
+              if (i >= 4) {
+                double closingPricetotal = 0;
+                for (int j = 0; j < 5; j++) {
+                  closingPricetotal += indexDataList.get(i - j).getClosingPrice();
+                }
+                closingPricetotal /= 5;
+                ma5DataPoints.add(new ChartDataPoint(indexDataList.get(i).getBaseDate(),
+                    closingPricetotal));
+              }
 
-        // 20일 이동평균선
-        if (i >= 19) {
-          double closingPricetotal = 0;
-          for (int j = 0; j < 20; j++) {
-            closingPricetotal += indexDataList.get(i - j).getClosingPrice();
-          }
-          closingPricetotal /= 20;
-          ma20DataPoints.add(new ChartDataPoint(indexData.getBaseDate(), closingPricetotal));
-        }
-      }
-    }
+              // 20일 이동평균선
+              if (i >= 19) {
+                double closingPricetotal = 0;
+                for (int j = 0; j < 20; j++) {
+                  closingPricetotal += indexDataList.get(i - j).getClosingPrice();
+                }
+                closingPricetotal /= 20;
+                ma20DataPoints.add(new ChartDataPoint(indexDataList.get(i).getBaseDate(),
+                    closingPricetotal));
+              }
+            });
 
     return new IndexChartDto(
         indexInfoId,
