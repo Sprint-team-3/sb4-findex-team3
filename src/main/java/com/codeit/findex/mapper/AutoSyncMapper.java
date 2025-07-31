@@ -15,7 +15,6 @@ public interface AutoSyncMapper {
   @Mapping(source = "indexInfo.id", target = "indexInfoId")
   @Mapping(source = "indexInfo.indexClassification", target = "indexClassification")
   @Mapping(source = "indexInfo.indexName", target = "indexName")
-  @Mapping(source = "active", target = "enabled")
   AutoSyncConfigDto toAutoSyncConfigDto(IndexInfo indexInfo);
 
   /** 엔티티 리스트 → DTO 리스트 매핑 */

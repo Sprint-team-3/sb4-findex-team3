@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-@Service
+/*@Service
 @Transactional
 @RequiredArgsConstructor
 public class BasicIntegrationService implements IntegrationService {
@@ -161,4 +161,4 @@ public class BasicIntegrationService implements IntegrationService {
         Instant.now(),
         Result.SUCCESS);
   }
-}
+}*/

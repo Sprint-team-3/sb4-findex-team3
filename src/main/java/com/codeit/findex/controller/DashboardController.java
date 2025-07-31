@@ -1,4 +1,4 @@
-package com.codeit.findex.controller;
+/*package com.codeit.findex.controller;
 
 import com.codeit.findex.dto.dashboard.IndexChartDto;
 import com.codeit.findex.dto.dashboard.IndexDataDto;
@@ -29,12 +29,12 @@ public class DashboardController {
     this.dashboardService = dashboardService;
   }
 
-  /**
+  *
    * 즐겨찾기로 등록된 지수들의 성과를 조회합니다. (1번째 부분)
    *
    * @param periodType 성과 기간 유형 (DAILY, WEEKLY, MONTHLY)
    * @return PerformanceDto 리스트
-   */
+
   @GetMapping("/index-data/performance/favorite")
   public List<PerformanceDto> getPerformanceFav(@RequestParam("periodType") PeriodType periodType) {
     // 나중에 서비스로 바꾸기
@@ -179,4 +179,4 @@ public class DashboardController {
 
     return dummyIndexData;
   }
-}
+}*/
