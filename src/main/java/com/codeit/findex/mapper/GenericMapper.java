@@ -1,7 +1,5 @@
 package com.codeit.findex.mapper;
 
-import org.springframework.data.domain.Page;
-
 import java.util.List;
 
 public interface GenericMapper<D,E> {

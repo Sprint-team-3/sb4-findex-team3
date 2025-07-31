@@ -5,7 +5,7 @@ import java.util.UUID;
 
 public record IndexDataUpdateRequest(
         // 지수, 날짜를 제외한 모든 속성을 수정할 수 있다
-        UUID id,
+        long id,
         LocalDate baseDate,
 //        SourceType type, // 소스 타입, 수정할 수 없음
         double openPrice, // 시가 *

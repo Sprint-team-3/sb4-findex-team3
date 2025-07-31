@@ -44,8 +44,15 @@ public class IndexDataController {
     @PatchMapping("/index-data/{id}")
     public ResponseEntity<IndexDataDto> updateData(
             @RequestBody IndexDataUpdateRequest request) {
-
+        IndexDataDto updateData = indexDataService.updateIndexData(request);
+        return ResponseEntity.ok(updateData);
     }
 
+    // 지수 데이터 삭제
+    @DeleteMapping("index-data/{id}")
+    public ResponseEntity<IndexDataDto> delete(@PathVariable Long id) {
+        indexDataService.deleteIndexData(id);
+        return ResponseEntity.noContent().build();
+    }
 
 }

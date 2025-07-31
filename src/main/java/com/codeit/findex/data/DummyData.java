@@ -1,6 +1,7 @@
 package com.codeit.findex.data;
 
 import com.codeit.findex.entity.IndexInfo;
+import com.codeit.findex.entityEnum.SourceType;
 import com.codeit.findex.repository.IndexInfoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -23,7 +24,7 @@ public class DummyData implements CommandLineRunner {
             info.setEmployedItemsCount(100);
             info.setBasepointInTime(LocalDate.of(2024,1,1));
             info.setBaseIndex(1000.0);
-            info.setSourceType("user");
+            info.setSourceType(SourceType.USER);
             info.setFavorite(false);
             info.setEnabled(true);
 

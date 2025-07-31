@@ -12,18 +12,15 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface IndexDataRepository extends JpaRepository<IndexData, UUID> {
+public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
 
     // 지수 데이터 등록
 //    if(dataRepository.exists(request.indexInfo()) && dataRepository.exists(request.baseDate())) {}
     boolean existsByIndexInfoAndBaseDate(IndexInfo indexInfo, LocalDate baseDate);
 
-    // 지수 데이터 수정, 지수 날짜를 제외한 모든 속성을 수정할 수 있다
-    Optional<IndexData> updateIndexDataById(IndexData indexData);
-
     // 지수 데이터 목록 조회
     Page<IndexData> findByIndexInfoAndBaseDateBetween(IndexInfo indexInfo, LocalDate startDate, LocalDate endDate, Pageable pageable);
 
-//    IndexData findByIndexInfo(UUID id);
-//    지수 정보의 id를 통해 지수 데이터를 가져오는 메서드, 팀장님 오더
+    Optional<IndexData> findByIndexInfoIdAndBaseDate(long id, LocalDate localDate);
+
 }

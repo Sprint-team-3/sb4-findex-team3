@@ -17,9 +17,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
-
 @Service
 @RequiredArgsConstructor
 public class BasicIndexDataService implements IndexDataService {
@@ -40,7 +37,7 @@ public class BasicIndexDataService implements IndexDataService {
         IndexData indexData = new IndexData();
         indexData.setIndexInfo(request.indexInfo());
         indexData.setBaseDate(request.baseDate());
-        indexData.setType(request.type());
+        indexData.setSourceType(request.sourceType());
         indexData.setOpenPrice(request.openPrice());
         indexData.setClosingPrice(request.closingPrice());
         indexData.setHighPrice(request.highPrice());
@@ -91,4 +88,13 @@ public class BasicIndexDataService implements IndexDataService {
         }
         return mapper.toDto(indexData);
     }
+
+    @Override
+    public void deleteIndexData(long id) {
+        // dataRepository에서 id에 맞는 IndexData가 없다면 예외를 발생시킨다
+        IndexData indexData = dataRepository.findById(id)
+                        .orElseThrow(() -> new EntityNotFoundException("IndexData를 찾을 수 없어요!"));
+
+        dataRepository.deleteById(id);
+    };
 }

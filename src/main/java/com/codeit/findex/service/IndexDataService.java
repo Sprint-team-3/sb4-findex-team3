@@ -23,4 +23,7 @@ public interface IndexDataService {
 
     // 지수 정보의 id를 통해 지수 데이터를 가져오는 메서드, 팀장님 오더
     IndexDataDto searchIndexData(IndexDataSearchRequest request);
+
+    // 지수 데이터 삭제
+    void deleteIndexData(long id);
 }
