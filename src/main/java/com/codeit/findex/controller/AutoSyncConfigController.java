@@ -1,17 +1,17 @@
-//package com.codeit.findex.controller;
+// package com.codeit.findex.controller;
 //
-//import com.codeit.findex.dto.autosync.response.AutoSyncConfigDto;
-//import com.codeit.findex.service.autosync.AutoSyncConfigService;
-//import lombok.RequiredArgsConstructor;
-//import org.springframework.http.ResponseEntity;
-//import org.springframework.web.bind.annotation.*;
+// import com.codeit.findex.dto.autosync.response.AutoSyncConfigDto;
+// import com.codeit.findex.service.autosync.AutoSyncConfigService;
+// import lombok.RequiredArgsConstructor;
+// import org.springframework.http.ResponseEntity;
+// import org.springframework.web.bind.annotation.*;
 //
-//import java.util.Map;
+// import java.util.Map;
 //
-//@RestController
-//@RequestMapping("/api/auto-sync-configs")
-//@RequiredArgsConstructor
-//public class AutoSyncConfigController {
+// @RestController
+// @RequestMapping("/api/auto-sync-configs")
+// @RequiredArgsConstructor
+// public class AutoSyncConfigController {
 //    private final AutoSyncConfigService autoSyncConfigService;
 //
 //    @PatchMapping("/{id}")
@@ -23,4 +23,4 @@
 //        AutoSyncConfigDto dto = autoSyncConfigService.updateEnabled(id, enabled);
 //        return ResponseEntity.ok(dto);
 //    }
-//}
+// }

@@ -1,19 +1,19 @@
-//package com.codeit.findex.service.autosync.basic;
+// package com.codeit.findex.service.autosync.basic;
 //
-//import com.codeit.findex.dto.autosync.response.AutoSyncConfigDto;
-//import com.codeit.findex.entity.IndexInfo;
-//import com.codeit.findex.mapper.AutoSyncMapper;
-//import com.codeit.findex.repository.IndexInfoRepository;
-//import com.codeit.findex.service.autosync.AutoSyncConfigService;
-//import jakarta.persistence.EntityNotFoundException;
-//import lombok.RequiredArgsConstructor;
-//import org.springframework.stereotype.Service;
-//import org.springframework.transaction.annotation.Transactional;
+// import com.codeit.findex.dto.autosync.response.AutoSyncConfigDto;
+// import com.codeit.findex.entity.IndexInfo;
+// import com.codeit.findex.mapper.AutoSyncMapper;
+// import com.codeit.findex.repository.IndexInfoRepository;
+// import com.codeit.findex.service.autosync.AutoSyncConfigService;
+// import jakarta.persistence.EntityNotFoundException;
+// import lombok.RequiredArgsConstructor;
+// import org.springframework.stereotype.Service;
+// import org.springframework.transaction.annotation.Transactional;
 //
-//@Service
-//@RequiredArgsConstructor
-//@Transactional
-//public class BasicAutoSyncConfigService implements AutoSyncConfigService {
+// @Service
+// @RequiredArgsConstructor
+// @Transactional
+// public class BasicAutoSyncConfigService implements AutoSyncConfigService {
 //    private final IndexInfoRepository repository;
 //    private final AutoSyncMapper autoSyncMapper;
 //
@@ -26,4 +26,4 @@
 //        return autoSyncMapper.toAutoSyncConfigDto(saved);
 //    }
 //
-//}
+// }

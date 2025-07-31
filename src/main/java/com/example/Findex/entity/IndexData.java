@@ -5,7 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import java.time.Instant;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,7 +17,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class IndexData {
 
-  @Id @GeneratedValue private UUID id; // 기본키
+  @Id @GeneratedValue private long id; // 기본키
 
   @Column(nullable = false)
   private Instant tradeDate; // 날짜
