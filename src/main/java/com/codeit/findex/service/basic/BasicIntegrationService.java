@@ -18,15 +18,12 @@ import com.codeit.findex.service.ExternalApiService;
 import com.codeit.findex.service.IntegrationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
-import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -42,23 +39,23 @@ public class BasicIntegrationService implements IntegrationService {
 
   @Override
   public List<SyncJobDto> integrateIndexInfo(HttpServletRequest request) {
-    OpenApiResponseDto responseDto = externalApiService.fetchStockMarketIndex();
-    List<IndexInfoDto> indexInfoDtos = toIndexInfoDtoList(responseDto);
+    OpenApiResponseDto OpenApiDto = externalApiService.fetchStockMarketIndex();
+    List<IndexInfoDto> indexInfoDtosInOpenApi = toIndexInfoDtoList(OpenApiDto);
 
     List<SyncJobDto> syncJobDtos = new ArrayList<>();
 
     String workerIp = request.getRemoteAddr();
 
-    for (IndexInfoDto indexInfoDto : indexInfoDtos) {
+    for (IndexInfoDto indexInfoDtoInOpenApi : indexInfoDtosInOpenApi) {
       Optional<IndexInfo> existingOpt =
-          indexInfoRepository.findByIndexName(indexInfoDto.indexName());
+          indexInfoRepository.findByIndexName(indexInfoDtoInOpenApi.indexName());
 
       if (existingOpt.isPresent()) {
         IndexInfo indexInfo = existingOpt.get();
-        indexInfoMapper.updateInfoFromDto(indexInfoDto, indexInfo);
+        indexInfoMapper.updateInfoFromDto(indexInfoDtoInOpenApi, indexInfo);
         syncJobDtos.add(buildSyncJob(indexInfo, workerIp));
       } else {
-        IndexInfo indexInfo = indexInfoMapper.toIndexInfo(indexInfoDto);
+        IndexInfo indexInfo = indexInfoMapper.toIndexInfo(indexInfoDtoInOpenApi);
         indexInfoRepository.save(indexInfo);
         syncJobDtos.add(buildSyncJob(indexInfo, workerIp));
       }
@@ -70,30 +67,36 @@ public class BasicIntegrationService implements IntegrationService {
   public List<SyncJobDto> integrateIndexData(
       IndexDataSyncRequest indexDataSyncRequest, HttpServletRequest request) {
 
-    OpenApiResponseDto responseDto = externalApiService.fetchStockMarketIndex();
+    OpenApiResponseDto openApiDto = externalApiService.fetchStockMarketIndex();
 
-    List<IndexDataDto> indexDataDtos =
-        toIndexDataList(responseDto, indexDataSyncRequest.indexInfolds());
+    List<IndexInfo> indexInfos = indexInfoRepository.findAllById(indexDataSyncRequest.indexInfoIds());
 
     List<SyncJobDto> syncJobDtos = new ArrayList<>();
-
     String workerIp = request.getRemoteAddr();
 
-    for (IndexDataDto indexDataDto : indexDataDtos) {
-      Optional<IndexData> existingOpt =
-          indexDataRepository.findByIndexInfoId(indexDataDto.indexInfoId());
-      if (existingOpt.isPresent()) {
-        IndexData indexData = existingOpt.get();
-        indexDataMapper.updateDataFromDto(indexDataDto, indexData);
-        syncJobDtos.add(buildSyncJob(indexData, workerIp));
-      } else {
-        IndexData indexData = indexDataMapper.toIndexData(indexDataDto);
-        indexDataRepository.save(indexData);
-        syncJobDtos.add(buildSyncJob(indexData, workerIp));
+    for (IndexInfo indexInfo : indexInfos) {
+
+      List<IndexDataDto> indexDataDtos = toIndexDataDtoList(openApiDto, indexInfo, indexDataSyncRequest);
+
+      for (IndexDataDto dto : indexDataDtos) {
+        Optional<IndexData> existingOpt = indexDataRepository.findByIndexInfoId(indexInfo.getId());
+
+        if (existingOpt.isPresent()) {
+          IndexData existing = existingOpt.get();
+          indexDataMapper.updateDataFromDto(dto, existing);
+          syncJobDtos.add(buildSyncJob(existing, workerIp));
+        } else {
+          IndexData newData = indexDataMapper.toIndexData(dto);
+          newData.setIndexInfo(indexInfo);
+          indexDataRepository.save(newData);
+          syncJobDtos.add(buildSyncJob(newData, workerIp));
+        }
       }
     }
+
     return syncJobDtos;
   }
+
 
   private List<IndexInfoDto> toIndexInfoDtoList(OpenApiResponseDto responseDto) {
     return responseDto.response().body().items().item().stream()
@@ -112,53 +115,54 @@ public class BasicIntegrationService implements IntegrationService {
         .toList();
   }
 
-  private List<IndexDataDto> toIndexDataList(
-      OpenApiResponseDto responseDto, List<UUID> indexInfoIds) {
-    Set<String> targetIndexNames =
-        indexInfoRepository.findAllById(indexInfoIds).stream()
-            .map(IndexInfo::getIndexName)
-            .collect(Collectors.toSet());
+  private List<IndexDataDto> toIndexDataDtoList(OpenApiResponseDto responseDto, IndexInfo indexInfo, IndexDataSyncRequest indexDataSyncRequest) {
+    String indexName = indexInfo.getIndexName();
 
     return responseDto.response().body().items().item().stream()
-        .filter(item -> targetIndexNames.contains(item.idxNm()))
-        .map(
-            item ->
-                new IndexDataDto(
-                    null,
-                    null,
-                    LocalDate.parse(item.basDt(), DateTimeFormatter.ofPattern("yyyyMMdd")),
-                    SourceType.OPEN_API,
-                    item.mkp(),
-                    item.clpr(),
-                    item.hipr(),
-                    item.lopr(),
-                    item.vs(),
-                    item.fltRt(),
-                    item.trqu(),
-                    item.trPrc(),
-                    item.lstgMrktTotAmt()))
+        .filter(item -> indexName.equals(item.idxNm()))
+        .filter(item -> {
+          LocalDate itemDate = LocalDate.parse(item.basDt(), DateTimeFormatter.ofPattern("yyyyMMdd"));
+          return !itemDate.isBefore(indexDataSyncRequest.baseDateFrom())
+              && !itemDate.isAfter(indexDataSyncRequest.baseDateTo());
+        })
+        .map(item -> new IndexDataDto(
+            null,
+            null,
+            LocalDate.parse(item.basDt(), DateTimeFormatter.ofPattern("yyyyMMdd")),
+            SourceType.OPEN_API,
+            item.mkp(),
+            item.clpr(),
+            item.hipr(),
+            item.lopr(),
+            item.vs(),
+            item.fltRt(),
+            item.trqu(),
+            item.trPrc(),
+            item.lstgMrktTotAmt()
+        ))
         .toList();
   }
+
 
   private SyncJobDto buildSyncJob(IndexInfo indexInfo, String worker) {
     return new SyncJobDto(
         indexInfo.getId(),
         JobType.INDEX_INFO,
-        null,
+        indexInfo.getId(),
         indexInfo.getBasepointInTime(),
         worker,
-        Instant.now(),
+        LocalDateTime.now(),
         Result.SUCCESS);
   }
 
   private SyncJobDto buildSyncJob(IndexData indexData, String worker) {
     return new SyncJobDto(
-        UUID.randomUUID(),
-        JobType.INDEX_DATA,
         indexData.getId(),
+        JobType.INDEX_DATA,
+        indexData.getIndexInfo().getId(),
         indexData.getBaseDate(),
         worker,
-        Instant.now(),
+        LocalDateTime.now(),
         Result.SUCCESS);
   }
 }

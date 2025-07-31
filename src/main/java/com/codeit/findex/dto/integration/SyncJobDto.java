@@ -4,13 +4,13 @@ import com.codeit.findex.entityEnum.JobType;
 import com.codeit.findex.entityEnum.Result;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.UUID;
+import java.time.LocalDateTime;
 
 public record SyncJobDto(
-    UUID id,
+    Long id,
     JobType jobType,
-    UUID indexInfold,
+    Long indexInfoId,
     LocalDate targetDate,
     String worker,
-    Instant jobTime,
+    LocalDateTime jobTime,
     Result result) {}

@@ -5,8 +5,8 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 public record IndexDataDto(
-    long id,
-    long indexInfoId,
+    Long id,
+    Long indexInfoId,
     LocalDate baseDate,
     SourceType sourceType,
     double marketPrice,

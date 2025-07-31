@@ -5,4 +5,4 @@ import java.util.List;
 import java.util.UUID;
 
 public record IndexDataSyncRequest(
-    List<UUID> indexInfolds, LocalDate baseDateFrom, LocalDate baseDateTo) {}
+    List<Long> indexInfoIds, LocalDate baseDateFrom, LocalDate baseDateTo) {}

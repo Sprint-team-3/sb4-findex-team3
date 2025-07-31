@@ -5,7 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface IndexInfoRepository extends JpaRepository<IndexInfo, UUID> {
+public interface IndexInfoRepository extends JpaRepository<IndexInfo, Long> {
 
   Optional<IndexInfo> findByIndexName(String indexName);
 }
