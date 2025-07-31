@@ -1,7 +1,6 @@
 package com.codeit.findex.dto.dashboard;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 public record IndexDataDto(
     long id,
@@ -18,4 +17,4 @@ public record IndexDataDto(
     //      long tradingQuantity,
     //      long tradingPrice,
     //      long marketTotalAmount
-) {}
+    ) {}

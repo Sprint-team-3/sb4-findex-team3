@@ -14,16 +14,17 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 public class BasicAutoSyncConfigService implements AutoSyncConfigService {
-    private final IndexInfoRepository repository;
-    private final AutoSyncMapper autoSyncMapper;
+  private final IndexInfoRepository repository;
+  private final AutoSyncMapper autoSyncMapper;
 
-    @Override
-    public AutoSyncConfigDto updateEnabled(Long id, Boolean enabled) {
-        IndexInfo entity = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("IndexInfo not found: " + id));
-        entity.setEnabled(enabled);
-        IndexInfo saved = repository.save(entity);
-        return autoSyncMapper.toAutoSyncConfigDto(saved);
-    }
-
+  @Override
+  public AutoSyncConfigDto updateEnabled(Long id, Boolean enabled) {
+    IndexInfo entity =
+        repository
+            .findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("IndexInfo not found: " + id));
+    entity.setEnabled(enabled);
+    IndexInfo saved = repository.save(entity);
+    return autoSyncMapper.toAutoSyncConfigDto(saved);
+  }
 }

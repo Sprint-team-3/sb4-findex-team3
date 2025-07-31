@@ -30,15 +30,9 @@ public class DashboardService {
 
     Optional<IndexData> comparisonData =
         switch (periodType) {
-          case DAILY ->
-             findPastIndexData(
-                  indexInfoId, currentDate.minus(Duration.ofDays(1)));
-          case WEEKLY ->
-              findPastIndexData(
-                  indexInfoId, currentDate.minus(Duration.ofDays(7)));
-          case MONTHLY ->
-              findPastIndexData(
-                  indexInfoId, currentDate.minus(Duration.ofDays(30)));
+          case DAILY -> findPastIndexData(indexInfoId, currentDate.minus(Duration.ofDays(1)));
+          case WEEKLY -> findPastIndexData(indexInfoId, currentDate.minus(Duration.ofDays(7)));
+          case MONTHLY -> findPastIndexData(indexInfoId, currentDate.minus(Duration.ofDays(30)));
         };
 
     // *** GRACEFUL HANDLING ***
@@ -67,7 +61,7 @@ public class DashboardService {
 
   public Optional<IndexData> findPastIndexData(UUID indexInfoId, LocalDate localDate) {
 
-    return dashboardRepository.findTopByIndexInfoIdAndBaseDateLessThanEqualOrderByBaseDateDesc(indexInfoId, localDate);
-
+    return dashboardRepository.findTopByIndexInfoIdAndBaseDateLessThanEqualOrderByBaseDateDesc(
+        indexInfoId, localDate);
   }
 }

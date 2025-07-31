@@ -1,8 +1,8 @@
 package com.codeit.findex.controller;
 
+import com.codeit.findex.dto.dashboard.IndexChartDto;
 import com.codeit.findex.dto.dashboard.IndexDataDto;
 import com.codeit.findex.dto.dashboard.IndexInfoDto;
-import com.codeit.findex.dto.dashboard.IndexChartDto;
 import com.codeit.findex.dto.dashboard.PerformanceDto;
 import com.codeit.findex.dto.dashboard.PeriodType;
 import com.codeit.findex.dto.dashboard.RankedIndexPerformanceDto;
@@ -39,7 +39,9 @@ public class DashboardController {
   public List<PerformanceDto> getPerformanceFav(@RequestParam("periodType") PeriodType periodType) {
     // 나중에 서비스로 바꾸기
     List<IndexInfoDto> favoriteInfoDtos = List.of(kospiInfo, kosdaqInfo);
-    return favoriteInfoDtos.stream().map(i -> dashboardService.getPerformanceDto(i, periodType)).toList();
+    return favoriteInfoDtos.stream()
+        .map(i -> dashboardService.getPerformanceDto(i, periodType))
+        .toList();
 
     //    Map<UUID, List<IndexDataDto>> dummyIndexData = createDummyIndexData();
     //          List<IndexDataDto> indexDataDto = dummyIndexData.get(indexInfoId);
@@ -76,8 +78,6 @@ public class DashboardController {
     //        .toList();
   }
 
-
-
   // 2번째 부분 (차트)
   @GetMapping("/index-data/{id}/chart")
   public IndexChartDto getChart(
@@ -109,7 +109,7 @@ public class DashboardController {
           100.00, // base_index
           "KRX", // source_type: Korea Exchange
           true // favorite
-      );
+          );
 
   IndexInfoDto kosdaqInfo =
       new IndexInfoDto(
@@ -121,7 +121,7 @@ public class DashboardController {
           1000.00, // base_index
           "KRX", // source_type: Korea Exchange
           true // favorite
-      );
+          );
 
   private Map<UUID, List<IndexDataDto>> createDummyIndexData() {
 
@@ -152,7 +152,7 @@ public class DashboardController {
                 now.minus(Duration.ofDays(31)),
                 "Open API",
                 2750.75) // Last Month
-        );
+            );
 
     List<IndexDataDto> kosdaqData =
         List.of(
@@ -179,5 +179,4 @@ public class DashboardController {
 
     return dummyIndexData;
   }
-
 }
