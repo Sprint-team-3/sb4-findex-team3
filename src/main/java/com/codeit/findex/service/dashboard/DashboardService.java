@@ -71,8 +71,8 @@ public class DashboardService {
 
     IntStream.range(0, indexDataList.size())
         .filter(i -> !indexDataList.get(i).getBaseDate().isBefore(startDate))
-        .forEach(i -> {
-
+        .forEach(
+            i -> {
               IndexData currentData = indexDataList.get(i);
               LocalDate currentDate = currentData.getBaseDate();
               dataPoints.add(new ChartDataPoint(currentDate, currentData.getClosingPrice()));
@@ -84,8 +84,8 @@ public class DashboardService {
                   closingPricetotal += indexDataList.get(i - j).getClosingPrice();
                 }
                 closingPricetotal /= 5;
-                ma5DataPoints.add(new ChartDataPoint(indexDataList.get(i).getBaseDate(),
-                    closingPricetotal));
+                ma5DataPoints.add(
+                    new ChartDataPoint(indexDataList.get(i).getBaseDate(), closingPricetotal));
               }
 
               // 20일 이동평균선
@@ -95,8 +95,8 @@ public class DashboardService {
                   closingPricetotal += indexDataList.get(i - j).getClosingPrice();
                 }
                 closingPricetotal /= 20;
-                ma20DataPoints.add(new ChartDataPoint(indexDataList.get(i).getBaseDate(),
-                    closingPricetotal));
+                ma20DataPoints.add(
+                    new ChartDataPoint(indexDataList.get(i).getBaseDate(), closingPricetotal));
               }
             });
 
