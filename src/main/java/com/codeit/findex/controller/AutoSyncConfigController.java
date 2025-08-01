@@ -25,7 +25,7 @@ public class AutoSyncConfigController {
   /**
    * GET /api/auto-sync-configs
    *
-   * @param indexId (optional) 지수 ID 필터
+   * @param indexInfoId (optional) 지수 ID 필터
    * @param enabled (optional) 활성화 여부 필터
    * @param lastId (optional) 이전 페이지 마지막 요소 ID (커서)
    * @param size (optional) 한 페이지 크기, 기본 20
@@ -34,14 +34,14 @@ public class AutoSyncConfigController {
    */
   @GetMapping
   public ResponseEntity<CursorPageResponseAutoSyncConfigDto> list(
-      @RequestParam(required = false) Long indexId,
+      @RequestParam(required = false) Long indexInfoId, //indexId
       @RequestParam(required = false) Boolean enabled,
       @RequestParam(required = false) Long lastId,
       @RequestParam(defaultValue = "20") int size,
       @RequestParam(defaultValue = "id") String sortBy,
       @RequestParam(defaultValue = "asc") String sortDir) {
     CursorPageResponseAutoSyncConfigDto dto =
-        autoSyncConfigService.listAutoSyncConfigs(indexId, enabled, lastId, size, sortBy, sortDir);
+        autoSyncConfigService.listAutoSyncConfigs(indexInfoId, enabled, lastId, size, sortBy, sortDir);
     return ResponseEntity.ok(dto);
   }
 }

@@ -1,5 +1,6 @@
 package com.codeit.findex.service.dashboard;
 
+import com.codeit.findex.dto.IndexDataDto;
 import com.codeit.findex.dto.IndexInfoDto;
 import com.codeit.findex.dto.dashboard.ChartDataPoint;
 import com.codeit.findex.dto.dashboard.ChartPeriodType;
@@ -38,11 +39,26 @@ public class DashboardService {
   public PerformanceDto getFavPerformanceDto(IndexInfoDto i, PeriodType periodType) {
     long indexInfoId = i.id();
 
-    IndexData current =
-        findRecentIndexData(indexInfoId)
-            .orElseThrow(() -> new NoSuchElementException("IndexData does not exist"));
+//    IndexData current =
+//        findRecentIndexData(indexInfoId)
+//            .orElseThrow(() -> new NoSuchElementException("IndexData does not exist"));
 
-    LocalDate currentDate = current.getBaseDate();
+    IndexDataDto current = new IndexDataDto(
+        13L,
+        1L,
+        LocalDate.now().minusDays(1),
+        SourceType.OPEN_API,
+        2111.50,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0);
+
+    LocalDate currentDate = current.baseDate();
 
     Optional<IndexData> comparisonData =
         switch (periodType) {
@@ -55,7 +71,7 @@ public class DashboardService {
       return null;
     }
 
-    double currentPrice = current.getClosingPrice(); // 증가
+    double currentPrice = current.closingPrice(); // 증가
     double beforePrice = comparisonData.get().getClosingPrice();
     double versus = currentPrice - beforePrice;
     double fluctuationRate = versus / beforePrice * 100;
@@ -68,6 +84,7 @@ public class DashboardService {
         fluctuationRate,
         currentPrice,
         beforePrice);
+
   }
 
   // ==================================== 차트 ====================================
@@ -143,7 +160,8 @@ public class DashboardService {
         chartPeriodType,
         dataPoints,
         ma5DataPoints,
-        ma20DataPoints);
+        ma20DataPoints
+    );
   }
 
   // ==================================== 지수 성과 분석 랭킹 ====================================

@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,11 +38,13 @@ public class DashboardController {
    * @return PerformanceDto 리스트
    */
   @GetMapping("/index-data/performance/favorite")
-  public List<PerformanceDto> getFavPerformance(@RequestParam("periodType") PeriodType periodType) {
+  public List<PerformanceDto> getFavPerformance(
+      @RequestParam("periodType") PeriodType periodType) {
     // 나중에 서비스로 바꾸기
     List<IndexInfoDto> favoriteInfoDtos = List.of(kospiInfo, kosdaqInfo);
     return favoriteInfoDtos.stream()
         .map(i -> dashboardService.getFavPerformanceDto(i, periodType))
+        .filter(Objects::nonNull) // NPE
         .toList();
 
     //    Map<UUID, List<IndexDataDto>> dummyIndexData = createDummyIndexData();
