@@ -90,9 +90,9 @@ public class DashboardController {
   @GetMapping("/index-data/performance/rank")
   public List<RankedIndexPerformanceDto> getPerformanceRank(
       @RequestParam("indexInfoId") long indexInfoId,
-      @RequestParam("periodType") ChartPeriodType chartPeriodType,
-      @RequestParam("limit") String limit) {
-    return null;
+      @RequestParam("periodType") PeriodType periodType,
+      @RequestParam("limit") int limit) {
+    return dashboardService.getPerformanceRank(indexInfoId, periodType, limit);
   }
 
   // =============================  dummy data =============================

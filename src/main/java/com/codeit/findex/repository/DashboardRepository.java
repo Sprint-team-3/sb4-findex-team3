@@ -31,6 +31,14 @@ public interface DashboardRepository extends JpaRepository<IndexData, Long> {
       long indexInfoId, LocalDate baseDate);
 
   // ==================================== 차트 ====================================
+  /**
+   * 지정된 지수 정보 ID와 기준일자 범위에 해당하는 지수 데이터를 기준일자 오름차순으로 조회합니다.
+   *
+   * @param indexInfoId 지수 정보의 고유 ID
+   * @param startDate 조회 시작일자
+   * @param endDate 조회 종료일자
+   * @return 기준일자 오름차순으로 정렬된 {@link IndexData} 객체 리스트
+   */
   // Asc - oldest to newest (e.g., Jan 1, Jan 2, Jan 3, ...).
   List<IndexData> findByIndexInfoIdAndBaseDateBetweenOrderByBaseDateAsc(
       long indexInfoId, LocalDate startDate, LocalDate endDate);

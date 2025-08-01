@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,32 +30,35 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class DashboardService {
 
-  private final DashboardRepository dashboardRepository;
   private final IndexInfoRepository indexInfoRepository;
+  private final DashboardRepository dashboardRepository;
 
   // ==================================== 즐겨찾기 지수 현황 요약 ====================================
 
   public PerformanceDto getFavPerformanceDto(IndexInfoDto i, PeriodType periodType) {
     long indexInfoId = i.id();
 
-    IndexData current =
-        findRecentIndexData(indexInfoId)
-            .orElseThrow(() -> new NoSuchElementException("IndexData does not exist"));
+//    IndexData current =
+//        findRecentIndexData(indexInfoId)
+//            .orElseThrow(() -> new NoSuchElementException("IndexData does not exist"));
+//
+//    LocalDate currentDate = current.getBaseDate();
 
-    LocalDate currentDate = current.getBaseDate();
+    LocalDate currentDate = LocalDate.now();
 
     Optional<IndexData> comparisonData =
         switch (periodType) {
-          case DAILY -> findPastIndexData(indexInfoId, currentDate.minus(Duration.ofDays(1)));
-          case WEEKLY -> findPastIndexData(indexInfoId, currentDate.minus(Duration.ofDays(7)));
-          case MONTHLY -> findPastIndexData(indexInfoId, currentDate.minus(Duration.ofDays(30)));
+          case DAILY -> findPastIndexData(indexInfoId, currentDate.minusDays(1));
+          case WEEKLY -> findPastIndexData(indexInfoId, currentDate.minusDays(7));
+          case MONTHLY -> findPastIndexData(indexInfoId, currentDate.minusMonths(1));
         };
 
     if (comparisonData.isEmpty()) {
       return null;
     }
 
-    double currentPrice = current.getClosingPrice(); // 증가
+//    double currentPrice = current.getClosingPrice(); // 증가
+    double currentPrice = 1000;
     double beforePrice = comparisonData.get().getClosingPrice();
     double versus = currentPrice - beforePrice;
     double fluctuationRate = versus / beforePrice * 100;
@@ -73,20 +77,9 @@ public class DashboardService {
 
   public IndexChartDto getChartData(long indexInfoId, ChartPeriodType chartPeriodType) {
 
-    IndexInfoDto indexInfoDto =
-        new IndexInfoDto(
-            1L,
-            "주가지수", // index_classification
-            "KOSPI", // index_name
-            200, // employed_items_count
-            LocalDate.now(), // basepoint_intime
-            100.00, // base_index
-            SourceType.USER, // source_type
-            true // favorite
-            );
-    //    IndexInfo current =
-    //        indexInfoRepository.find(indexInfoId)
-    //            .orElseThrow(() -> new NoSuchElementException("IndexData does not exist"));
+      IndexInfo indexInfoDto =
+          indexInfoRepository.findById(indexInfoId)
+              .orElseThrow(() -> new NoSuchElementException("IndexData does not exist"));
 
     // 가장 최신 IndexData fetch
     IndexData latestIndexData =
@@ -148,8 +141,8 @@ public class DashboardService {
 
     return new IndexChartDto(
         indexInfoId,
-        indexInfoDto.indexClassification(),
-        indexInfoDto.indexName(),
+        indexInfoDto.getIndexClassification(),
+        indexInfoDto.getIndexName(),
         chartPeriodType,
         dataPoints,
         ma5DataPoints,
@@ -158,29 +151,13 @@ public class DashboardService {
 
   // ==================================== 지수 성과 분석 랭킹 ====================================
 
-  public List<RankedIndexPerformanceDto> getPerformanceRank(long indexInfoId, PeriodType periodType, String limit) {
-    // dummy data for now
-    IndexInfoDto indexInfoDto =
-        new IndexInfoDto(
-            1L,
-            "주가지수", // index_classification
-            "KOSPI", // index_name
-            200, // employed_items_count
-            LocalDate.now(), // basepoint_intime
-            100.00, // base_index
-            SourceType.USER, // source_type
-            true // favorite
-        );
+  public List<RankedIndexPerformanceDto> getPerformanceRank(long indexInfoId, PeriodType periodType, int limit) {
 
-    //    IndexInfo indexInfo =
-//        indexInfoRepository.find(indexInfoId)
-//            .orElseThrow(() -> new NoSuchElementException("IndexData does not exist"));
+    IndexData indexData = findRecentIndexData(indexInfoId)
+        .orElseThrow(() -> new NoSuchElementException("IndexData not found"));
 
-    IndexData latestIndexData =
-        findRecentIndexData(indexInfoId)
-            .orElseThrow(() -> new NoSuchElementException("IndexData does not exist"));
 
-    LocalDate currentDate = latestIndexData.getBaseDate();
+    LocalDate currentDate = indexData.getBaseDate();
     LocalDate pastDate =
         switch (periodType) {
           case DAILY -> currentDate.minusDays(1);
@@ -194,29 +171,22 @@ public class DashboardService {
     // 가장 최근 모든 IndexData 리스트 조회 (1 query)
     // map 구현: key - long IndexInfoId, value - IndexData indexData
     List<IndexData> recentIndexDataList = dashboardRepository.findAllRecentIndexData();
-    Map<Long, IndexData> recentDataMap = new HashMap<>();
-    for (IndexData i : recentIndexDataList) {
-      recentDataMap.put(i.getIndexInfo().getId(), i);
-    }
+    Map<Long, IndexData> recentDataMap = recentIndexDataList.stream()
+        .collect(Collectors.toMap(i -> i.getIndexInfo().getId(), i -> i));
 
     // 특정 날짜 이후 가장 최근 모든 IndexData 리스트 조회 (1 query)
     // map 구현: key - long IndexInfoId, value - IndexData indexData
     List<IndexData> pastIndexDataList = dashboardRepository.findAllPastIndexData(pastDate);
-    Map<Long, IndexData> pastDataMap = new HashMap<>();
-    for (IndexData i : pastIndexDataList) {
-      pastDataMap.put(i.getIndexInfo().getId(), i);
-    }
-
-    // indexinfo id : RankedIndexPerformanceDto
-    Map<Long, RankedIndexPerformanceDto> rankedIndexPerformanceDtoMap = new HashMap<>();
+    Map<Long, IndexData> pastDataMap = pastIndexDataList.stream()
+        .collect(Collectors.toMap(i -> i.getIndexInfo().getId(), i -> i));
 
     List<PerformanceDto> performanceDtoList = new ArrayList<>();
     allIndexInfos
         .forEach(
-            indexInfo -> {
-              IndexData recentIndexData = recentDataMap.get(indexInfo.getId());
-              IndexData pastIndexData = pastDataMap.get(indexInfo.getId());
-
+            i -> {
+              IndexData recentIndexData = recentDataMap.get(i.getId());
+              IndexData pastIndexData = pastDataMap.get(i.getId());
+              
               // NPE 피하기
               if (recentIndexData == null || pastIndexData == null) {
                 return;
@@ -231,9 +201,9 @@ public class DashboardService {
               double fluctuationRate = versus / pastClosingPrice * 100;
 
               PerformanceDto performanceDto =  new PerformanceDto(
-                  indexInfo.getId(),
-                  indexInfo.getIndexClassification(),
-                  indexInfo.getIndexName(),
+                  i.getId(),
+                  i.getIndexClassification(),
+                  i.getIndexName(),
                   versus,
                   fluctuationRate,
                   recentClosingPrice,
@@ -249,21 +219,35 @@ public class DashboardService {
         .sorted(Comparator.comparing(PerformanceDto::fluctuationRate).reversed())
         .toList();
 
-    Map<Long, RankedIndexPerformanceDto> indexInfoIdAndPerformanceDto = new HashMap<>();
 
+    List<RankedIndexPerformanceDto> allRankedDtos = new ArrayList<>();
     for (int i = 0; i < sortedPerformanceDtoList.size(); i++) {
       PerformanceDto currentPerformanceDto = sortedPerformanceDtoList.get(i);
       RankedIndexPerformanceDto rankedPerformanceDto = new RankedIndexPerformanceDto(
           currentPerformanceDto, // PerformanceDto
           i + 1          // ranking
       );
-      indexInfoIdAndPerformanceDto.put(currentPerformanceDto.indexInfoId(), rankedPerformanceDto);
+      allRankedDtos.add(rankedPerformanceDto);
     }
 
-    List<RankedIndexPerformanceDto> rankedIndexPerformanceDtos = new ArrayList<>();
-    rankedIndexPerformanceDtos.add(indexInfoIdAndPerformanceDto.get(indexInfoId));
+    // =====
+    int trueLimit = Math.min(limit, sortedPerformanceDtoList.size());
+    List<RankedIndexPerformanceDto> finalResultList = new ArrayList<>(
+        allRankedDtos.subList(0, trueLimit));
 
-    return rankedIndexPerformanceDtos;
+    // 유저가 보낸 indexInfoId가 리스트에 있는지 확인
+    boolean isUserIndexInFinalList = finalResultList.stream()
+        .anyMatch(dto -> dto.performance().indexInfoId() == indexInfoId);
+
+    // 리스트에 없으면 추가하기
+    if (!isUserIndexInFinalList) {
+      allRankedDtos.stream()
+          .filter(dto -> dto.performance().indexInfoId() == indexInfoId)
+          .findFirst() // Optional<RankedIndexPerformanceDto>
+          .ifPresent(finalResultList::add); // 존재하면 finalResultList에 추가
+    }
+
+    return finalResultList;
   }
 
 
