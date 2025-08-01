@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 public record IndexDataSaveRequest(
         // 지수, 날짜부터 상장 시가 총액까지 모든 속성을 입력해 지수 데이터를 등록하기
-        IndexInfo indexInfo, // 지수 정보
+        Long indexInfoId, // 지수 정보
         LocalDate baseDate, // 기준 날짜
         SourceType sourceType, // 소스 타입
         double openPrice, // 시가

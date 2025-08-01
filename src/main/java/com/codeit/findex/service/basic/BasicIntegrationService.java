@@ -11,7 +11,7 @@ import com.codeit.findex.entity.Integration;
 import com.codeit.findex.entityEnum.JobType;
 import com.codeit.findex.entityEnum.Result;
 import com.codeit.findex.entityEnum.SourceType;
-import com.codeit.findex.mapper.IndexDataMapper;
+import com.codeit.findex.mapper.IndexDataIntegrationMapper;
 import com.codeit.findex.mapper.IndexInfoMapper;
 import com.codeit.findex.repository.IndexDataRepository;
 import com.codeit.findex.repository.IndexInfoRepository;
@@ -37,7 +37,7 @@ public class BasicIntegrationService implements IntegrationService {
   private final IntegrationRepository integrationRepository;
   private final ExternalApiService externalApiService;
   private final IndexInfoMapper indexInfoMapper;
-  private final IndexDataMapper indexDataMapper;
+  private final IndexDataIntegrationMapper indexDataIntegrationMapper;
 
   @Override
   public List<SyncJobDto> integrateIndexInfo(HttpServletRequest request) {
@@ -99,9 +99,9 @@ public class BasicIntegrationService implements IntegrationService {
                         IndexData indexData;
                         if (existingOpt.isPresent()) {
                           indexData = existingOpt.get();
-                          indexDataMapper.updateDataFromDto(dto, indexData);
+                          indexDataIntegrationMapper.updateDataFromDto(dto, indexData);
                         } else {
-                          indexData = indexDataMapper.toIndexData(dto);
+                          indexData = indexDataIntegrationMapper.toIndexData(dto);
                           indexData.setIndexInfo(indexInfo);
                           indexDataRepository.save(indexData);
                         }

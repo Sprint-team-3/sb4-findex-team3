@@ -3,7 +3,7 @@ package com.codeit.findex.service.basic;
 import com.codeit.findex.dto.indexData.response.IndexDataDto;
 import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.entity.IndexInfo;
-import com.codeit.findex.mapper.file.IndexDataMapper;
+import com.codeit.findex.mapper.IndexDataMapper;
 import com.codeit.findex.repository.IndexDataRepository;
 import com.codeit.findex.repository.IndexInfoRepository;
 import com.codeit.findex.dto.indexData.request.IndexDataDateRequest;
@@ -29,13 +29,18 @@ public class BasicIndexDataService implements IndexDataService {
     public IndexDataDto registerIndexData(IndexDataSaveRequest request) {
         // 만약, 지수와 날짜의 조합값이 중복된다면 예외를 발생시킨다
         // 중복된다라는 의미는 dataRepository에 지수, 날짜 조합이 이미 존재한다면 이니까 repository와 관련이 있다.
-        if(dataRepository.existsByIndexInfoAndBaseDate(request.indexInfo(), request.baseDate())) {
+        if(dataRepository.existsByIndexInfoIdAndBaseDate(request.indexInfoId(), request.baseDate())) {
             throw new IllegalArgumentException("지수와 날짜의 조합이 이미 존재해요!");
         }
 
+        // 만약, IndexDataSaveRequest로부터 받은 Long타입 indexInfoId가 존재하지 않는다면, 예외발생
+        IndexInfo indexInfo = infoRepository.findById(request.indexInfoId())
+                .orElseThrow(() -> new EntityNotFoundException("지수 정보가 존재하지 않아요!"));
+
         // 지수, 날짜부터 상장 시가 총액까지 모든 속성을 입력해 지수 데이터를 등록함
         IndexData indexData = new IndexData();
-        indexData.setIndexInfo(request.indexInfo());
+        // IndexData 안의 indexinfo는 indexinfo타입이니까 long이 들어가면 안됨
+        indexData.setIndexInfo(indexInfo);
         indexData.setBaseDate(request.baseDate());
         indexData.setSourceType(request.sourceType());
         indexData.setOpenPrice(request.openPrice());

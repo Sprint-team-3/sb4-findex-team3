@@ -15,7 +15,7 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
 
     // 지수 데이터 등록
 //    if(dataRepository.exists(request.indexInfo()) && dataRepository.exists(request.baseDate())) {}
-    boolean existsByIndexInfoAndBaseDate(IndexInfo indexInfo, LocalDate baseDate);
+    boolean existsByIndexInfoIdAndBaseDate(Long indexInfoId, LocalDate baseDate);
 
     // 지수 데이터 목록 조회
     Page<IndexData> findByIndexInfoAndBaseDateBetween(IndexInfo indexInfo, LocalDate startDate, LocalDate endDate, Pageable pageable);
