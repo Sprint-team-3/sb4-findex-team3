@@ -38,13 +38,11 @@ public class DashboardService {
   public PerformanceDto getFavPerformanceDto(IndexInfoDto i, PeriodType periodType) {
     long indexInfoId = i.id();
 
-//    IndexData current =
-//        findRecentIndexData(indexInfoId)
-//            .orElseThrow(() -> new NoSuchElementException("IndexData does not exist"));
-//
-//    LocalDate currentDate = current.getBaseDate();
+    IndexData current =
+        findRecentIndexData(indexInfoId)
+            .orElseThrow(() -> new NoSuchElementException("IndexData does not exist"));
 
-    LocalDate currentDate = LocalDate.now();
+    LocalDate currentDate = current.getBaseDate();
 
     Optional<IndexData> comparisonData =
         switch (periodType) {
@@ -57,8 +55,7 @@ public class DashboardService {
       return null;
     }
 
-//    double currentPrice = current.getClosingPrice(); // 증가
-    double currentPrice = 1000;
+    double currentPrice = current.getClosingPrice(); // 증가
     double beforePrice = comparisonData.get().getClosingPrice();
     double versus = currentPrice - beforePrice;
     double fluctuationRate = versus / beforePrice * 100;
@@ -77,9 +74,9 @@ public class DashboardService {
 
   public IndexChartDto getChartData(long indexInfoId, ChartPeriodType chartPeriodType) {
 
-      IndexInfo indexInfoDto =
-          indexInfoRepository.findById(indexInfoId)
-              .orElseThrow(() -> new NoSuchElementException("IndexData does not exist"));
+    IndexInfo indexInfoDto =
+        indexInfoRepository.findById(indexInfoId)
+            .orElseThrow(() -> new NoSuchElementException("IndexData does not exist"));
 
     // 가장 최신 IndexData fetch
     IndexData latestIndexData =
@@ -186,7 +183,7 @@ public class DashboardService {
             i -> {
               IndexData recentIndexData = recentDataMap.get(i.getId());
               IndexData pastIndexData = pastDataMap.get(i.getId());
-              
+
               // NPE 피하기
               if (recentIndexData == null || pastIndexData == null) {
                 return;
