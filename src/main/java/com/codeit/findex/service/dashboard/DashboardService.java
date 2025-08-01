@@ -235,15 +235,12 @@ public class DashboardService {
         .toList();
 
 
-    List<RankedIndexPerformanceDto> allRankedDtos = new ArrayList<>();
-    for (int i = 0; i < sortedPerformanceDtoList.size(); i++) {
-      PerformanceDto currentPerformanceDto = sortedPerformanceDtoList.get(i);
-      RankedIndexPerformanceDto rankedPerformanceDto = new RankedIndexPerformanceDto(
-          currentPerformanceDto, // PerformanceDto
+    List<RankedIndexPerformanceDto> allRankedDtos = IntStream.range(0, sortedPerformanceDtoList.size())
+        .mapToObj(i -> new RankedIndexPerformanceDto(
+            sortedPerformanceDtoList.get(i), // PerformanceDto
           i + 1          // ranking
-      );
-      allRankedDtos.add(rankedPerformanceDto);
-    }
+      )
+    ).toList();
 
     // =====
     int trueLimit = Math.min(limit, sortedPerformanceDtoList.size());
