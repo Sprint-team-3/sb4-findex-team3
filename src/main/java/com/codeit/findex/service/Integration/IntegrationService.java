@@ -22,7 +22,7 @@ public interface IntegrationService {
       LocalDateTime jobTimeFrom,
       LocalDateTime jobTimeTo,
       Result status,
-      long idAfter,
+      Long idAfter,
       String cursor,
       String sortField,
       String sortDirection,
