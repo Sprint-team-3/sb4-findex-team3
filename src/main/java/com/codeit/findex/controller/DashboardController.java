@@ -37,11 +37,11 @@ public class DashboardController {
    * @return PerformanceDto 리스트
    */
   @GetMapping("/index-data/performance/favorite")
-  public List<PerformanceDto> getPerformanceFav(@RequestParam("periodType") PeriodType periodType) {
+  public List<PerformanceDto> getFavPerformance(@RequestParam("periodType") PeriodType periodType) {
     // 나중에 서비스로 바꾸기
     List<IndexInfoDto> favoriteInfoDtos = List.of(kospiInfo, kosdaqInfo);
     return favoriteInfoDtos.stream()
-        .map(i -> dashboardService.getPerformanceDto(i, periodType))
+        .map(i -> dashboardService.getFavPerformanceDto(i, periodType))
         .toList();
 
     //    Map<UUID, List<IndexDataDto>> dummyIndexData = createDummyIndexData();
@@ -89,15 +89,16 @@ public class DashboardController {
   // 3번째 부분 (성과)
   @GetMapping("/index-data/performance/rank")
   public List<RankedIndexPerformanceDto> getPerformanceRank(
-      @RequestParam("indexInfoId") String indexInfoId,
+      @RequestParam("indexInfoId") long indexInfoId,
       @RequestParam("periodType") ChartPeriodType chartPeriodType,
       @RequestParam("limit") String limit) {
     return null;
   }
 
+  // =============================  dummy data =============================
+
   long kospiId = 1L;
   long kosdaqId = 2L;
-  // =============================  dummy data =============================
   IndexInfoDto kospiInfo =
       new IndexInfoDto(
           kospiId,

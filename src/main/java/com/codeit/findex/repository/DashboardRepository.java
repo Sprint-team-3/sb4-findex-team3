@@ -5,9 +5,12 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface DashboardRepository extends JpaRepository<IndexData, Long> {
 
+  // ==================================== 즐겨찾기 지수 현황 요약 ====================================
   /**
    * 특정 indexInfoId에 해당하는 가장 최신 IndexData를 조회합니다.
    *
@@ -27,8 +30,55 @@ public interface DashboardRepository extends JpaRepository<IndexData, Long> {
   Optional<IndexData> findTopByIndexInfoIdAndBaseDateLessThanEqualOrderByBaseDateDesc(
       long indexInfoId, LocalDate baseDate);
 
-  // ============= chart ===============
+  // ==================================== 차트 ====================================
   // Asc - oldest to newest (e.g., Jan 1, Jan 2, Jan 3, ...).
   List<IndexData> findByIndexInfoIdAndBaseDateBetweenOrderByBaseDateAsc(
       long indexInfoId, LocalDate startDate, LocalDate endDate);
+
+  // ==================================== 지수 성과 분석 랭킹 ====================================
+
+  /**
+   * 모든 IndexInfo에 대해 가장 최신의 IndexData를 한번의 쿼리로 조회합니다. N+1 문제를 해결하기 위해 Native SQL과 ROW_NUMBER를 사용합니다
+   *
+   * @return 각 지수별 가장 최신 IndexData 객체의 리스트
+   */
+  @Query(
+      value =
+          """
+        WITH RankedData AS (
+            SELECT id, indexInfoId, base_date, closing_price,
+                   ROW_NUMBER() OVER(PARTITION BY indexInfoId ORDER BY base_date DESC) as rn
+            FROM IndexData
+        )
+        SELECT id, indexInfoId, base_date, closing_price
+        FROM RankedData
+        WHERE rn = 1
+      """,
+      nativeQuery = true)
+  List<IndexData> findAllRecentIndexData();
+
+  /**
+   * 모든 IndexInfo에 대해 특정 과거 시점 / 그 이전에 가장 최신인 IndexData를 한번의 쿼리로 조회합니다. 주말이나 공휴일 데이터를 처리하며, N+1문제를
+   * 해결하기 위해 Native SQL과 ROW_NUMBER를 사용합니다.
+   *
+   * @param pastDate 조회 기준이 되는 과거 날짜. 이 날짜 혹은 그 이전의 데이터를 찾습니다.
+   * @return 각 지수별로, 기준 날짜 혹은 그 이전의 가장 최신 IndexData 객체의 리스트
+   */
+  @Query(
+      value =
+          """
+      WITH RankedData AS (
+          SELECT id, indexInfoId, base_date, closing_price,
+              ROW NUMBER() OVER(PARTITION BY indexInfoId ORDER BY base_date DESC) as rn
+          FROM IndexData
+          WHERE base_date <= :pastDate
+      )
+      SELECT id, indexInfoId, base_date, closing_price
+      FROM RankedData
+      WHERE rn = 1
+    """,
+      nativeQuery = true)
+  List<IndexData> findAllPastIndexData(@Param("pastDate") LocalDate pastDate);
+
+
 }
