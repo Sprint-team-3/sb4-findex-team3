@@ -39,12 +39,10 @@ CREATE TABLE Integration (
                              indexInfoId BIGINT NOT NULL,
                              data_id BIGINT,
                              job_type VARCHAR(100),
-                             base_date_from TIMESTAMPTZ,
-                             base_date_to TIMESTAMPTZ,
+                             base_date TIMESTAMPTZ,
                              worker VARCHAR(100),
-                             job_time_from TIMESTAMPTZ,
-                             job_time_to TIMESTAMPTZ,
-                             result SMALLINT,
+                             job_time TIMESTAMPTZ,
+                             result VARCHAR(20),
 
                              CONSTRAINT fk_integration_indexinfo FOREIGN KEY (indexInfoId)
                                  REFERENCES IndexInfo(info_id)
