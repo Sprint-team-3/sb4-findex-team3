@@ -4,8 +4,7 @@ import com.codeit.findex.dto.integration.SyncJobDto;
 import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.entity.IndexInfo;
 import com.codeit.findex.entity.Integration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -30,4 +29,5 @@ public interface IntegrationMapper {
   @Mapping(expression = "java(com.codeit.findex.entityEnum.Result.SUCCESS)", target = "result")
   SyncJobDto toSyncJobDto(long integrationId, IndexData indexData, String worker);
 
+  List<SyncJobDto> toSyncJobDtos(List<Integration> integrations);
 }

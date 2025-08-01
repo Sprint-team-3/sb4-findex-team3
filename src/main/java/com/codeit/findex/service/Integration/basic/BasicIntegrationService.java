@@ -1,8 +1,9 @@
-package com.codeit.findex.service.basic;
+package com.codeit.findex.service.Integration.basic;
 
 import com.codeit.findex.dto.IndexDataDto;
 import com.codeit.findex.dto.IndexInfoDto;
 import com.codeit.findex.dto.dashboard.OpenApiResponseDto;
+import com.codeit.findex.dto.integration.CursorPageResponseSyncJobDto;
 import com.codeit.findex.dto.integration.IndexDataSyncRequest;
 import com.codeit.findex.dto.integration.SyncJobDto;
 import com.codeit.findex.entity.IndexData;
@@ -18,7 +19,7 @@ import com.codeit.findex.repository.IndexDataRepository;
 import com.codeit.findex.repository.IndexInfoRepository;
 import com.codeit.findex.repository.IntegrationRepository;
 import com.codeit.findex.service.ExternalApiService;
-import com.codeit.findex.service.IntegrationService;
+import com.codeit.findex.service.Integration.IntegrationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
@@ -27,6 +28,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -51,7 +53,8 @@ public class BasicIntegrationService implements IntegrationService {
         .map(
             dto -> {
               Optional<IndexInfo> existingOpt =
-                  indexInfoRepository.findByIndexClassificationAndIndexName(dto.indexClassification(),dto.indexName());
+                  indexInfoRepository.findByIndexClassificationAndIndexName(
+                      dto.indexClassification(), dto.indexName());
               IndexInfo indexInfo;
 
               if (existingOpt.isPresent()) {
@@ -101,12 +104,68 @@ public class BasicIntegrationService implements IntegrationService {
                           indexDataRepository.save(indexData);
                         }
 
-                        Integration integration = saveIntegrationDataLog(indexInfo, indexData, workerIp);
+                        Integration integration =
+                            saveIntegrationDataLog(indexInfo, indexData, workerIp);
 
-                        return integrationMapper.toSyncJobDto(integration.getId(), indexData, workerIp);
+                        return integrationMapper.toSyncJobDto(
+                            integration.getId(), indexData, workerIp);
                       });
             })
         .toList();
+  }
+
+  @Override
+  public CursorPageResponseSyncJobDto integrateCursorPage(
+      JobType jobType,
+      IndexDataSyncRequest indexDataSyncRequest,
+      String worker,
+      LocalDateTime jobTimeFrom,
+      LocalDateTime jobTimeTo,
+      Result status,
+      long idAfter,
+      String cursor,
+      String sortField,
+      String sortDirection,
+      int size) {
+    long totalElements =
+        integrationRepository.countByConditions(
+            jobType,
+            indexDataSyncRequest.indexInfoIds(),
+            indexDataSyncRequest.baseDateFrom(),
+            indexDataSyncRequest.baseDateTo(),
+            worker,
+            status,
+            jobTimeFrom,
+            jobTimeTo);
+
+    List<Integration> integrations =
+        integrationRepository.findByConditionsWithCursor(
+            jobType,
+            indexDataSyncRequest.indexInfoIds(),
+            indexDataSyncRequest.baseDateFrom(),
+            indexDataSyncRequest.baseDateTo(),
+            worker,
+            status,
+            jobTimeFrom,
+            jobTimeTo,
+            idAfter,
+            sortField,
+            sortDirection,
+            Pageable.ofSize(size + 1));
+
+    boolean hasNext = integrations.size() > size;
+    if (hasNext) {
+      integrations = integrations.subList(0, size);
+    }
+
+    List<SyncJobDto> syncJobDtos = integrationMapper.toSyncJobDtos(integrations);
+
+    Long nextIdAfter =
+        !integrations.isEmpty() ? integrations.get(integrations.size() - 1).getId() : null;
+    String nextCursor = nextIdAfter != null ? nextIdAfter.toString() : null;
+
+    return new CursorPageResponseSyncJobDto(
+        syncJobDtos, nextCursor, nextIdAfter, size, totalElements, hasNext);
   }
 
   private List<IndexInfoDto> toIndexInfoDtoList(OpenApiResponseDto responseDto) {
@@ -160,10 +219,7 @@ public class BasicIntegrationService implements IntegrationService {
         .toList();
   }
 
-  private Integration saveIntegrationInfoLog(
-      IndexInfo indexInfo,
-      String workerIp
-  ) {
+  private Integration saveIntegrationInfoLog(IndexInfo indexInfo, String workerIp) {
     Integration integration = new Integration();
     integration.setIndexInfo(indexInfo);
     integration.setIndexData(null);
@@ -177,10 +233,7 @@ public class BasicIntegrationService implements IntegrationService {
   }
 
   private Integration saveIntegrationDataLog(
-      IndexInfo indexInfo,
-      IndexData indexData,
-      String workerIp
-  ) {
+      IndexInfo indexInfo, IndexData indexData, String workerIp) {
     Integration integration = new Integration();
     integration.setIndexInfo(indexInfo);
     integration.setIndexData(indexData);
