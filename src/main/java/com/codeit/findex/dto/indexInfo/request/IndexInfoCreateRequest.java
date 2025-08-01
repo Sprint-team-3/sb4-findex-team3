@@ -1,7 +1,7 @@
 package com.codeit.findex.dto.indexInfo.request;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
+import jakarta.validation.constraints.NotBlank;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
@@ -25,5 +25,5 @@ public class IndexInfoCreateRequest {
 
     private LocalDate basePointInTime;
     private double baseIndex;
-    private boolean favorite;
+    private Boolean favorite;
 }
