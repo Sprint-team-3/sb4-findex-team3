@@ -1,4 +1,4 @@
-package com.codeit.findex.request;
+package com.codeit.findex.dto.indexData.request;
 
 import java.util.UUID;
 

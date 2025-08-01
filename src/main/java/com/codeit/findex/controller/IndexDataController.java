@@ -1,9 +1,9 @@
 package com.codeit.findex.controller;
 
-import com.codeit.findex.dto.IndexDataDto;
-import com.codeit.findex.request.IndexDataDateRequest;
-import com.codeit.findex.request.IndexDataSaveRequest;
-import com.codeit.findex.request.IndexDataUpdateRequest;
+import com.codeit.findex.dto.indexData.response.IndexDataDto;
+import com.codeit.findex.dto.indexData.request.IndexDataDateRequest;
+import com.codeit.findex.dto.indexData.request.IndexDataSaveRequest;
+import com.codeit.findex.dto.indexData.request.IndexDataUpdateRequest;
 import com.codeit.findex.service.IndexDataService;
 import lombok.RequiredArgsConstructor;
 
@@ -54,5 +54,8 @@ public class IndexDataController {
         indexDataService.deleteIndexData(id);
         return ResponseEntity.noContent().build();
     }
+
+    // 지수 데이터 Export
+//    @GetMapping("/index-data/export/csv")
 
 }

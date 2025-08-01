@@ -1,11 +1,10 @@
 package com.codeit.findex.mapper.file;
 
-import com.codeit.findex.dto.IndexDataDto;
+import com.codeit.findex.dto.indexData.response.IndexDataDto;
 import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.mapper.GenericMapper;
-import com.codeit.findex.request.IndexDataSaveRequest;
+import com.codeit.findex.dto.indexData.request.IndexDataSaveRequest;
 import org.mapstruct.Mapper;
-import org.springframework.data.domain.Page;
 
 import java.util.List;
 

@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
 public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
@@ -21,6 +20,7 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
     // 지수 데이터 목록 조회
     Page<IndexData> findByIndexInfoAndBaseDateBetween(IndexInfo indexInfo, LocalDate startDate, LocalDate endDate, Pageable pageable);
 
+    // BasicIntegrationService에서 사용하는 메서드입니다.
     Optional<IndexData> findByIndexInfoIdAndBaseDate(long id, LocalDate localDate);
 
 }

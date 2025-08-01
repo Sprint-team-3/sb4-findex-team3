@@ -1,14 +1,12 @@
 package com.codeit.findex.service;
 
-import com.codeit.findex.dto.IndexDataDto;
-import com.codeit.findex.request.IndexDataDateRequest;
-import com.codeit.findex.request.IndexDataSaveRequest;
-import com.codeit.findex.request.IndexDataSearchRequest;
-import com.codeit.findex.request.IndexDataUpdateRequest;
+import com.codeit.findex.dto.indexData.response.IndexDataDto;
+import com.codeit.findex.dto.indexData.request.IndexDataDateRequest;
+import com.codeit.findex.dto.indexData.request.IndexDataSaveRequest;
+import com.codeit.findex.dto.indexData.request.IndexDataSearchRequest;
+import com.codeit.findex.dto.indexData.request.IndexDataUpdateRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
-import java.util.UUID;
 
 
 public interface IndexDataService {

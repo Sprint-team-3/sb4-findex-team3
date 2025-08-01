@@ -1,8 +1,8 @@
 package com.codeit.findex.mapper;
 
-import com.codeit.findex.dto.IndexDataDto;
+import com.codeit.findex.dto.indexData.response.IndexDataDto;
 import com.codeit.findex.entity.IndexData;
-import com.codeit.findex.request.IndexDataSaveRequest;
+import com.codeit.findex.dto.indexData.request.IndexDataSaveRequest;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;

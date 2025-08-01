@@ -1,6 +1,6 @@
 package com.codeit.findex.controller;
 
-import com.codeit.findex.dto.IndexDataDto;
+import com.codeit.findex.dto.indexData.response.IndexDataDto;
 import com.codeit.findex.dto.IndexInfoDto;
 import com.codeit.findex.dto.dashboard.ChartPeriodType;
 import com.codeit.findex.dto.dashboard.IndexChartDto;

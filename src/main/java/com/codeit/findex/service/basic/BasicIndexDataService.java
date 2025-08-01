@@ -1,15 +1,15 @@
 package com.codeit.findex.service.basic;
 
-import com.codeit.findex.dto.IndexDataDto;
+import com.codeit.findex.dto.indexData.response.IndexDataDto;
 import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.entity.IndexInfo;
 import com.codeit.findex.mapper.file.IndexDataMapper;
 import com.codeit.findex.repository.IndexDataRepository;
 import com.codeit.findex.repository.IndexInfoRepository;
-import com.codeit.findex.request.IndexDataDateRequest;
-import com.codeit.findex.request.IndexDataSaveRequest;
-import com.codeit.findex.request.IndexDataSearchRequest;
-import com.codeit.findex.request.IndexDataUpdateRequest;
+import com.codeit.findex.dto.indexData.request.IndexDataDateRequest;
+import com.codeit.findex.dto.indexData.request.IndexDataSaveRequest;
+import com.codeit.findex.dto.indexData.request.IndexDataSearchRequest;
+import com.codeit.findex.dto.indexData.request.IndexDataUpdateRequest;
 import com.codeit.findex.service.IndexDataService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
