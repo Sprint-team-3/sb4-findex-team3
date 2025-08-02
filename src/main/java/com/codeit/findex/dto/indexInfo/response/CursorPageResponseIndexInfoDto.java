@@ -16,6 +16,6 @@ public class CursorPageResponseIndexInfoDto {
   private String nextCursor;
   private Long nextIdAfter;
   private int size;
-  private long totalElements;
+  private Long totalElements;
   private boolean hasNext;
 }

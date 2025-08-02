@@ -14,6 +14,8 @@ import com.codeit.findex.repository.IndexInfoRepository;
 import com.codeit.findex.service.IndexInfoService;
 import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -41,12 +43,12 @@ public class BasicIndexInfoService implements IndexInfoService {
 
     String indexName = (cond.getIndexName() != null && cond.getIndexName().trim().isEmpty()) ? null : cond.getIndexName();
     String classification = (cond.getIndexClassification() != null && cond.getIndexClassification().trim().isEmpty()) ? null : cond.getIndexClassification();
-
+    Boolean favorite = cond.getFavorite();
     // 3. Repository 호출
     Slice<IndexInfo> resultSlice = indexInfoRepository.findBySearchCondWithPaging(
             indexName,
             classification,
-            cond.getFavorite(),
+            favorite,
             cond.getIdAfter(),
             pageable
     );
@@ -59,13 +61,17 @@ public class BasicIndexInfoService implements IndexInfoService {
 
     boolean hasNext = resultSlice.hasNext();
     long nextIdAfter = !content.isEmpty() ? content.get(content.size() - 1).getId() : 0L;
+    long totalElement = indexInfoRepository.countBySearchCond(
+            indexName, classification, favorite
+    );
+    //String nextCursor = !dtoContent.isEmpty() ? dtoContent.get(dtoContent.size() - 1).getId() : null;
 
     return new CursorPageResponseIndexInfoDto(
-            dtoContent,  // 변환된 DTO 리스트
-            null,        // nextCursor(필요 시 구현)
+            dtoContent,
+            null,  //필요 시 구현
             nextIdAfter,
-            cond.getSize(),  // 한 페이지 크기
-            -1,              // totalElements (필요 시 구현)
+            cond.getSize(),
+            totalElement,
             hasNext
     );
   }
@@ -85,46 +91,22 @@ public class BasicIndexInfoService implements IndexInfoService {
         break;
       case "indexName":
       default: // 기본 정렬 필드
-        sortProperty = "indexName";
+        sortProperty = "indexClassification";
         break;
     }
 
-    // 안정적인 페이징을 위해 항상 id 오름차순을 두 번째 정렬 조건으로 추가
     return Sort.by(direction, sortProperty)
             .and(Sort.by(Sort.Direction.ASC, "id"));
   }
 
-  // 즐겨찾기만으로 조회하는 메서드
+  // 즐겨찾기만 조회하는 메서드
   @Transactional
   @Override
-  public CursorPageResponseIndexInfoDto findByFavoriteWithPaging(Boolean favorite, Long idAfter, Integer size) {
-    int pageSize = size != null ? size : 10;
-    
-    // Pageable 생성 (limit + 1로 조회하여 hasNext 확인)
-    Pageable pageable = PageRequest.of(0, pageSize + 1);
-    
-    // Slice로 조회
-    Slice<IndexInfo> slice = indexInfoRepository.findByFavoriteWithPaging(
-            favorite, idAfter, pageable);
-
-    // 페이징 정보 계산
-    boolean hasNext = slice.hasNext();
-    List<IndexInfo> content = slice.getContent();
-    
-    // 실제 페이지 크기만큼만 반환
-    List<IndexInfo> actualContent = hasNext ? content.subList(0, pageSize) : content;
-    
-    // 엔티티 → DTO로 변환
-    List<IndexInfoDto> dtoContent = actualContent.stream()
+  public List<IndexInfoDto> findAllByFavorite(Boolean favorite) {
+    List<IndexInfo> indexInfos = indexInfoRepository.findAllByFavorite(favorite);
+    return indexInfos.stream()
             .map(indexInfoMapper::toIndexInfoDto)
             .toList();
-
-    // 다음 페이지 커서 계산
-    long nextIdAfter = !actualContent.isEmpty() ? actualContent.get(actualContent.size() - 1).getId() : 0L;
-
-    return new CursorPageResponseIndexInfoDto(
-            dtoContent, null, nextIdAfter, pageSize, -1, hasNext
-    );
   }
 
   @Transactional

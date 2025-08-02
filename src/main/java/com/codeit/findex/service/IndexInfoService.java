@@ -6,13 +6,15 @@ import com.codeit.findex.dto.indexInfo.request.IndexInfoUpdateRequest;
 import com.codeit.findex.dto.indexInfo.response.CursorPageResponseIndexInfoDto;
 import com.codeit.findex.dto.indexInfo.response.IndexInfoDto;
 import com.codeit.findex.dto.indexInfo.response.IndexInfoSummaryDto;
+import com.codeit.findex.entity.IndexInfo;
+
 import java.util.List;
 
 public interface IndexInfoService {
   CursorPageResponseIndexInfoDto findBySearchCondWithPaging(IndexInfoSearchCond cond);
 
   // 즐겨찾기만으로 조회하는 메서드
-  CursorPageResponseIndexInfoDto findByFavoriteWithPaging(Boolean favorite, Long idAfter, Integer size);
+  List<IndexInfoDto> findAllByFavorite(Boolean favorite);
 
   IndexInfoDto findIndexInfoById(long id);
 

@@ -350,14 +350,4 @@ public class IndexInfoController {
     basicIndexInfoService.deleteIndexInfo(id);
     return ResponseEntity.ok().build();
   }
-
-    @GetMapping("/favorites")
-    public ResponseEntity<CursorPageResponseIndexInfoDto> getFavoriteIndexInfos(
-            @RequestParam(required = false) Boolean favorite,
-            @RequestParam(required = false) Long idAfter,
-            @RequestParam(required = false, defaultValue = "10") Integer size) {
-        
-        CursorPageResponseIndexInfoDto response = indexInfoService.findByFavoriteWithPaging(favorite, idAfter, size);
-        return ResponseEntity.ok(response);
-    }
 }

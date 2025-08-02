@@ -26,21 +26,24 @@ public interface IndexInfoRepository extends JpaRepository<IndexInfo, Long> {
           @Param("idAfter") Long idAfter,
           Pageable pageable);
 
-  // 즐겨찾기만으로 조회하는 메서드
-  @Query(value = """
-          SELECT * FROM index_info
-          WHERE favorite = :favorite
-          AND (:idAfter IS NULL OR id > :idAfter)
-          ORDER BY id ASC
-          """, nativeQuery = true)
-  Slice<IndexInfo> findByFavoriteWithPaging(
-          @Param("favorite") Boolean favorite,
-          @Param("idAfter") Long idAfter,
-          Pageable pageable);
+  @Query("""
+    SELECT COUNT(i)
+    FROM IndexInfo i
+    WHERE (:indexName IS NULL or i.indexName LIKE %:indexName%)
+    AND (:classification IS NULL OR i.indexClassification LIKE %classification%)
+    AND (:favorite IS NULL OR i.favorite = :favorite)
+""")
+  long countBySearchCond(
+          @Param("indexName") String indexName,
+          @Param("classification") String classification,
+          @Param("favorite") Boolean favorite
+  );
 
   List<IndexInfo> findAll();
 
   Optional<IndexInfo> findById(long id);
 
   boolean existsByIndexName(String indexName);
+
+  List<IndexInfo> findAllByFavorite(Boolean favorite);
 }
