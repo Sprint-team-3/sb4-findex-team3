@@ -1,7 +1,7 @@
  package com.codeit.findex.service.basic;
 
  import com.codeit.findex.dto.IndexDataDto;
- import com.codeit.findex.dto.indexInfo.response.IndexInfoDto
+ import com.codeit.findex.dto.indexInfo.response.IndexInfoDto;
  import com.codeit.findex.dto.IndexDataSyncRequest;
  import com.codeit.findex.dto.OpenApiResponseDto;
  import com.codeit.findex.dto.SyncJobDto;
