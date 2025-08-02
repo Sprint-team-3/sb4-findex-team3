@@ -23,7 +23,7 @@ public class IndexInfo extends BaseEntity {
   private String indexClassification;
 
   /** 지수의 분류명 (예: 코스피 200) */
-  @Column(name = "index_name", length = 255, nullable = false)
+  @Column(name = "index_name", length = 255, nullable = false, unique = true)
   private String indexName;
 
   /** 해당 지수를 구성하는 종목의 총 개수 */
@@ -44,12 +44,9 @@ public class IndexInfo extends BaseEntity {
 
   /** 사용자의 즐겨찾기 여부 */
   @Column(name = "favorite", nullable = false)
-  private boolean favorite;
+  private Boolean favorite;
 
   /** 활성화 여부 (예: 자동 연동 설정의 활성/비활성 상태) */
   @Column(name = "enabled", nullable = false)
   private boolean enabled;
-
-  // 새로 추가
-
 }
