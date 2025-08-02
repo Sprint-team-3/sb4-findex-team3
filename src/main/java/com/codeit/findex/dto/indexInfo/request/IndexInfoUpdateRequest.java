@@ -1,6 +1,6 @@
 package com.codeit.findex.dto.indexInfo.request;
 
-import java.util.Date;
+import java.time.LocalDate;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,7 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class IndexInfoUpdateRequest {
   private Integer employedItemsCount;
-  private Date basePointInTime;
+  private LocalDate basePointInTime;
   private Double baseIndex;
   private Boolean favorite;
 }
