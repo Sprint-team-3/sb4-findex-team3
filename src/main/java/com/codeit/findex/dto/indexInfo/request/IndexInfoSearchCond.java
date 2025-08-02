@@ -9,14 +9,15 @@ import lombok.Setter;
 @NoArgsConstructor
 public class IndexInfoSearchCond {
 
-    private String indexClassification;
-    private String indexName;
-    private Boolean favorite;
+  private String indexClassification;
+  private String indexName;
+  private Boolean favorite;
 
-    private long idAfter;
-    private String cursor;
+  private Long idAfter;
+  private String cursor;
 
-    private String sortField = "indexClassification";  // 기본값
-    private String sortDirection = "asc";
-    private int size = 10;
+  private String sortField =
+      "indexClassification"; // 기본값: indexClassification, indexName, employedItemsCount
+  private String sortDirection = "asc"; // asc, desc
+  private Integer size = 10;
 }

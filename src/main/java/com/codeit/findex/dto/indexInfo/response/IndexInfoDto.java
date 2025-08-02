@@ -1,22 +1,22 @@
 package com.codeit.findex.dto.indexInfo.response;
 
-import java.util.Date;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
+import lombok.Setter;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class IndexInfoDto {
-    private long id;
-    private String indexClassification;
-    private String indexName;
-    private LocalDate basePointInTime;
-    private int employedItemsCount;
-    private Double baseIndex;
-    private String SourceType;
-    private Boolean favorite;
+  private long id;
+  private String indexClassification;
+  private String indexName;
+  private int employedItemsCount;
+  private LocalDate basepointInTime;
+  private double baseIndex;
+  private String sourceType;
+  private Boolean favorite;
 }

@@ -1,47 +1,46 @@
 package com.codeit.findex.repository;
 
 import com.codeit.findex.entity.IndexInfo;
+
+import java.util.List;
+import java.util.Optional;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
-import java.util.Optional;
-import org.springframework.data.jpa.repository.JpaRepository;
-
 public interface IndexInfoRepository extends JpaRepository<IndexInfo, Long> {
-    @Query("SELECT i FROM IndexInfo i WHERE i.indexName LIKE %:indexName%")
-    List<IndexInfo> findByIndexName(@Param("indexName") String indexName);
 
-    @Query("SELECT i FROM IndexInfo i WHERE i.indexClassification LIKE %:classification%")
-    List<IndexInfo> findByIndexClassification(@Param("classification") String classification);
+  @Query(value = """
+          SELECT i FROM IndexInfo i
+          WHERE (:indexName IS NULL OR i.indexName LIKE CONCAT('%', CAST(:indexName AS string), '%'))
+          AND (:classification IS NULL OR i.indexClassification LIKE CONCAT('%', CAST(:classification AS string), '%'))
+          AND (:favorite IS NULL OR i.favorite = :favorite)
+          AND (:idAfter IS NULL OR i.id > :idAfter)
+          """)
+  Slice<IndexInfo> findBySearchCondWithPaging(
+          @Param("indexName") String indexName,
+          @Param("classification") String classification,
+          @Param("favorite") Boolean favorite,
+          @Param("idAfter") Long idAfter,
+          Pageable pageable);
 
-    @Query("SELECT i FROM IndexInfo i WHERE i.favorite = :favorite")
-    List<IndexInfo> findByFavorite(@Param("favorite") Boolean favorite);
+  // 즐겨찾기만으로 조회하는 메서드
+  @Query(value = """
+          SELECT * FROM index_info
+          WHERE favorite = :favorite
+          AND (:idAfter IS NULL OR id > :idAfter)
+          ORDER BY id ASC
+          """, nativeQuery = true)
+  Slice<IndexInfo> findByFavoriteWithPaging(
+          @Param("favorite") Boolean favorite,
+          @Param("idAfter") Long idAfter,
+          Pageable pageable);
 
-    @Query("SELECT i FROM IndexInfo i WHERE i.indexName LIKE %:indexName% " +
-            "AND i.indexClassification LIKE %:classification%")
-    List<IndexInfo> findByIndexNameAndIndexClassification(@Param("indexName") String indexName, @Param("classification") String classification);
+  List<IndexInfo> findAll();
 
-    @Query("SELECT i FROM IndexInfo i WHERE i.indexName LIKE %:indexName% " +
-            "AND i.favorite = :favorite")
-    List<IndexInfo> findByIndexNameAndFavorite(@Param("indexName") String indexName, @Param("favorite") Boolean favorite);
+  Optional<IndexInfo> findById(long id);
 
-    @Query("SELECT i FROM IndexInfo i WHERE i.indexClassification LIKE %:classification% " +
-            "AND i.favorite = :favorite")
-    List<IndexInfo> findByIndexClassificationAndFavorite(@Param("classification") String classification, @Param("favorite") Boolean favorite);
-
-    @Query("SELECT i FROM IndexInfo i WHERE i.indexName LIKE %:indexName% " +
-            "AND i.indexClassification LIKE %:classification% " +
-            "AND i.favorite = :favorite")
-    List<IndexInfo> findByIndexNameAndIndexClassificationAndFavorite(
-            @Param("indexName") String indexName,
-            @Param("classification") String classification,
-            @Param("favorite") Boolean favorite);
-
-
-  //Optional<IndexInfo> findByIndexName(String indexName);
-
-  Optional<IndexInfo> findByIndexClassificationAndIndexName(
-      String indexClassification, String indexName);
+  boolean existsByIndexName(String indexName);
 }
