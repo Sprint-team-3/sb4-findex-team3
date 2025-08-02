@@ -31,8 +31,10 @@ public class BasicDashboardService implements DashboardService {
   private final IndexInfoRepository indexInfoRepository;
   private final DashboardRepository dashboardRepository;
 
-  // ==================================== 즐겨찾기 지수 현황 요약 ====================================
 
+  /**
+   * 주요 지수
+   */
   @Override
   public List<PerformanceDto> getFavPerformanceDto(PeriodType periodType) {
 
@@ -72,7 +74,10 @@ public class BasicDashboardService implements DashboardService {
       double currentPrice = current.getClosingPrice(); // 증가
       double beforePrice = comparisonData.get().getClosingPrice();
       double versus = currentPrice - beforePrice;
-      double fluctuationRate = versus / beforePrice * 100;
+      double fluctuationRate = 0.0;
+      if (beforePrice != 0) {
+        fluctuationRate = versus / beforePrice * 100;
+      }
 
       performanceDtoList.add(new PerformanceDto(
           indexInfoId,
@@ -89,13 +94,16 @@ public class BasicDashboardService implements DashboardService {
     return performanceDtoList;
   }
 
-  // ==================================== 차트 ====================================
+
+  /**
+   * 지수 차트
+   */
   @Override
   public IndexChartDto getChartData(long indexInfoId, ChartPeriodType chartPeriodType) {
 
     IndexInfo indexInfoDto =
         indexInfoRepository.findById(indexInfoId)
-            .orElseThrow(() -> new NoSuchElementException("IndexData does not exist"));
+            .orElseThrow(() -> new NoSuchElementException("IndexInfo does not exist for id: " + indexInfoId));
 
     // 가장 최신 IndexData fetch
     IndexData latestIndexData =
@@ -166,7 +174,9 @@ public class BasicDashboardService implements DashboardService {
     );
   }
 
-  // ==================================== 지수 성과 분석 랭킹 ====================================
+  /**
+   * 지수 성과
+   */
   @Override
   public List<RankedIndexPerformanceDto> getPerformanceRank(long indexInfoId, PeriodType periodType, int limit) {
 
@@ -219,7 +229,10 @@ public class BasicDashboardService implements DashboardService {
 
               // 계산
               double versus = recentClosingPrice - pastClosingPrice;
-              double fluctuationRate = versus / pastClosingPrice * 100;
+              double fluctuationRate = 0.0; // Default value
+              if (pastClosingPrice != 0) {
+                fluctuationRate = (recentClosingPrice - pastClosingPrice) / pastClosingPrice * 100;
+              }
 
               PerformanceDto performanceDto =  new PerformanceDto(
                   i.getId(),

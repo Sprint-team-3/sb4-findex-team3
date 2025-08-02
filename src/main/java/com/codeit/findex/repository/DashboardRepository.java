@@ -85,7 +85,7 @@ public interface DashboardRepository extends JpaRepository<IndexData, Long> {
           """
       WITH RankedData AS (
           SELECT id, indexInfoId, base_date, closing_price,
-              ROW NUMBER() OVER(PARTITION BY indexInfoId ORDER BY base_date DESC) as rn
+              ROW_NUMBER() OVER(PARTITION BY indexInfoId ORDER BY base_date DESC) as rn
           FROM IndexData
           WHERE base_date <= :pastDate
       )
