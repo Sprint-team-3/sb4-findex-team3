@@ -1,17 +1,17 @@
 package com.codeit.findex.service.dashboard;
 
-import com.codeit.findex.dto.IndexInfoDto;
 import com.codeit.findex.dto.dashboard.ChartDataPoint;
 import com.codeit.findex.dto.dashboard.ChartPeriodType;
 import com.codeit.findex.dto.dashboard.IndexChartDto;
 import com.codeit.findex.dto.dashboard.PerformanceDto;
 import com.codeit.findex.dto.dashboard.PeriodType;
 import com.codeit.findex.dto.dashboard.RankedIndexPerformanceDto;
+import com.codeit.findex.dto.indexInfo.response.IndexInfoDto;
 import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.entity.IndexInfo;
-import com.codeit.findex.entityEnum.SourceType;
 import com.codeit.findex.repository.DashboardRepository;
 import com.codeit.findex.repository.IndexInfoRepository;
+import com.codeit.findex.service.IndexInfoService;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -31,7 +31,7 @@ public class BasicDashboardService implements DashboardService {
   private final IndexInfoRepository indexInfoRepository;
   private final DashboardRepository dashboardRepository;
 
-
+  private final IndexInfoService indexInfoService;
   /**
    * 주요 지수
    */
@@ -39,12 +39,12 @@ public class BasicDashboardService implements DashboardService {
   public List<PerformanceDto> getFavPerformanceDto(PeriodType periodType) {
 
     // 즐겨 찾기한 IndexData리스트 가져오기
-//    List<IndexInfo> favoriteInfos = indexInfoRepository.getFavorites();
-    List<IndexInfo> favoriteInfos = null;
+    List<IndexInfoDto> favoriteInfos = indexInfoService.findAllByFavorite(true);
+//    List<IndexInfo> favoriteInfos = null;
 
     // 위의 리스트 토대로 id 리스트 생성
     List<Long> indexInfoIdList = favoriteInfos.stream()
-        .map(IndexInfo::getId)
+        .map(IndexInfoDto::getId)
         .toList();
 
     // id 리스트에 있는 IndexInfo당 가장 최신 IndexData 가져오기
@@ -54,7 +54,7 @@ public class BasicDashboardService implements DashboardService {
         .collect(Collectors.toMap(i -> i.getIndexInfo().getId(), i -> i));
 
     List<PerformanceDto> performanceDtoList = new ArrayList<>();
-    for (IndexInfo i : favoriteInfos) {
+    for (IndexInfoDto i : favoriteInfos) {
       long indexInfoId = i.getId();
 
       IndexData current = recentIndexDataMap.get(indexInfoId);
@@ -303,32 +303,5 @@ public class BasicDashboardService implements DashboardService {
         indexInfoId, startDate, endDate);
   }
 
-  // =============================  dummy data =============================
-
-  long kospiId = 1L;
-  long kosdaqId = 2L;
-  IndexInfoDto kospiInfo =
-      new IndexInfoDto(
-          kospiId,
-          "주가지수", // index_classification: Stock Index
-          "KOSPI", // index_name
-          200, // employed_items_count
-          LocalDate.now(), // basepoint_intime
-          100.00, // base_index
-          SourceType.USER, // source_type
-          true // favorite
-      );
-
-  IndexInfoDto kosdaqInfo =
-      new IndexInfoDto(
-          kosdaqId,
-          "주가지수", // index_classification: Stock Index
-          "KOSDAQ", // index_name
-          1500, // employed_items_count
-          LocalDate.now(), // basepoint_intime
-          1000.00, // base_index
-          SourceType.USER, // source_type
-          true // favorite
-      );
 
 }
