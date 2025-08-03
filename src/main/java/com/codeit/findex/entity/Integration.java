@@ -22,6 +22,7 @@ import lombok.Setter;
 @Table(name = "integration")
 public class Integration extends BaseEntity {
 
+
   /** 작업 대상이 된 지수 정보 (외래 키) IndexInfo 엔티티와 다대일(N:1) 관계를 맺습니다. */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "index_Info_Id", nullable = false) // ERD의 'indexInfoId' 컬럼명과 매핑
@@ -40,28 +41,21 @@ public class Integration extends BaseEntity {
   @Column(name = "job_type", length = 100, nullable = false)
   private JobType jobType;
 
-  /** 연동 대상 날짜 범위의 시작일 */
-  @Column(name = "base_date_from")
-  private LocalDate baseDateFrom;
-
-  /** 연동 대상 날짜 범위의 종료일 */
-  @Column(name = "base_date_to")
-  private LocalDate baseDateTo;
+  /** 연동 대상 날짜*/
+  @Column(name = "base_date")
+  private LocalDate baseDate;
 
   /** 작업을 실행한 주체 (사용자 IP 또는 "system") */
   @Column(name = "worker", length = 100, nullable = false)
   private String worker;
 
-  /** 작업 실행 시간 범위의 시작 시간 (조회용) */
-  @Column(name = "job_time_from")
-  private LocalDateTime jobTimeFrom;
-
-  /** 작업 실행 시간 범위의 종료 시간 (조회용) */
-  @Column(name = "job_time_to")
-  private LocalDateTime jobTimeTo;
+  /** 작업 실행 시간 (조회용) */
+  @Column(name = "job_time")
+  private LocalDateTime jobTime;
 
   /** 작업 결과 (성공/실패) */
   @Enumerated(EnumType.STRING)
   @Column(name = "result", nullable = false)
   private Result result;
+
 }
