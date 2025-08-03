@@ -2,9 +2,7 @@ package com.codeit.findex.entity;
 
 import com.codeit.findex.entity.base.BaseEntity;
 import com.codeit.findex.entityEnum.SourceType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +10,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "IndexInfo")
+@Table(name = "indexinfo")
 public class IndexInfo extends BaseEntity {
 
   //  @OneToMany(mappedBy = "IndexInfo", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -39,6 +37,7 @@ public class IndexInfo extends BaseEntity {
   private double baseIndex;
 
   /** 정보가 입력된 출처 (예: "USER", "OPEN_API") */
+  @Enumerated(EnumType.STRING)
   @Column(name = "source_type", length = 20, nullable = false)
   private SourceType sourceType;
 

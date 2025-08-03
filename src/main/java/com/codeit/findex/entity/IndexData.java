@@ -2,12 +2,7 @@ package com.codeit.findex.entity;
 
 import com.codeit.findex.entity.base.BaseEntity;
 import com.codeit.findex.entityEnum.SourceType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,12 +10,12 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "IndexData")
+@Table(name = "indexdata")
 public class IndexData extends BaseEntity {
 
   /** 이 데이터가 속한 지수 정보 (외래 키) IndexInfo 엔티티와 다대일(N:1) 관계를 맺습니다. */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "indexInfoId", nullable = false) // ERD의 'indexInfoId' 컬럼명과 매핑
+  @JoinColumn(name = "index_info_id", nullable = false) // ERD의 'indexInfoId' 컬럼명과 매핑
   private IndexInfo indexInfo;
 
   /** 기준 날짜 */
@@ -28,6 +23,7 @@ public class IndexData extends BaseEntity {
   private LocalDate baseDate;
 
   /** 소스 타입 (예: USER, OPEN_API) */
+  @Enumerated(EnumType.STRING)
   @Column(name = "source_type", length = 20, nullable = false)
   private SourceType sourceType;
 

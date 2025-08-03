@@ -1,9 +1,19 @@
 package com.codeit.findex.service.autosync;
 
+import com.codeit.findex.dto.IndexInfoDto;
 import com.codeit.findex.dto.autosync.response.AutoSyncConfigDto;
 import com.codeit.findex.dto.autosync.response.CursorPageResponseAutoSyncConfigDto;
+import com.codeit.findex.dto.indexInfo.request.IndexInfoCreateRequest;
 
 public interface AutoSyncConfigService {
+
+  /**
+   * 자동 연동 설정을 등록합니다.
+   *
+   * @param request 자동 연동 설정으로 등록할 지수의 속성들을 담은 요청 DTO
+   * @return 생성되어 저장된 지수를 표현한 Dto
+   */
+  IndexInfoDto createAutoSyncConfig(IndexInfoCreateRequest request);
 
   /**
    * 활성화(enabled) 속성만 업데이트합니다. 트랜잭션(@Transactional) 내에서 동작하며, 기존 엔티티 조회 후 enabled 값 변경, 저장, DTO 반환
