@@ -1,10 +1,7 @@
 package com.codeit.findex.service;
 
+import com.codeit.findex.dto.indexData.request.*;
 import com.codeit.findex.dto.indexData.response.IndexDataDto;
-import com.codeit.findex.dto.indexData.request.IndexDataDateRequest;
-import com.codeit.findex.dto.indexData.request.IndexDataSaveRequest;
-import com.codeit.findex.dto.indexData.request.IndexDataSearchRequest;
-import com.codeit.findex.dto.indexData.request.IndexDataUpdateRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -24,4 +21,7 @@ public interface IndexDataService {
 
     // 지수 데이터 삭제
     void deleteIndexData(long id);
+
+    // 지수 데이터 Export(지수 데이터 다운로드)
+    byte[] downloadIndexData();
 }

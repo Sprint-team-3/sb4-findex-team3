@@ -17,5 +17,4 @@ public interface IndexDataMapper extends GenericMapper<IndexDataDto, IndexData> 
     List<IndexData> toEntities(List<IndexDataDto> dtos);
 
     IndexDataDto toDto(IndexDataSaveRequest request);
-
 }

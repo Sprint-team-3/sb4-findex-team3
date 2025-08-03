@@ -1,21 +1,24 @@
 package com.codeit.findex.service.basic;
 
+import com.codeit.findex.dto.indexData.request.*;
 import com.codeit.findex.dto.indexData.response.IndexDataDto;
 import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.entity.IndexInfo;
+import com.codeit.findex.mapper.CSVStringMapper;
 import com.codeit.findex.mapper.IndexDataMapper;
 import com.codeit.findex.repository.IndexDataRepository;
 import com.codeit.findex.repository.IndexInfoRepository;
-import com.codeit.findex.dto.indexData.request.IndexDataDateRequest;
-import com.codeit.findex.dto.indexData.request.IndexDataSaveRequest;
-import com.codeit.findex.dto.indexData.request.IndexDataSearchRequest;
-import com.codeit.findex.dto.indexData.request.IndexDataUpdateRequest;
 import com.codeit.findex.service.IndexDataService;
+import com.opencsv.CSVWriter;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStreamWriter;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -76,6 +79,9 @@ public class BasicIndexDataService implements IndexDataService {
         return mapper.toDto(indexData);
     }
 
+    /**
+     * 정렬을 하지 않은 상태
+     */
     @Override
     public Page<IndexDataDto> searchByIndexAndDate(IndexDataDateRequest request, Pageable pageable) {
         IndexInfo indexInfo = infoRepository.findById(request.indexInfo()) // infoRepository에서 일단 id를 찾고
@@ -102,4 +108,39 @@ public class BasicIndexDataService implements IndexDataService {
 
         dataRepository.deleteById(id);
     };
+
+    /**
+     * 지수 데이터 Export
+     * 1. 지수 데이터 전체를 Export 하는거니까 List<IndexDataDto> 형태로 전부 찾는다
+     * 2. OutputStream 생성
+     * 3. CSVWriter를 하나 만든다
+     * 4. CSVWriter에 Header - Body 순으로 작성한다
+     * CSVWriter.
+     */
+    @Override
+    public byte[] downloadIndexData() {
+            // try-catch
+            try {
+            List<IndexData> listData = dataRepository.findAll();
+                // ByteArrayOutputStream을 씀
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                CSVWriter csvWriter = new CSVWriter(
+                        new OutputStreamWriter(outputStream, "UTF-8")); // 직렬화, 역직렬화를 할땐 예외 필수
+
+                // CSV header 작성
+                String[] header = {"기준일자", "시가", "종가", "고가", "저가", "전일대비등락", "등락률", "거래량", "거래대금", "시가총액"};
+                csvWriter.writeNext(header);
+                // 0번째 indexData에 있는 기준날짜, 등등을 받아와야됨
+                // 반복문을 통해 List<IndexData>를 돌면서 header에 따라 데이터를 넣는다, CSV 작성
+                for (int i = 0; i < listData.size(); i++) {
+                    IndexData indexData = listData.get(i);
+                    String[] csvData = CSVStringMapper.mapper(indexData);
+                    csvWriter.writeNext(csvData);
+                } // for문 끝
+                csvWriter.close();
+                return outputStream.toByteArray();
+        }catch(Exception e) {
+                return null;
+        }
+    }
 }
