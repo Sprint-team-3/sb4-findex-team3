@@ -1,9 +1,8 @@
- package com.codeit.findex.repository;
+package com.codeit.findex.repository;
 
- import com.codeit.findex.entity.Integration;
- import java.util.UUID;
- import org.springframework.data.jpa.repository.JpaRepository;
- import org.springframework.stereotype.Repository;
+import com.codeit.findex.entity.Integration;
+import org.springframework.data.jpa.repository.JpaRepository;
 
- @Repository
- public interface IntegrationRepository extends JpaRepository<Integration, UUID> {}
+public interface IntegrationRepository extends JpaRepository<Integration, Long> {
+
+}
