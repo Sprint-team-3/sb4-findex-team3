@@ -2,34 +2,29 @@ package com.codeit.findex.repository;
 
 import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.entity.IndexInfo;
-import java.time.LocalDate;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
+@Repository
 public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
 
-  Optional<IndexData> findByIndexInfoId(Long id);
+    // 지수 데이터 등록
+//    if(dataRepository.exists(request.indexInfo()) && dataRepository.exists(request.baseDate())) {}
+    boolean existsByIndexInfoIdAndBaseDate(Long indexInfoId, LocalDate baseDate);
 
-  Optional<IndexData> findByIndexInfoIdAndBaseDate(long indexInfoId, LocalDate baseDate);
+    // 지수 데이터 목록 조회
+    Page<IndexData> findByIndexInfoAndBaseDateBetween(IndexInfo indexInfo, LocalDate startDate, LocalDate endDate, Pageable pageable);
 
-  boolean existsByIndexInfoAndBaseDate(IndexInfo indexInfo, LocalDate baseDate);
+    // BasicIntegrationService에서 사용하는 메서드입니다.
+    Optional<IndexData> findByIndexInfoIdAndBaseDate(long id, LocalDate localDate);
 
-  Optional<IndexData> findFirstByIndexInfo_IdOrderByBaseDateDesc(Long indexInfoId);
+    List<IndexData> findAllByIndexInfoId(Long id);
 
-  Page<IndexData> findAllByIndexInfoIdAndBaseDateBetweenOrderByBaseDateDesc(
-      Long indexInfoId, LocalDate from, LocalDate to, Pageable pageable);
-
-  List<IndexData> findAllByIndexInfoIdAndBaseDateIn(
-      Long indexInfoId, Collection<LocalDate> baseDates);
-
-  List<IndexData> findAllByIndexInfoIdInAndBaseDateBetween(
-      Collection<Long> indexInfoIds, LocalDate from, LocalDate to);
-
-  Optional<IndexData> findTopByIndexInfoOrderByBaseDateDesc(IndexInfo indexInfo);
-
-  List<IndexData> findAllByIndexInfoId(long id);
 }
