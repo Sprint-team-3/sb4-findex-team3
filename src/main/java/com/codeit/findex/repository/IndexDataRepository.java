@@ -5,7 +5,6 @@ import com.codeit.findex.entity.IndexInfo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -25,6 +24,8 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
     // BasicIntegrationService에서 사용하는 메서드입니다.
     Optional<IndexData> findByIndexInfoIdAndBaseDate(long id, LocalDate localDate);
 
-    // IndexInfoService에서 사용하는 메서드입니다.
+    Optional<IndexData> findTopByIndexInfoOrderByBaseDateDesc(IndexInfo indexInfo);
+
     List<IndexData> findAllByIndexInfoId(Long id);
+
 }

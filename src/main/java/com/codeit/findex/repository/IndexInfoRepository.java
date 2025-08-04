@@ -2,6 +2,7 @@ package com.codeit.findex.repository;
 
 import com.codeit.findex.entity.IndexInfo;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Pageable;
@@ -39,9 +40,14 @@ public interface IndexInfoRepository extends JpaRepository<IndexInfo, Long> {
           @Param("favorite") Boolean favorite
   );
 
+  Optional<IndexInfo> findFirstByIndexClassificationAndIndexNameAndBasepointInTimeOrderByCreatedAtDesc(
+          String indexClassification, String indexName, LocalDate basepointInTime);
+
   List<IndexInfo> findAll();
 
   Optional<IndexInfo> findById(long id);
+
+  List<IndexInfo> findAllByEnabledTrue();
 
   boolean existsByIndexName(String indexName);
 

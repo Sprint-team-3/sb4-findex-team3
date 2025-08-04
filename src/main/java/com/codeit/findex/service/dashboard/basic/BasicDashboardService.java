@@ -1,4 +1,4 @@
-package com.codeit.findex.service.basic;
+package com.codeit.findex.service.dashboard.basic;
 
 import com.codeit.findex.dto.dashboard.ChartDataPoint;
 import com.codeit.findex.dto.dashboard.ChartPeriodType;
@@ -11,7 +11,7 @@ import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.entity.IndexInfo;
 import com.codeit.findex.repository.DashboardRepository;
 import com.codeit.findex.repository.IndexInfoRepository;
-import com.codeit.findex.service.DashboardService;
+import com.codeit.findex.service.dashboard.DashboardService;
 import com.codeit.findex.service.IndexInfoService;
 import java.time.LocalDate;
 import java.util.ArrayList;

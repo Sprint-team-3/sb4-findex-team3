@@ -6,8 +6,6 @@ import com.codeit.findex.dto.indexInfo.request.IndexInfoUpdateRequest;
 import com.codeit.findex.dto.indexInfo.response.CursorPageResponseIndexInfoDto;
 import com.codeit.findex.dto.indexInfo.response.IndexInfoDto;
 import com.codeit.findex.dto.indexInfo.response.IndexInfoSummaryDto;
-import com.codeit.findex.entity.IndexInfo;
-
 import java.util.List;
 
 public interface IndexInfoService {
