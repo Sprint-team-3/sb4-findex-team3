@@ -30,6 +30,6 @@ public class BaseEntity {
   LocalDate updatedAt;
 
   protected void updateTimeStamp() {
-    this.updatedAt = LocalDate.now().now();
+    this.updatedAt = LocalDate.now();
   }
 }
