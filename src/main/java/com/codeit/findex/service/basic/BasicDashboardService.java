@@ -1,4 +1,4 @@
-package com.codeit.findex.service.dashboard;
+package com.codeit.findex.service.basic;
 
 import com.codeit.findex.dto.dashboard.ChartDataPoint;
 import com.codeit.findex.dto.dashboard.ChartPeriodType;
@@ -11,6 +11,7 @@ import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.entity.IndexInfo;
 import com.codeit.findex.repository.DashboardRepository;
 import com.codeit.findex.repository.IndexInfoRepository;
+import com.codeit.findex.service.DashboardService;
 import com.codeit.findex.service.IndexInfoService;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -132,36 +133,46 @@ public class BasicDashboardService implements DashboardService {
     List<ChartDataPoint> ma5DataPoints = new ArrayList<>();
     List<ChartDataPoint> ma20DataPoints = new ArrayList<>();
 
-    IntStream.range(0, indexDataList.size())
-        .filter(i -> !indexDataList.get(i).getBaseDate().isBefore(startDate))
-        .forEach(
-            i -> {
-              IndexData currentData = indexDataList.get(i);
-              LocalDate currentDate = currentData.getBaseDate();
-              dataPoints.add(new ChartDataPoint(currentDate, currentData.getClosingPrice()));
+    double ma5Sum = 0.0;
+    double ma20Sum = 0.0;
+    final int ma5Window = 5;
+    final int ma20Window = 20;
 
-              // 5일 이동평균선
-              if (i >= 4) {
-                double closingPricetotal = 0;
-                for (int j = 0; j < 5; j++) {
-                  closingPricetotal += indexDataList.get(i - j).getClosingPrice();
-                }
-                closingPricetotal /= 5;
-                ma5DataPoints.add(
-                    new ChartDataPoint(indexDataList.get(i).getBaseDate(), closingPricetotal));
-              }
+    for (int i = 0; i < indexDataList.size(); i++) {
 
-              // 20일 이동평균선
-              if (i >= 19) {
-                double closingPricetotal = 0;
-                for (int j = 0; j < 20; j++) {
-                  closingPricetotal += indexDataList.get(i - j).getClosingPrice();
-                }
-                closingPricetotal /= 20;
-                ma20DataPoints.add(
-                    new ChartDataPoint(indexDataList.get(i).getBaseDate(), closingPricetotal));
-              }
-            });
+      IndexData currentData = indexDataList.get(i);
+      LocalDate currentDate = currentData.getBaseDate();
+      double currentClosingPrice = currentData.getClosingPrice();
+
+      ma5Sum += currentClosingPrice;
+      ma20Sum += currentClosingPrice;
+
+      // window가 slide하면, window 밖에 있는 요소를 빼기
+      //그 전 요소만 빼기
+      if (i >= ma5Window) {
+        ma5Sum -= indexDataList.get(i - ma5Window).getClosingPrice();
+      }
+      if (i >= ma20Window) {
+        ma20Sum -= indexDataList.get(i - ma20Window).getClosingPrice();
+      }
+
+      // startDate 이후에만 data point 더함
+      if (currentDate.isEqual(startDate) || currentDate.isAfter(startDate) ) {
+          dataPoints.add(new ChartDataPoint(currentDate, currentData.getClosingPrice()));
+
+          // window 사이즈 이후
+          // 0,1,2,3,4 -> 5개니까 4부터 시작
+          if (i >= ma5Window - 1) {
+            // 평균값 구하기 위해 /5
+            ma5DataPoints.add(new ChartDataPoint(currentDate, ma5Sum / 5));
+          }
+
+          if (i >= ma20Window - 1) {
+            // 평균값 구하기 위해 /20
+            ma20DataPoints.add(new ChartDataPoint(currentDate, ma20Sum / 20));
+          }
+      }
+    }
 
     return new IndexChartDto(
         indexInfoId,
