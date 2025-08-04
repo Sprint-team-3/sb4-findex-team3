@@ -168,7 +168,7 @@ public class BasicIntegrationService implements IntegrationService {
     integration.setIndexInfo(indexInfo);
     integration.setIndexData(null);
     integration.setJobType(JobType.INDEX_INFO);
-    integration.setBaseDate(indexInfo.getBasepointInTime());
+    integration.setBaseDate(indexInfo.getBasePointInTime());
     integration.setWorker(workerIp);
     integration.setJobTime(LocalDateTime.now());
     integration.setResult(Result.SUCCESS);

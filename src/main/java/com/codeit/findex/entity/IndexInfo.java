@@ -31,7 +31,7 @@ public class IndexInfo extends BaseEntity {
 
   /** 지수 산출의 기준이 되는 날짜 및 시간 */
   @Column(name = "basepoint_intime", nullable = false)
-  private LocalDate basepointInTime;
+  private LocalDate basePointInTime;
 
   /** 기준 시점의 지수 값 (보통 100 또는 1000) */
   @Column(name = "base_index", nullable = false)
