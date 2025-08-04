@@ -11,9 +11,7 @@ import org.springframework.data.repository.query.Param;
 public interface DashboardRepository extends JpaRepository<IndexData, Long> {
 
   // ==================================== 즐겨찾기 지수 현황 요약 ====================================
-  /**
-   * 특정 indexInfoId에 해당하는 가장 최신 IndexData를 조회합니다.
-   */
+  /** 특정 indexInfoId에 해당하는 가장 최신 IndexData를 조회합니다. */
   Optional<IndexData> findTopByIndexInfoIdOrderByBaseDateDesc(long indexInfoId);
 
   /**
@@ -23,33 +21,27 @@ public interface DashboardRepository extends JpaRepository<IndexData, Long> {
   Optional<IndexData> findTopByIndexInfoIdAndBaseDateLessThanEqualOrderByBaseDateDesc(
       long indexInfoId, LocalDate baseDate);
 
-//  =====================
-  /**
-   * 리스트에 있는 indexInfoId당 특정 indexInfoId에 해당하는 가장 최신 IndexData를 조회합니다.
-   */
+  //  =====================
+  /** 리스트에 있는 indexInfoId당 특정 indexInfoId에 해당하는 가장 최신 IndexData를 조회합니다. */
   @Query(
-      "SELECT d FROM IndexData d WHERE d.indexInfo.id IN :indexInfoIds AND d.baseDate = " +
-      "(SELECT MAX(d2.baseDate) FROM IndexData d2 WHERE d2.indexInfo.id = d.indexInfo.id)"
-  )
+      "SELECT d FROM IndexData d WHERE d.indexInfo.id IN :indexInfoIds AND d.baseDate = "
+          + "(SELECT MAX(d2.baseDate) FROM IndexData d2 WHERE d2.indexInfo.id = d.indexInfo.id)")
   List<IndexData> findRecentByIndexInfoIds(@Param("indexInfoIds") List<Long> indexInfoIds);
 
   /**
-   * For a given list of IndexInfo IDs, finds all their data points that occurred on or before a specified date.
-   * This is used to fetch a superset of all potential comparison data in a single query.
+   * For a given list of IndexInfo IDs, finds all their data points that occurred on or before a
+   * specified date. This is used to fetch a superset of all potential comparison data in a single
+   * query.
    */
   @Query(
-      "SELECT d FROM IndexData d " +
-          "WHERE d.indexInfo.id IN :indexInfoIds AND d.baseDate <= :maxDate"
-  )
+      "SELECT d FROM IndexData d "
+          + "WHERE d.indexInfo.id IN :indexInfoIds AND d.baseDate <= :maxDate")
   List<IndexData> findPastByIndexInfoIds(
-      @Param("indexInfoIds") List<Long> indexInfoIds,
-      @Param("maxDate") LocalDate maxDate
-  );
+      @Param("indexInfoIds") List<Long> indexInfoIds, @Param("maxDate") LocalDate maxDate);
 
-  // ================================================ 차트 ================================================
-  /**
-   * 지정된 지수 정보 ID와 기준일자 범위에 해당하는 지수 데이터를 기준일자 오름차순으로 조회합니다.
-   */
+  // ================================================ 차트
+  // ================================================
+  /** 지정된 지수 정보 ID와 기준일자 범위에 해당하는 지수 데이터를 기준일자 오름차순으로 조회합니다. */
   // Asc - oldest to newest (e.g., Jan 1, Jan 2, Jan 3, ...).
   List<IndexData> findByIndexInfoIdAndBaseDateBetweenOrderByBaseDateAsc(
       long indexInfoId, LocalDate startDate, LocalDate endDate);
@@ -57,8 +49,7 @@ public interface DashboardRepository extends JpaRepository<IndexData, Long> {
   // ==================================== 지수 성과 분석 랭킹 ====================================
 
   /**
-   * 모든 IndexInfo에 대해 가장 최신의 IndexData를 한번의 쿼리로 조회합니다.
-   * N+1 문제를 해결하기 위해 Native SQL과 ROW_NUMBER를 사용합니다
+   * 모든 IndexInfo에 대해 가장 최신의 IndexData를 한번의 쿼리로 조회합니다. N+1 문제를 해결하기 위해 Native SQL과 ROW_NUMBER를 사용합니다
    */
   @Query(
       value =
@@ -76,9 +67,8 @@ public interface DashboardRepository extends JpaRepository<IndexData, Long> {
   List<IndexData> findAllRecentIndexData();
 
   /**
-   * 모든 IndexInfo에 대해 특정 과거 시점 / 그 이전에 가장 최신인 IndexData를 한번의 쿼리로 조회합니다.
-   * 주말이나 공휴일 데이터를 처리하며, N+1문제를 해결하기 위해 Native SQL과 ROW_NUMBER를 사용합니다.
-   *
+   * 모든 IndexInfo에 대해 특정 과거 시점 / 그 이전에 가장 최신인 IndexData를 한번의 쿼리로 조회합니다. 주말이나 공휴일 데이터를 처리하며, N+1문제를
+   * 해결하기 위해 Native SQL과 ROW_NUMBER를 사용합니다.
    */
   @Query(
       value =
@@ -95,6 +85,4 @@ public interface DashboardRepository extends JpaRepository<IndexData, Long> {
     """,
       nativeQuery = true)
   List<IndexData> findAllPastIndexData(@Param("pastDate") LocalDate pastDate);
-
-
 }
