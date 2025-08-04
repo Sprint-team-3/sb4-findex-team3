@@ -4,6 +4,7 @@ import com.codeit.findex.dto.indexData.request.*;
 import com.codeit.findex.dto.indexData.response.IndexDataDto;
 import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.entity.IndexInfo;
+import com.codeit.findex.entityEnum.SourceType;
 import com.codeit.findex.mapper.CSVStringMapper;
 import com.codeit.findex.mapper.IndexDataMapper;
 import com.codeit.findex.repository.IndexDataRepository;
@@ -35,17 +36,15 @@ public class BasicIndexDataService implements IndexDataService {
         if(dataRepository.existsByIndexInfoIdAndBaseDate(request.indexInfoId(), request.baseDate())) {
             throw new IllegalArgumentException("Index and Date already exists!");
         }
-
         // 만약, IndexDataSaveRequest로부터 받은 Long타입 indexInfoId가 존재하지 않는다면, 예외발생
         IndexInfo indexInfo = infoRepository.findById(request.indexInfoId())
                 .orElseThrow(() -> new EntityNotFoundException("IndexInfo not found!"));
 
-        // 지수, 날짜부터 상장 시가 총액까지 모든 속성을 입력해 지수 데이터를 등록함
         IndexData indexData = new IndexData();
-        // IndexData 안의 indexinfo는 indexinfo타입이니까 long이 들어가면 안됨
+
         indexData.setIndexInfo(indexInfo);
         indexData.setBaseDate(request.baseDate());
-        indexData.setSourceType(request.sourceType());
+        indexData.setSourceType(SourceType.USER);
         indexData.setOpenPrice(request.openPrice());
         indexData.setClosingPrice(request.closingPrice());
         indexData.setHighPrice(request.highPrice());
@@ -55,9 +54,13 @@ public class BasicIndexDataService implements IndexDataService {
         indexData.setTradingVolume(request.tradingVolume());
         indexData.setTradingValue(request.tradingValue());
         indexData.setMarketTotalAmount(request.marketTotalAmount());
-        dataRepository.save(indexData); // dataRepository에 indexData 타입으로 저장
+//        dataRepository.save(indexData); // dataRepository에 indexData 타입으로 저장
 
-        return mapper.toDto(indexData); // 여기에서 Dto로 바꿨다
+        IndexData saved = dataRepository.save(indexData);
+        System.out.println(saved.getIndexInfo().getId());
+        IndexDataDto savedDto = mapper.toDto(saved);
+        System.out.println(savedDto.indexInfoId());
+        return savedDto; // 여기에서 Dto로 바꿨다
     }
 
 //    IndexData의 ID를 repository에서 찾은 다음
