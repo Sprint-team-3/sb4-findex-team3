@@ -50,7 +50,7 @@ public class IndexDataController {
     }
 
     // 지수 데이터 삭제
-    @DeleteMapping("index-data/{id}")
+    @DeleteMapping("/index-data/{id}")
     public ResponseEntity<IndexDataDto> delete(@PathVariable Long id) { // @RequestParam은 쓰면 안되는건가?
         indexDataService.deleteIndexData(id);
         return ResponseEntity.noContent().build();
@@ -68,7 +68,7 @@ public class IndexDataController {
      * 정렬필드 : baseDate, marketPrice, closingPrice, highPrice, lowPrice, versus, fluctuationArte, tradingQuantity, tradingPrice, marketTotalAmount
      * 정렬방향 : Default(desc)
      */
-    @GetMapping("index-data/export/csv")
+    @GetMapping("/index-data/export/csv")
     public ResponseEntity<byte[]> exportCsv() {
         byte[] response = indexDataService.downloadIndexData();
 
