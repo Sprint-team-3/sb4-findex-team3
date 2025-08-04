@@ -1,10 +1,10 @@
 package com.codeit.findex.service.autosync.basic;
 
-import com.codeit.findex.dto.IndexInfoDto;
 import com.codeit.findex.dto.autosync.response.AutoSyncConfigDto;
 import com.codeit.findex.dto.autosync.response.CursorPageResponseAutoSyncConfigDto;
 import com.codeit.findex.dto.dashboard.OpenApiResponseDto;
 import com.codeit.findex.dto.indexInfo.request.IndexInfoCreateRequest;
+import com.codeit.findex.dto.indexInfo.response.IndexInfoDto;
 import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.entity.IndexInfo;
 import com.codeit.findex.entityEnum.SourceType;
@@ -20,7 +20,7 @@ import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -48,43 +48,8 @@ public class BasicAutoSyncConfigService implements AutoSyncConfigService {
 
   private static final Logger log = LoggerFactory.getLogger(BasicAutoSyncConfigService.class);
 
-  @Override
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public IndexInfoDto createAutoSyncConfig(IndexInfoCreateRequest request) {
-
-    LocalDate basepointInTime = toLocalDate(request.getBasePointInTime());
-
-    // 중복 검사: classification + name + basepointInTime 기준
-    Optional<IndexInfo> existing =
-        indexInfoRepository.findByIndexClassificationAndIndexNameAndBasepointInTime(
-            request.getIndexClassification(), request.getIndexName(), basepointInTime);
-
-    if (existing.isPresent()) {
-      log.debug(
-          "이미 존재하는 지수 설정 - 등록 스킵: {} - {}",
-          request.getIndexClassification(),
-          request.getIndexName());
-      return indexInfoMapper.toIndexInfoDto(existing.get());
-    }
-
-    IndexInfo indexInfo = new IndexInfo();
-    indexInfo.setIndexClassification(request.getIndexClassification());
-    indexInfo.setIndexName(request.getIndexName());
-    indexInfo.setEmployedItemsCount(request.getEmployedItemsCount());
-    indexInfo.setBasepointInTime(basepointInTime);
-    indexInfo.setBaseIndex(request.getBaseIndex());
-    indexInfo.setSourceType(SourceType.OPEN_API);
-    indexInfo.setFavorite(request.getFavorite());
-    indexInfo.setEnabled(false); // 등록 시 비활성화
-
-    IndexInfo saved = indexInfoRepository.save(indexInfo);
-    log.info("새로운 지수 설정 등록: {} - {}", request.getIndexClassification(), request.getIndexName());
-
-    return indexInfoMapper.toIndexInfoDto(saved);
-  }
-
   /** 매일 새벽 1시에 외부 API를 호출하여 지수 정보를 동기화하고 저장 */
-  @Scheduled(cron = "${spring.batch.sync.cron}", zone = "Asia/Seoul")
+  @Scheduled(fixedDelayString = "${batch.sync.info.fixed-delay}", zone = "Asia/Seoul")
   public void syncInfoAndSave() {
 
     log.info("=== 지수 데이터 자동 동기화 시작 ===");
@@ -139,7 +104,7 @@ public class BasicAutoSyncConfigService implements AutoSyncConfigService {
   }
 
   /** 활성화된 지수들에 대해 지수 데이터(시계열)를 주기적으로 가져와 동기화 */
-  @Scheduled(cron = "${spring.batch.sync.cron}", zone = "Asia/Seoul")
+  @Scheduled(fixedDelayString = "${batch.sync.enabled-index-data.fixed-delay}", zone = "Asia/Seoul")
   public void syncEnabledIndexData() {
     log.info("=== 활성화된 지수 데이터 자동 연동 시작 ===");
 
@@ -236,6 +201,43 @@ public class BasicAutoSyncConfigService implements AutoSyncConfigService {
         errorCount);
   }
 
+  @Override
+  public IndexInfoDto createAutoSyncConfig(IndexInfoCreateRequest request) {
+
+    LocalDate basepointInTime = request.getBasepointInTime();
+
+    // 중복 검사: classification + name + basepointInTime 기준
+    Optional<IndexInfo> existing =
+            indexInfoRepository.findFirstByIndexClassificationAndIndexNameAndBasepointInTimeOrderByCreatedAtDesc(
+                    request.getIndexClassification(), request.getIndexName(), basepointInTime);
+
+    if (existing.isPresent()) {
+      log.debug(
+              "이미 존재하는 지수 설정 - 등록 스킵: {} - {}",
+              request.getIndexClassification(),
+              request.getIndexName());
+      return indexInfoMapper.toIndexInfoDto(existing.get());
+    }
+
+    IndexInfo indexInfo = new IndexInfo();
+    indexInfo.setIndexClassification(request.getIndexClassification());
+    indexInfo.setIndexName(request.getIndexName());
+    indexInfo.setEmployedItemsCount(request.getEmployedItemsCount());
+    indexInfo.setBasepointInTime(basepointInTime);
+    indexInfo.setBaseIndex(request.getBaseIndex());
+    indexInfo.setSourceType(SourceType.OPEN_API);
+    indexInfo.setFavorite(request.getFavorite());
+    indexInfo.setEnabled(false); // 등록 시 비활성화
+
+    System.out.println("indexInfo = " + indexInfo);
+
+    IndexInfo saved = indexInfoRepository.save(indexInfo);
+    log.info("새로운 지수 설정 등록: {} - {}", request.getIndexClassification(), request.getIndexName());
+
+    System.out.println("saved = " + saved);
+    return indexInfoMapper.toIndexInfoDto(saved);
+  }
+
   /** OpenApiItemDto를 IndexInfoCreateRequest로 변환 */
   private IndexInfoCreateRequest convertApiItemToCreateRequest(
       OpenApiResponseDto.IndexItemDto item) {
@@ -244,7 +246,7 @@ public class BasicAutoSyncConfigService implements AutoSyncConfigService {
     request.setIndexClassification(item.idxCsf());
     request.setIndexName(item.idxNm());
     request.setEmployedItemsCount(item.epyItmsCnt());
-    request.setBasePointInTime(parseStringToDate(item.basPntm())); // Date 타입으로 가정
+    request.setBasepointInTime(parseStringToLocalDate(item.basPntm())); // Date 타입으로 가정
     request.setBaseIndex(item.basIdx());
     request.setFavorite(false); // 자동 동기화 데이터는 기본적으로 즐겨찾기 해제
 
@@ -289,23 +291,31 @@ public class BasicAutoSyncConfigService implements AutoSyncConfigService {
         content, nextCursor, nextIdAfter, size, content.size(), hasNext);
   }
 
-  /** 문자열 날짜를 Date로 변환 (yyyyMMdd → Date) */
-  private Date parseStringToDate(String dateStr) {
-    if (dateStr == null || dateStr.trim().isEmpty()) {
+  private LocalDate parseStringToLocalDate(String dateStr) {
+    if (dateStr == null || dateStr.isBlank()) {
       return null;
     }
 
-    try {
-      // "20240315" 형태를 LocalDate로 변환 후 Date로 변환
-      LocalDate localDate = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyyMMdd"));
-      return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-    } catch (Exception e) {
-      throw new IllegalArgumentException("날짜 형식이 올바르지 않습니다: " + dateStr, e);
-    }
-  }
+    String trimmed = dateStr.trim();
+    DateTimeParseException lastException = null;
 
-  private LocalDate toLocalDate(Date date) {
-    if (date == null) return null;
-    return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    List<DateTimeFormatter> formatters =
+            List.of(
+                    DateTimeFormatter.BASIC_ISO_DATE, // "yyyyMMdd", ex: 20100401
+                    DateTimeFormatter.ISO_LOCAL_DATE // "yyyy-MM-dd", ex: 2010-04-01
+            );
+
+    for (DateTimeFormatter formatter : formatters) {
+      try {
+        return LocalDate.parse(trimmed, formatter);
+      } catch (DateTimeParseException e) {
+        // 실패하면 다음 포맷으로 넘어간다.
+        lastException = e;
+        log.debug("날짜 '{}' 를 포맷 '{}' 으로 파싱하지 못함, 다음 포맷 시도...", trimmed, formatter);
+      }
+    }
+    // 어떤 것도 맞지 않으면 설명 있는 예외를 던진다
+    throw new IllegalArgumentException(
+            "지원하지 않는 날짜 형식입니다. 허용되는 형식: yyyyMMdd 또는 yyyy-MM-dd. 입력: " + dateStr);
   }
 }

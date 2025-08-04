@@ -1,10 +1,11 @@
+/*
  package com.codeit.findex.service.basic;
 
  import com.codeit.findex.dto.IndexDataDto;
  import com.codeit.findex.dto.indexInfo.response.IndexInfoDto;
- import com.codeit.findex.dto.IndexDataSyncRequest;
- import com.codeit.findex.dto.OpenApiResponseDto;
- import com.codeit.findex.dto.SyncJobDto;
+ import com.codeit.findex.dto.integration.IndexDataSyncRequest;
+ import com.codeit.findex.dto.dashboard.OpenApiResponseDto;
+ import com.codeit.findex.dto.integration.SyncJobDto;
  import com.codeit.findex.entity.IndexData;
  import com.codeit.findex.entity.IndexInfo;
  import com.codeit.findex.entityEnum.JobType;
@@ -51,7 +52,7 @@
 
     for (IndexInfoDto indexInfoDto : indexInfoDtos) {
       Optional<IndexInfo> existingOpt =
-          indexInfoRepository.findByIndexName(indexInfoDto.indexName());
+          indexInfoRepository.findByIndexName((indexInfoDto.indexName());
 
       if (existingOpt.isPresent()) {
         IndexInfo indexInfo = existingOpt.get();
@@ -73,7 +74,7 @@
     OpenApiResponseDto responseDto = externalApiService.fetchStockMarketIndex();
 
     List<IndexDataDto> indexDataDtos =
-        toIndexDataList(responseDto, indexDataSyncRequest.indexInfolds());
+        toIndexDataList(responseDto, indexDataSyncRequest.indexInfoIds());
 
     List<SyncJobDto> syncJobDtos = new ArrayList<>();
 
@@ -162,3 +163,4 @@
         Result.SUCCESS);
   }
  }
+*/

@@ -31,7 +31,7 @@ public class IndexInfoController {
   private final IndexInfoService indexInfoService;
   private final IndexInfoMapper indexInfoMapper;
 
-    @ApiResponses({
+  @ApiResponses({
     @ApiResponse(
         responseCode = "200",
         description = "지수 정보 목록 조회 성공",

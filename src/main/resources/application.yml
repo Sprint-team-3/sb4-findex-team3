@@ -18,9 +18,13 @@ spring:
   task:
     scheduling:
       enabled: true
-  batch:
-    sync:
-      cron: "0 0/2 * * * *"
+
+batch:
+  sync:
+    info:
+      fixed-delay: PT40S               # syncInfoAndSave: 종료 후 40초 대기
+    enabled-index-data:
+      fixed-delay: PT10S
 
 # Logging 설정
 logging:

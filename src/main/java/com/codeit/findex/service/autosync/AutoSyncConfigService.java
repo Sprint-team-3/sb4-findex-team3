@@ -1,9 +1,9 @@
 package com.codeit.findex.service.autosync;
 
-import com.codeit.findex.dto.IndexInfoDto;
 import com.codeit.findex.dto.autosync.response.AutoSyncConfigDto;
 import com.codeit.findex.dto.autosync.response.CursorPageResponseAutoSyncConfigDto;
 import com.codeit.findex.dto.indexInfo.request.IndexInfoCreateRequest;
+import com.codeit.findex.dto.indexInfo.response.IndexInfoDto;
 
 public interface AutoSyncConfigService {
 

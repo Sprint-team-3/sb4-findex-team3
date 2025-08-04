@@ -1,6 +1,6 @@
- package com.codeit.findex.mapper;
+package com.codeit.findex.mapper;
 
- import org.mapstruct.Mapper;
+import org.mapstruct.Mapper;
 
- @Mapper(componentModel = "spring")
- public interface IntegrationMapper {}
+@Mapper(componentModel = "spring")
+public interface IntegrationMapper {}

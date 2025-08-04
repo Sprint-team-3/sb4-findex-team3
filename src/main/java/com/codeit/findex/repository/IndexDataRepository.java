@@ -30,4 +30,6 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
       Collection<Long> indexInfoIds, LocalDate from, LocalDate to);
 
   Optional<IndexData> findTopByIndexInfoOrderByBaseDateDesc(IndexInfo indexInfo);
+
+  List<IndexData> findAllByIndexInfoId(long id);
 }
