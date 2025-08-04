@@ -1,4 +1,4 @@
-package com.codeit.findex.service;
+package com.codeit.findex.service.dashboard;
 
 import com.codeit.findex.dto.dashboard.ChartPeriodType;
 import com.codeit.findex.dto.dashboard.IndexChartDto;

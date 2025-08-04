@@ -1,7 +1,8 @@
+/*
 package com.codeit.findex.service.Integration.basic;
 
-import com.codeit.findex.dto.IndexDataDto;
-import com.codeit.findex.dto.IndexInfoDto;
+import com.codeit.findex.dto.indexData.response.IndexDataDto;
+import com.codeit.findex.dto.indexInfo.response.IndexInfoDto;
 import com.codeit.findex.dto.dashboard.OpenApiResponseDto;
 import com.codeit.findex.dto.integration.CursorPageResponseSyncJobDto;
 import com.codeit.findex.dto.integration.IndexDataSyncRequest;
@@ -321,3 +322,4 @@ public class BasicIntegrationService implements IntegrationService {
     return integrationRepository.save(integration);
   }
 }
+*/
