@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -24,4 +25,5 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
     // BasicIntegrationService에서 사용하는 메서드입니다.
     Optional<IndexData> findByIndexInfoIdAndBaseDate(long id, LocalDate localDate);
 
+    List<IndexData> findAllByIndexInfoId(Long id);
 }
