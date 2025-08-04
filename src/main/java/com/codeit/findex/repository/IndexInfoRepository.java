@@ -46,4 +46,6 @@ public interface IndexInfoRepository extends JpaRepository<IndexInfo, Long> {
   boolean existsByIndexName(String indexName);
 
   List<IndexInfo> findAllByFavorite(Boolean favorite);
+  Optional<IndexInfo> findByIndexClassificationAndIndexName(
+      String indexClassification, String indexName);
 }

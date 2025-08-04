@@ -13,7 +13,6 @@
     @Mapping(source = "indexInfo.id", target = "indexInfoId")
     @Mapping(source = "indexInfo.indexClassification", target = "indexClassification")
     @Mapping(source = "indexInfo.indexName", target = "indexName")
-    @Mapping(source = "active", target = "enabled")
     AutoSyncConfigDto toAutoSyncConfigDto(IndexInfo indexInfo);
 
     List<AutoSyncConfigDto> toAutoSyncConfigDtoList(List<IndexInfo> indexInfoList);

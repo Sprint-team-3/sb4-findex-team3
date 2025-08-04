@@ -1,6 +1,7 @@
  package com.codeit.findex.service.autosync.basic;
 
  import com.codeit.findex.dto.autosync.response.AutoSyncConfigDto;
+ import com.codeit.findex.dto.autosync.response.CursorPageResponseAutoSyncConfigDto;
  import com.codeit.findex.entity.IndexInfo;
  import com.codeit.findex.mapper.AutoSyncMapper;
  import com.codeit.findex.repository.IndexInfoRepository;
@@ -26,4 +27,9 @@
         return autoSyncMapper.toAutoSyncConfigDto(saved);
     }
 
+   @Override
+   public CursorPageResponseAutoSyncConfigDto listAutoSyncConfigs(Long indexId, Boolean enabled,
+       Long lastId, int size, String sortBy, String sortDir) {
+     return null;
+   }
  }
