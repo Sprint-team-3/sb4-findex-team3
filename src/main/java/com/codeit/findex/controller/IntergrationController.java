@@ -1,3 +1,4 @@
+/*
  package com.codeit.findex.controller;
 
  import com.codeit.findex.dto.integration.IndexDataSyncRequest;
@@ -46,3 +47,4 @@
   //  }
 
  }
+*/

@@ -1,5 +1,5 @@
-<<<<<<<< HEAD:src/main/java/com/codeit/findex/service/Integration/basic/BasicIntegrationService.java
 /*
+<<<<<<<< HEAD:src/main/java/com/codeit/findex/service/Integration/basic/BasicIntegrationService.java
 package com.codeit.findex.service.Integration.basic;
 
 import com.codeit.findex.dto.indexData.response.IndexDataDto;

@@ -18,7 +18,7 @@ public interface IndexInfoMapper {
 
   IndexInfoSummaryDto toIndexInfoSummaryDto(IndexInfo indexInfo);
 
-  /*@Mapping(target = "sourceType", expression = "java(\"SourceType.USER\")")*/
+  @Mapping(target = "sourceType", expression = "java(SourceType.USER)")
   IndexInfo IndexInfoCreateDtoToIndexInfo(IndexInfoCreateRequest dto);
 
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

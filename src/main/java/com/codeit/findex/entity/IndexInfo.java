@@ -11,7 +11,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "IndexInfo")
+@Table(name = "indexinfo")
 public class IndexInfo extends BaseEntity {
 
   //  @OneToMany(mappedBy = "IndexInfo", cascade = CascadeType.ALL, orphanRemoval = true)
