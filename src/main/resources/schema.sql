@@ -1,5 +1,5 @@
 CREATE TABLE IndexInfo (
-                           info_id BIGINT PRIMARY KEY,
+                           id BIGINT PRIMARY KEY,
                            index_classification VARCHAR(100),
                            index_name VARCHAR(255),
                            employed_items_count INT,
