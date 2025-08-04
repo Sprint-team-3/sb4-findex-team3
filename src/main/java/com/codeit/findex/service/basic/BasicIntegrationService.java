@@ -1,16 +1,9 @@
-/*
-<<<<<<<< HEAD:src/main/java/com/codeit/findex/service/Integration/basic/BasicIntegrationService.java
-package com.codeit.findex.service.Integration.basic;
-
-import com.codeit.findex.dto.indexData.response.IndexDataDto;
-import com.codeit.findex.dto.indexInfo.response.IndexInfoDto;
-========
 package com.codeit.findex.service.basic;
 
-import com.codeit.findex.dto.indexData.response.IndexDataDto;
-import com.codeit.findex.dto.IndexInfoDto;
->>>>>>>> dev:src/main/java/com/codeit/findex/service/basic/BasicIntegrationService.java
+
 import com.codeit.findex.dto.dashboard.OpenApiResponseDto;
+import com.codeit.findex.dto.indexData.response.IndexDataDto;
+import com.codeit.findex.dto.indexInfo.response.IndexInfoDto;
 import com.codeit.findex.dto.integration.IndexDataSyncRequest;
 import com.codeit.findex.dto.integration.SyncJobDto;
 import com.codeit.findex.entity.IndexData;
@@ -19,13 +12,14 @@ import com.codeit.findex.entity.Integration;
 import com.codeit.findex.entityEnum.JobType;
 import com.codeit.findex.entityEnum.Result;
 import com.codeit.findex.entityEnum.SourceType;
-import com.codeit.findex.mapper.IndexDataIntegrationMapper;
+import com.codeit.findex.mapper.IndexDataMapper;
 import com.codeit.findex.mapper.IndexInfoMapper;
+import com.codeit.findex.mapper.IntegrationMapper;
 import com.codeit.findex.repository.IndexDataRepository;
 import com.codeit.findex.repository.IndexInfoRepository;
 import com.codeit.findex.repository.IntegrationRepository;
 import com.codeit.findex.service.ExternalApiService;
-import com.codeit.findex.service.IntegrationService;
+import com.codeit.findex.service.Integration.IntegrationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
@@ -45,7 +39,8 @@ public class BasicIntegrationService implements IntegrationService {
   private final IntegrationRepository integrationRepository;
   private final ExternalApiService externalApiService;
   private final IndexInfoMapper indexInfoMapper;
-  private final IndexDataIntegrationMapper indexDataIntegrationMapper;
+  private final IndexDataMapper indexDataMapper;
+  private final IntegrationMapper integrationMapper;
 
   @Override
   public List<SyncJobDto> integrateIndexInfo(HttpServletRequest request) {
@@ -53,15 +48,13 @@ public class BasicIntegrationService implements IntegrationService {
     List<IndexInfoDto> indexInfoDtosInOpenApi = toIndexInfoDtoList(openApiDto);
     String workerIp = request.getRemoteAddr();
 
-    LocalDateTime now = LocalDateTime.now();
-
     return indexInfoDtosInOpenApi.stream()
         .map(
             dto -> {
               Optional<IndexInfo> existingOpt =
                   indexInfoRepository.findByIndexClassificationAndIndexName(
-                      dto.indexClassification(), dto.indexName());
-              IndexInfo indexInfo = new IndexInfo();
+                      dto.getIndexClassification(), dto.getIndexName());
+              IndexInfo indexInfo;
 
               if (existingOpt.isPresent()) {
                 indexInfo = existingOpt.get();
@@ -71,9 +64,9 @@ public class BasicIntegrationService implements IntegrationService {
                 indexInfoRepository.save(indexInfo);
               }
 
-              Integration integration = saveIntegrationInfoLog(indexInfo, now, workerIp);
+              Integration integration = saveIntegrationInfoLog(indexInfo, workerIp);
 
-              return buildSyncJob(integration.getId(), indexInfo, workerIp);
+              return integrationMapper.toSyncJobDto(integration);
             })
         .toList();
   }
@@ -86,10 +79,6 @@ public class BasicIntegrationService implements IntegrationService {
     List<IndexInfo> indexInfos =
         indexInfoRepository.findAllById(indexDataSyncRequest.indexInfoIds());
     String workerIp = request.getRemoteAddr();
-
-    LocalDate baseDateFrom = indexDataSyncRequest.baseDateFrom();
-    LocalDate baseDateTo = indexDataSyncRequest.baseDateTo();
-    LocalDateTime now = LocalDateTime.now();
 
     return indexInfos.stream()
         .flatMap(
@@ -107,18 +96,17 @@ public class BasicIntegrationService implements IntegrationService {
                         IndexData indexData;
                         if (existingOpt.isPresent()) {
                           indexData = existingOpt.get();
-                          indexDataIntegrationMapper.updateDataFromDto(dto, indexData);
+                          indexDataMapper.updateDataFromDto(dto, indexData);
                         } else {
-                          indexData = indexDataIntegrationMapper.toIndexData(dto);
+                          indexData = indexDataMapper.toIndexData(dto);
                           indexData.setIndexInfo(indexInfo);
                           indexDataRepository.save(indexData);
                         }
 
                         Integration integration =
-                            saveIntegrationDataLog(
-                                indexInfo, indexData, baseDateFrom, baseDateTo, now, workerIp);
+                            saveIntegrationDataLog(indexInfo, indexData, workerIp);
 
-                        return buildSyncJob(integration.getId(), indexData, workerIp);
+                        return integrationMapper.toSyncJobDto(integration);
                       });
             })
         .toList();
@@ -175,69 +163,30 @@ public class BasicIntegrationService implements IntegrationService {
         .toList();
   }
 
-  private SyncJobDto buildSyncJob(long integrationId, IndexInfo indexInfo, String worker) {
-    return new SyncJobDto(
-        integrationId,
-        JobType.INDEX_INFO,
-        indexInfo.getId(),
-        indexInfo.getBasepointInTime(),
-        worker,
-        LocalDateTime.now(),
-        Result.SUCCESS);
-  }
-
-  private SyncJobDto buildSyncJob(long integrationId, IndexData indexData, String worker) {
-    return new SyncJobDto(
-        integrationId,
-        JobType.INDEX_DATA,
-        indexData.getIndexInfo().getId(),
-        indexData.getBaseDate(),
-        worker,
-        LocalDateTime.now(),
-        Result.SUCCESS);
-  }
-
-  private Integration saveIntegrationInfoLog(
-      IndexInfo indexInfo, LocalDateTime jobStartTime, String workerIp) {
-    if (indexInfo == null) {
-      throw new IllegalArgumentException("indexInfo must not be null");
-    }
+  private Integration saveIntegrationInfoLog(IndexInfo indexInfo, String workerIp) {
     Integration integration = new Integration();
     integration.setIndexInfo(indexInfo);
     integration.setIndexData(null);
     integration.setJobType(JobType.INDEX_INFO);
-    integration.setBaseDateFrom(null);
-    integration.setBaseDateTo(null);
+    integration.setBaseDate(indexInfo.getBasepointInTime());
     integration.setWorker(workerIp);
-    integration.setJobTimeFrom(jobStartTime);
-    integration.setJobTimeTo(LocalDateTime.now());
+    integration.setJobTime(LocalDateTime.now());
     integration.setResult(Result.SUCCESS);
 
     return integrationRepository.save(integration);
   }
 
   private Integration saveIntegrationDataLog(
-      IndexInfo indexInfo,
-      IndexData indexData,
-      LocalDate baseDateFrom,
-      LocalDate baseDateTo,
-      LocalDateTime jobStartTime,
-      String workerIp) {
-    if (indexInfo == null) {
-      throw new IllegalArgumentException("indexInfo must not be null");
-    }
+      IndexInfo indexInfo, IndexData indexData, String workerIp) {
     Integration integration = new Integration();
     integration.setIndexInfo(indexInfo);
     integration.setIndexData(indexData);
     integration.setJobType(JobType.INDEX_DATA);
-    integration.setBaseDateFrom(baseDateFrom);
-    integration.setBaseDateTo(baseDateTo);
+    integration.setBaseDate(indexData.getBaseDate());
     integration.setWorker(workerIp);
-    integration.setJobTimeFrom(jobStartTime);
-    integration.setJobTimeTo(LocalDateTime.now());
+    integration.setJobTime(LocalDateTime.now());
     integration.setResult(Result.SUCCESS);
 
     return integrationRepository.save(integration);
   }
 }
-*/

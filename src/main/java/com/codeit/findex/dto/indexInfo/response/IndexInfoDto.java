@@ -1,5 +1,6 @@
 package com.codeit.findex.dto.indexInfo.response;
 
+import com.codeit.findex.entityEnum.SourceType;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,12 +12,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class IndexInfoDto {
-  private long id;
+  private Long id;
   private String indexClassification;
   private String indexName;
   private int employedItemsCount;
   private LocalDate basepointInTime;
   private double baseIndex;
-  private String sourceType;
+  private SourceType sourceType;
   private Boolean favorite;
 }
