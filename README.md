@@ -1,17 +1,16 @@
-📈Findex
+# Findex
 
-# 💫 팀원 소개
+## 💫 팀원 소개
 | 김이준 | 문은서 | 신은수 | 김찬호 | 신동진 |
 | :---: | :---: | :---: | :---: | :---: |
 | [![김이준](https://avatars.githubusercontent.com/u/93887188?v=4)](https://github.com/lkim0402) | [![문은서](URL_for_image_2)](https://github.com/kosy00) | [![신은수](URL_for_image_3)](https://github.com/Shinsu98) | [![김찬호](URL_for_image_4)](https://github.com/cheis11) | [![신동진](https://avatars.githubusercontent.com/u/135810601?v=4)](https://github.com/B1uffer) |
 
-# 📌프로젝트 소개
+## 📌프로젝트 소개
 한눈에 보는 금융 지수 데이터
 프로젝트 기간: 2025. 07.28. ~ 2025. 08.06.
 
 ## 프로젝트 다이어그램
 ![Findex Diagram](src/main/resources/static/findex_diagram.png "Diagram")
-
 
 # 🤖기술 스택
 ## 백엔드 & 데이터베이스
