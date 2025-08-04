@@ -33,7 +33,7 @@ public class ExternalApiService {
                     .path("/getStockMarketIndex")
                     .queryParam("serviceKey", apiKey)
                     .queryParam("resultType", "json")
-                    .queryParam("numOfRows", 10)
+                    .queryParam("numOfRows", 5)
                     .build())
         .retrieve()
         .body(OpenApiResponseDto.class);
