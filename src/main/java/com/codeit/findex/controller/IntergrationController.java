@@ -27,19 +27,19 @@ public class IntergrationController {
 
   private final IntegrationService integrationService;
 
-  @PostMapping("/index-infos")
-  public ResponseEntity<List<SyncJobDto>> integrateIndexInfo(HttpServletRequest request) {
-    List<SyncJobDto> syncJobDtos = integrationService.integrateIndexInfo(request);
-    return ResponseEntity.ok(syncJobDtos);
-  }
-
-  @PostMapping("/index-data")
-  public ResponseEntity<List<SyncJobDto>> integrateIndexData(
-      @RequestBody IndexDataSyncRequest indexDataSyncRequest, HttpServletRequest request) {
-    List<SyncJobDto> syncJobDtos =
-        integrationService.integrateIndexData(indexDataSyncRequest, request);
-    return ResponseEntity.ok(syncJobDtos);
-  }
+//  @PostMapping("/index-infos")
+//  public ResponseEntity<List<SyncJobDto>> integrateIndexInfo(HttpServletRequest request) {
+//    List<SyncJobDto> syncJobDtos = integrationService.integrateIndexInfo(request);
+//    return ResponseEntity.ok(syncJobDtos);
+//  }
+//
+//  @PostMapping("/index-data")
+//  public ResponseEntity<List<SyncJobDto>> integrateIndexData(
+//      @RequestBody IndexDataSyncRequest indexDataSyncRequest, HttpServletRequest request) {
+//    List<SyncJobDto> syncJobDtos =
+//        integrationService.integrateIndexData(indexDataSyncRequest, request);
+//    return ResponseEntity.ok(syncJobDtos);
+//  }
 
 //  @GetMapping
 //  public ResponseEntity<CursorPageResponseSyncJobDto> getCursorPageResponseSyncJobDto(
