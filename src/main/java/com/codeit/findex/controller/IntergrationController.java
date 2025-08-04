@@ -1,20 +1,20 @@
-package com.codeit.findex.controller;
+ package com.codeit.findex.controller;
 
-import com.codeit.findex.dto.integration.IndexDataSyncRequest;
-import com.codeit.findex.dto.integration.SyncJobDto;
-import com.codeit.findex.service.IntegrationService;
-import jakarta.servlet.http.HttpServletRequest;
-import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+ import com.codeit.findex.dto.integration.IndexDataSyncRequest;
+ import com.codeit.findex.dto.integration.SyncJobDto;
+ import com.codeit.findex.service.IntegrationService;
+ import jakarta.servlet.http.HttpServletRequest;
+ import java.util.List;
+ import lombok.RequiredArgsConstructor;
+ import org.springframework.web.bind.annotation.PostMapping;
+ import org.springframework.web.bind.annotation.RequestBody;
+ import org.springframework.web.bind.annotation.RequestMapping;
+ import org.springframework.web.bind.annotation.RestController;
 
-@RestController
-@RequiredArgsConstructor
-@RequestMapping("/api/sync-jobs")
-public class IntergrationController {
+ @RestController
+ @RequiredArgsConstructor
+ @RequestMapping("/api/sync-jobs")
+ public class IntergrationController {
 
   private final IntegrationService integrationService;
 
@@ -45,4 +45,4 @@ public class IntergrationController {
   //
   //  }
 
-}
+ }
