@@ -30,7 +30,7 @@ public interface IndexInfoRepository extends JpaRepository<IndexInfo, Long> {
     SELECT COUNT(i)
     FROM IndexInfo i
     WHERE (:indexName IS NULL or i.indexName LIKE %:indexName%)
-    AND (:classification IS NULL OR i.indexClassification LIKE  %:classification%)
+    AND (:classification IS NULL OR i.indexClassification LIKE %:classification%)
     AND (:favorite IS NULL OR i.favorite = :favorite)
 """)
   long countBySearchCond(
@@ -46,4 +46,6 @@ public interface IndexInfoRepository extends JpaRepository<IndexInfo, Long> {
   boolean existsByIndexName(String indexName);
 
   List<IndexInfo> findAllByFavorite(Boolean favorite);
+  Optional<IndexInfo> findByIndexClassificationAndIndexName(
+      String indexClassification, String indexName);
 }

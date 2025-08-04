@@ -28,4 +28,6 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
     // IndexInfoService에서 사용하는 메서드입니다.
     List<IndexData> findAllByIndexInfoId(Long id);
 
+    List<IndexData> findAllByIndexInfoId(Long id);
+
 }
