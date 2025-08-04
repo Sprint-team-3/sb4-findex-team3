@@ -1,11 +1,11 @@
 📈Findex
 
-# 팀원 소개
+# 💫 팀원 소개
 | 김이준 | 문은서 | 신은수 | 김찬호 | 신동진 |
 | :---: | :---: | :---: | :---: | :---: |
 | [![김이준](https://avatars.githubusercontent.com/u/93887188?v=4)](https://github.com/lkim0402) | [![문은서](URL_for_image_2)](https://github.com/kosy00) | [![신은수](URL_for_image_3)](https://github.com/Shinsu98) | [![김찬호](URL_for_image_4)](https://github.com/cheis11) | [![신동진](https://avatars.githubusercontent.com/u/135810601?v=4)](https://github.com/B1uffer) |
 
-# 📈프로젝트 소개
+# 📌프로젝트 소개
 한눈에 보는 금융 지수 데이터
 프로젝트 기간: 2025. 07.28. ~ 2025. 08.06.
 
@@ -14,11 +14,25 @@
 
 
 # 🤖기술 스택
-- Backend: Spring Boot, Spring Data JPA,springdoc-openapi, mapstruct
-- Database: PostgreSQL
-- 공통 Tool: Git & Github, Discord
+## 백엔드 & 데이터베이스
+![Java](https://img.shields.io/badge/Java-007396?style=for-the-badge&logo=OpenJDK&logoColor=white)
+![SpringBoot](https://img.shields.io/badge/SpringBoot-6DB33F?style=for-the-badge&logo=Spring&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
+- `Spring Data JPA`, `springdoc-openapi`, `mapstruct` 사용
 
-# 팀원별 구현 기능 상세
+## 테스팅 툴
+![Postman](https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white)
+![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=white)
+
+## 배포
+![Railway](https://img.shields.io/badge/Railway-0B0D12?style=for-the-badge&logo=railway&logoColor=white)
+
+## 협업 툴
+![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white)
+![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
+![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)
+
+# 💡팀원별 구현 기능 상세
 ## 문은서 - 지수 정보 관리
 ### 지수 정보 등록
 - 지수 분류명, 지수명, 채용 종목 수, 기준 시점, 기준 지수, 즐겨찾기를 통해 지수 정보를 등록하는 기능 구현
@@ -61,7 +75,7 @@
 - 성과는 종가를 기준으로 비교하는 로직 구현 
 - 성능 향상을 위해 @Query를 사용해서 적절한 SQL문 작성
 
-# 파일 구조
+# 📋 파일 구조
 (팀 논의 후 추가)
 
 # 🚀구현 홈페이지
