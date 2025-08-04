@@ -9,6 +9,7 @@ import com.codeit.findex.dto.indexInfo.response.IndexInfoSummaryDto;
 import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.entity.IndexInfo;
 import com.codeit.findex.mapper.IndexInfoMapper;
+import com.codeit.findex.repository.AutoSyncRepository;
 import com.codeit.findex.repository.IndexDataRepository;
 import com.codeit.findex.repository.IndexInfoRepository;
 import com.codeit.findex.service.IndexInfoService;
@@ -29,8 +30,8 @@ public class BasicIndexInfoService implements IndexInfoService {
   private final IndexInfoRepository indexInfoRepository;
   private final IndexInfoMapper indexInfoMapper;
   private final IndexDataRepository indexDataRepository;
+  private final AutoSyncRepository autoSyncRepository;
 
-  // 컨트롤러가 호출하는 메서드
   @Transactional
   @Override
   public CursorPageResponseIndexInfoDto findBySearchCondWithPaging(IndexInfoSearchCond cond) {
