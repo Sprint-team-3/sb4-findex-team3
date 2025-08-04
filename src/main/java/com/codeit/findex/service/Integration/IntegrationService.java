@@ -15,16 +15,16 @@ public interface IntegrationService {
   List<SyncJobDto> integrateIndexData(
       IndexDataSyncRequest indexDataSyncRequest, HttpServletRequest request);
 
-  CursorPageResponseSyncJobDto integrateCursorPage(
-      JobType jobType,
-      IndexDataSyncRequest indexDataSyncRequest,
-      String worker,
-      LocalDateTime jobTimeFrom,
-      LocalDateTime jobTimeTo,
-      Result status,
-      Long idAfter,
-      String cursor,
-      String sortField,
-      String sortDirection,
-      int size);
+//  CursorPageResponseSyncJobDto integrateCursorPage(
+//      JobType jobType,
+//      IndexDataSyncRequest indexDataSyncRequest,
+//      String worker,
+//      LocalDateTime jobTimeFrom,
+//      LocalDateTime jobTimeTo,
+//      Result status,
+//      Long idAfter,
+//      String cursor,
+//      String sortField,
+//      String sortDirection,
+//      int size);
 }
