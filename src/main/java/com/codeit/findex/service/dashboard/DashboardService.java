@@ -13,9 +13,9 @@ public interface DashboardService {
   List<PerformanceDto> getFavPerformanceDto(PeriodType periodType);
 
   /** 특정 지수의 차트 데이터를 조회합니다. 월/분기/년 단위의 시계열 데이터는 종가를 기준으로 하며, 5일, 20일 이동평균선 데이터를 포함합니다. */
-  IndexChartDto getChartData(long indexInfoId, ChartPeriodType chartPeriodType);
+  IndexChartDto getChartData(Long indexInfoId, ChartPeriodType chartPeriodType);
 
   /** 지정된 기간 동안의 지수 성과 순위를 조회합니다. 전일/전주/전월 대비 성과를 종가 기준으로 비교하여, 상위 (limit)개의 순위 목록을 반환합니다. */
   List<RankedIndexPerformanceDto> getPerformanceRank(
-      long indexInfoId, PeriodType periodType, int limit);
+      Long indexInfoId, PeriodType periodType, int limit);
 }
