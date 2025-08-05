@@ -23,6 +23,7 @@ public interface IndexDataMapper {
     IndexDataDto toDto(IndexData entity);
     IndexData toEntity(IndexDataDto dto);
 
+
     IndexData toIndexData(IndexDataDto dto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

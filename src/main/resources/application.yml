@@ -22,9 +22,9 @@ spring:
 batch:
   sync:
     info:
-      fixed-delay: PT40S               # syncInfoAndSave: 종료 후 40초 대기
+      fixed-delay: PT60S               # syncInfoAndSave: 종료 후 40초 대기
     enabled-index-data:
-      fixed-delay: PT10S
+      fixed-delay: PT30S
 
 # Logging 설정
 logging:

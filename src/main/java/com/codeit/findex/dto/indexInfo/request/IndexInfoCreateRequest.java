@@ -23,7 +23,7 @@ public class IndexInfoCreateRequest {
   private int employedItemsCount;
 
   @NotNull(message = "기준 시점은 필수입니다.")
-  private LocalDate basepointInTime;
+  private LocalDate basePointInTime;
   private double baseIndex;
   private Boolean favorite;
 }

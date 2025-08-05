@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 public class ExternalApiService {
@@ -20,6 +21,7 @@ public class ExternalApiService {
   private final RestClient restClient;
   private final String baseUrl;
   private final String apiKey;
+  private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyyMMdd");
 
   public ExternalApiService(
       @Value("${external.api.baseurl}") String baseUrl,
@@ -42,77 +44,10 @@ public class ExternalApiService {
                     .path("/getStockMarketIndex")
                     .queryParam("serviceKey", apiKey)
                     .queryParam("resultType", "json")
-                    .queryParam("numOfRows", 50)
+                    .queryParam("numOfRows", 5)
                     .build())
         .accept(MediaType.APPLICATION_JSON)
         .retrieve()
         .body(OpenApiResponseDto.class);
-  }
-
-  public List<OpenApiResponseDto.IndexItemDto> fetchIndexData(
-      IndexInfo indexInfo, LocalDate from, LocalDate to) {
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    List<OpenApiResponseDto.IndexItemDto> aggregated = new ArrayList<>();
-
-    for (LocalDate date = from; !date.isAfter(to); date = date.plusDays(1)) {
-      String basDt = date.format(formatter);
-      aggregated.addAll(fetchForDate(indexInfo, basDt));
-    }
-
-    return aggregated;
-  }
-
-  private List<OpenApiResponseDto.IndexItemDto> fetchForDate(IndexInfo indexInfo, String basDt) {
-    final int pageSize = 100;
-    int pageNo = 1;
-    List<OpenApiResponseDto.IndexItemDto> collected = new ArrayList<>();
-
-    while (true) {
-      OpenApiResponseDto resp = callIndexApi(indexInfo.getIndexName(), basDt, pageNo, pageSize);
-
-      List<OpenApiResponseDto.IndexItemDto> items = extractItems(resp);
-      if (items.isEmpty()) {
-        break;
-      }
-
-      collected.addAll(items);
-
-      if (items.size() < pageSize) {
-        break; // 마지막 페이지
-      }
-      pageNo++;
-    }
-
-    return collected;
-  }
-
-  private OpenApiResponseDto callIndexApi(String idxNm, String basDt, int pageNo, int numOfRows) {
-
-    return restClient
-        .get()
-        .uri(
-            uriBuilder ->
-                uriBuilder
-                    .path("/getStockMarketIndex")
-                    .queryParam("serviceKey", apiKey)
-                    .queryParam("resultType", "json")
-                    .queryParam("idxNm", idxNm)
-                    .queryParam("basDt", basDt)
-                    .queryParam("pageNo", pageNo)
-                    .queryParam("numOfRows", numOfRows)
-                    .build())
-        .retrieve()
-        .body(OpenApiResponseDto.class);
-  }
-
-  private List<OpenApiResponseDto.IndexItemDto> extractItems(OpenApiResponseDto resp) {
-    if (resp == null
-        || resp.response() == null
-        || resp.response().body() == null
-        || resp.response().body().items() == null
-        || resp.response().body().items().item() == null) {
-      return Collections.emptyList();
-    }
-    return resp.response().body().items().item();
   }
 }
