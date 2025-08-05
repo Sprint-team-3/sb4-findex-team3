@@ -14,6 +14,6 @@ public record IndexDataDto(
     double lowPrice,
     double versus,
     double fluctuationRate,
-    long tradingQuantity,
-    long tradingPrice,
-    long marketTotalAmount) {}
+    Long tradingQuantity,
+    Long tradingPrice,
+    Long marketTotalAmount) {}
