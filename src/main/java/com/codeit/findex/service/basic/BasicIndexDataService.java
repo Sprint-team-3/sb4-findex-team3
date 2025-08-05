@@ -92,7 +92,8 @@ public class BasicIndexDataService implements IndexDataService {
         indexData.setTradingValue(request.tradingPrice());
         indexData.setMarketTotalAmount(request.marketTotalAmount());
 
-        return mapper.toDto(indexData);
+        IndexDataDto indexDataDto = mapper.toDto(indexData);
+        return indexDataDto;
     }
 
     /**
@@ -107,38 +108,87 @@ public class BasicIndexDataService implements IndexDataService {
     @Transactional
     @Override
     public CursorPageResponseIndexDataDto searchByIndexAndDate(Long indexInfoId, String startDate, String endDate, Long idAfter, String cursor, String sortField, String sortDirection, int size) {
-        IndexInfo indexInfo = infoRepository.findById(indexInfoId) // infoRepository에서 일단 id를 찾고
-        .orElseThrow(() -> new EntityNotFoundException("IndexInfo not found!"));
 
-        // 정렬 객체를 생성하기
+        // 1. Create Sort and Pageable objects (this is common for both cases)
         Sort sort = createSort(sortField, sortDirection);
-
-        // Pageable을 생성하기
         Pageable pageable = PageRequest.of(0, size, sort);
-        // PageRequest.of(idAfter, size, sort);
 
-        // Repository 호출하기, Slice는 끊어서 보내준다 size가 10이면 10개씩 짧게 짧게 가져와주는 것이다
-        Slice<IndexData> sliceData = indexDataRepository.findByConditionsWithCursor(indexInfoId, startDate, endDate, pageable);
+        // 2. Declare variables for the data slice and total count
+        Slice<IndexData> sliceData;
+        Long totalElements;
 
-        // Slice<IndexData>를 최종 응답 DTO로 변환하기
+        // 3. Conditional Logic: Branch based on whether indexInfoId is present
+        if (indexInfoId != null) {
+            // --- CASE 1: indexInfoId IS PROVIDED ---
+            // First, validate that the ID exists, just like before.
+            if (!infoRepository.existsById(indexInfoId)) {
+                throw new EntityNotFoundException("IndexInfo not found with id: " + indexInfoId);
+            }
+
+            // Call repository methods that filter by indexInfoId
+            sliceData = indexDataRepository.findByConditionsWithCursor(indexInfoId, startDate, endDate, pageable);
+            totalElements = indexDataRepository.countByIndexInfoId(indexInfoId);
+
+        } else {
+            // --- CASE 2: indexInfoId IS NULL (search all) ---
+            // You need repository methods that DON'T filter by indexInfoId.
+            // NOTE: You will need to add these methods to your IndexDataRepository.
+
+            // For example:
+            sliceData = indexDataRepository.findAllByDateRangeWithCursor(startDate, endDate, pageable);
+            totalElements = indexDataRepository.countByDateRange(startDate, endDate);
+        }
+
+        // 4. Process the results (this logic remains the same)
         List<IndexData> content = sliceData.getContent();
         List<IndexDataDto> indexDataDto = content.stream()
-                .map(mapper::toDto).toList();
-        // 다음에 자료가 더 있는지, 데이터가 더 있는지 true이면 데이터를 더 가져온다
-        boolean hasNext = sliceData.hasNext();
-        // 불러온 데이터의 마지막에 있는 녀석의 id(Long타입)를 가져옴 그 이후의 것들을 불러오기 위한 것
-        Long nextIdAfter = !content.isEmpty() ? content.get(content.size() -1).getId().intValue() : 0L;
+            .map(mapper::toDto).toList();
 
-        // 커서 값 설정하기, nextCursor는 기준 날짜임
+        boolean hasNext = sliceData.hasNext();
+        Long nextIdAfter = !content.isEmpty() ? content.get(content.size() - 1).getId() : null; // Use null for consistency
+
+        // Your cursor logic seems to depend on the date, which is fine
         String nextcursor = null;
-        if(indexDataDto.isEmpty()) {
+        if (indexDataDto.isEmpty()) {
             nextcursor = startDate;
         }
 
-        // 전체 요소 개수 조회
-        Long totalElements = indexDataRepository.countByIndexInfoId(indexInfoId);
+        return new CursorPageResponseIndexDataDto(indexDataDto, nextcursor, nextIdAfter, size, totalElements, hasNext);
 
-        return new CursorPageResponseIndexDataDto(indexDataDto,nextcursor,nextIdAfter,size,totalElements,hasNext);
+//        IndexInfo indexInfo = infoRepository.findById(indexInfoId) // infoRepository에서 일단 id를 찾고
+//        .orElseThrow(() -> new EntityNotFoundException("IndexInfo not found!"));
+//
+//        // 정렬 객체를 생성하기
+//        Sort sort = createSort(sortField, sortDirection);
+//
+//        // Pageable을 생성하기
+//        Pageable pageable = PageRequest.of(0, size, sort);
+//        // PageRequest.of(idAfter, size, sort);
+//
+//        // Repository 호출하기, Slice는 끊어서 보내준다 size가 10이면 10개씩 짧게 짧게 가져와주는 것이다
+//        Slice<IndexData> sliceData = indexDataRepository.findByConditionsWithCursor(indexInfoId, startDate, endDate, pageable);
+//
+//        // Slice<IndexData>를 최종 응답 DTO로 변환하기
+//        List<IndexData> content = sliceData.getContent();
+//        List<IndexDataDto> indexDataDto = content.stream()
+//                .map(mapper::toDto).toList();
+//        // 다음에 자료가 더 있는지, 데이터가 더 있는지 true이면 데이터를 더 가져온다
+//        boolean hasNext = sliceData.hasNext();
+//        // 불러온 데이터의 마지막에 있는 녀석의 id(Long타입)를 가져옴 그 이후의 것들을 불러오기 위한 것
+//        Long nextIdAfter = !content.isEmpty() ? content.get(content.size() -1).getId().intValue() : 0L;
+//
+//        // 커서 값 설정하기, nextCursor는 기준 날짜임
+//        String nextcursor = null;
+//        if(indexDataDto.isEmpty()) {
+//            nextcursor = startDate;
+//        }
+//
+//        // 전체 요소 개수 조회
+//        Long totalElements = indexDataRepository.countByIndexInfoId(indexInfoId);
+//
+//        return new CursorPageResponseIndexDataDto(indexDataDto,nextcursor,nextIdAfter,size,totalElements,hasNext);
+
+
     }
 
     // {소스 타입}을 제외한 모든 속성으로 정렬 및 페이지네이션을 구현합니다.
