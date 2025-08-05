@@ -5,7 +5,7 @@ import java.util.List;
 // 지수 차트 데이터 DTO
 
 public record IndexChartDto(
-    long indexInfoId,
+    Long indexInfoId,
     String indexClassification,
     String indexName,
     ChartPeriodType periodType,

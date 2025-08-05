@@ -54,13 +54,20 @@
   - nextIdAfter, nextCursor를 활용하여 페이지네이션 구현
 
 ## 신동진 - 지수 데이터 관리
+### 지수 데이터 등록
 - 지수 정보의 외래키와 기준일자를 바탕으로 지수 데이터를 등록할 수 있는 기능
   - 지수 정보, 기준일자는 중복되면 안되게끔 구현
+### 지수 데이터 수정
 - 지수 정보, 기준일자를 제외한 모든 속성을 수정할 수 있는 기능
+### 지수 데이터 삭제
 - 지수 데이터를 선택하여 삭제할 수 있는 기능
+### 지수 데이터 조회
 - 지수 정보, 기준일자를 바탕으로 지수 데이터 목록을 조회할 수 있는 기능
-- 소스 타입을 제외한 모든 속성으로 정렬 및 페이지네이션 구현
+  - 소스 타입을 제외한 모든 속성으로 정렬 및 페이지네이션 구현
+### 지수 데이터 Export
 - 생성한 지수 데이터들을 CSV파일로 Export(다운로드) 할 수 있는 기능 구현
+  - Export할 지수 데이터를 지수 데이터 목록 조회와 같은 규칙으로 필터링, 정렬기능 구현
+
 ## 김찬호 - 연동 작업 관리
 ### 지수 정보 연동
 - Open API를 활용해 지수 정보를 등록, 수정
@@ -112,16 +119,17 @@
 - 성능 향상을 위해 @Query를 사용해서 적절한 SQL문 작성
 
 # 📋 파일 구조
-sb4-findex-team3[Findex]
-├─ .github
-├─ .gradle
-├─ .idea
-├─ build
-├─ gradle
-├─ out
-├─ src
+```text
+sb4-findex-team3 [findex]
+├─ .github                        
+├─ .gradle                        
+├─ .idea                          
+├─ build                          
+├─ gradle                         
+├─ out                            
+├─ src                            
 │  ├─ main
-│  │  ├─ generated
+│  │  ├─ generated                
 │  │  ├─ java
 │  │  │  └─ com
 │  │  │     └─ codeit
@@ -192,7 +200,7 @@ sb4-findex-team3[Findex]
 │  │  │           │  └─ IntegrationMapper.java
 │  │  │           ├─ repository
 │  │  │           │  ├─ custom
-│  │  │           │  │  └─IntegrationCustomRepositoryImpl.java
+│  │  │           │  │  └─ IntegrationCustomRepositoryImpl.java
 │  │  │           │  ├─ AutoSyncRepository.java
 │  │  │           │  ├─ DashboardRepository.java
 │  │  │           │  ├─ IndexDataRepository.java
@@ -239,6 +247,7 @@ sb4-findex-team3[Findex]
 ├─ README.md
 ├─ settings.gradle
 └─ .gitignore
+````
 
 # 🚀구현 홈페이지
 (링크, 스크린샷 추가)
