@@ -45,6 +45,7 @@ public class BasicIndexInfoService implements IndexInfoService {
     String indexName = (cond.getIndexName() != null && cond.getIndexName().trim().isEmpty()) ? null : cond.getIndexName();
     String classification = (cond.getIndexClassification() != null && cond.getIndexClassification().trim().isEmpty()) ? null : cond.getIndexClassification();
     Boolean favorite = cond.getFavorite();
+
     // 3. Repository 호출
     Slice<IndexInfo> resultSlice = indexInfoRepository.findBySearchCondWithPaging(
             indexName,

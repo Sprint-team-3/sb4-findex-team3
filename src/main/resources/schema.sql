@@ -30,7 +30,7 @@ CREATE TABLE IndexData (
                            enabled BOOLEAN,
 
                            CONSTRAINT fk_indexdata_indexinfo FOREIGN KEY (indexInfoId)
-                               REFERENCES IndexInfo(info_id)
+                               REFERENCES IndexInfo(id)
                                ON DELETE CASCADE
 );
 
@@ -45,7 +45,7 @@ CREATE TABLE Integration (
                              result VARCHAR(20),
 
                              CONSTRAINT fk_integration_indexinfo FOREIGN KEY (indexInfoId)
-                                 REFERENCES IndexInfo(info_id)
+                                 REFERENCES IndexInfo(id)
                                  ON DELETE CASCADE,
 
                              CONSTRAINT fk_integration_data FOREIGN KEY (data_id)

@@ -1,9 +1,9 @@
 package com.codeit.findex.service.basic;
 
-
 import com.codeit.findex.dto.dashboard.OpenApiResponseDto;
 import com.codeit.findex.dto.indexData.response.IndexDataDto;
 import com.codeit.findex.dto.indexInfo.response.IndexInfoDto;
+import com.codeit.findex.dto.integration.CursorPageResponseSyncJobDto;
 import com.codeit.findex.dto.integration.IndexDataSyncRequest;
 import com.codeit.findex.dto.integration.SyncJobDto;
 import com.codeit.findex.entity.IndexData;
@@ -19,7 +19,7 @@ import com.codeit.findex.repository.IndexDataRepository;
 import com.codeit.findex.repository.IndexInfoRepository;
 import com.codeit.findex.repository.IntegrationRepository;
 import com.codeit.findex.service.ExternalApiService;
-import com.codeit.findex.service.Integration.IntegrationService;
+import com.codeit.findex.service.IntegrationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
@@ -28,6 +28,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -110,6 +112,85 @@ public class BasicIntegrationService implements IntegrationService {
                       });
             })
         .toList();
+  }
+
+  @Override
+  public CursorPageResponseSyncJobDto integrateCursorPage(
+      JobType jobType,
+      Long indexInfoId,
+      LocalDate baseDateFrom,
+      LocalDate baseDateTo,
+      String worker,
+      LocalDateTime jobTimeFrom,
+      LocalDateTime jobTimeTo,
+      Result status,
+      Long idAfter,
+      String cursor,
+      String sortField,
+      String sortDirection,
+      int size
+  ) {
+    PageRequest pageRequest = PageRequest.of(0, size);
+
+    // 커서 시간 파싱
+    LocalDateTime cursorDateTime = null;
+    if (cursor != null && !cursor.isEmpty()) {
+      cursorDateTime = LocalDateTime.parse(cursor);
+    }
+
+    // 데이터 조회
+    Slice<Integration> integrationSlice = integrationRepository.searchIntegrations(
+        jobType,
+        indexInfoId,
+        baseDateFrom,
+        baseDateTo,
+        worker,
+        jobTimeFrom,
+        jobTimeTo,
+        status,
+        cursorDateTime,
+        sortField,
+        sortDirection,
+        pageRequest
+    );
+
+    // 전체 갯수 조회
+    long totalElements = integrationRepository.countIntegrations(
+        jobType,
+        indexInfoId,
+        baseDateFrom,
+        baseDateTo,
+        worker,
+        jobTimeFrom,
+        jobTimeTo,
+        status
+    );
+
+    String nextCursor = null;
+    Long nextIdAfter = null;
+
+    List<Integration> content = integrationSlice.getContent();
+    if (content != null && !content.isEmpty()) {
+      int lastIndex = content.size() - 1;
+
+      if (integrationSlice.hasNext() && lastIndex >= 0) {
+        Integration lastIntegration = content.get(lastIndex);
+        nextCursor = lastIntegration.getJobTime().toString();
+        nextIdAfter = lastIntegration.getId();
+      }
+    }
+
+    // 응답 생성
+    return CursorPageResponseSyncJobDto.of(
+        integrationSlice.getContent().stream()
+            .map(integrationMapper::toSyncJobDto)
+            .toList(),
+        nextCursor,     // 이번 페이지 마지막 아이템의 jobTime 커서 (다음 페이지 요청 때 사용)
+        nextIdAfter,    // 이번 페이지 마지막 아이템의 id (동일 jobTime 내 중복 방지용)
+        size,
+        totalElements,
+        integrationSlice.hasNext()
+    );
   }
 
   private List<IndexInfoDto> toIndexInfoDtoList(OpenApiResponseDto responseDto) {

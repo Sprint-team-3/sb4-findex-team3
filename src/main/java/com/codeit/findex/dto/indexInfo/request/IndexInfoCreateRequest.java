@@ -20,7 +20,7 @@ public class IndexInfoCreateRequest {
   @NotBlank(message = "채용 종목 수는 0보다 커야 합니다.")
   private int employedItemsCount;
 
-  private LocalDate basepointInTime;
+  private LocalDate basePointInTime;
   private double baseIndex;
   private Boolean favorite;
 }
