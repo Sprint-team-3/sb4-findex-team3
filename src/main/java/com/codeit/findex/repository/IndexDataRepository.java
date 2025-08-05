@@ -45,4 +45,7 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
           @Param("endDate") String endDate,
           Pageable pageable
   );
+
+  // 전체 요소 개수 조회
+  Long countByIndexInfoId(Long indexInfoId);
 }

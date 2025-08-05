@@ -19,11 +19,11 @@ public interface IndexDataService {
     CursorPageResponseIndexDataDto searchByIndexAndDate(Long indexInfoId,
                                                         String startDate,
                                                         String endDate,
-                                                        Integer idAfter,
+                                                        Long idAfter,
                                                         String cursor,
                                                         String sortField,
                                                         String sortDirection,
-                                                        Integer size);
+                                                        int size);
 
     // 지수 정보의 id를 통해 지수 데이터를 가져오는 메서드, 팀장님 오더
     IndexDataDto searchIndexData(IndexDataSearchRequest request);

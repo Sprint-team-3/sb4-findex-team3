@@ -5,9 +5,9 @@ import java.util.List;
 public record CursorPageResponseIndexDataDto(
         List<IndexDataDto> data,
         String nextCursor,
-        Integer nextIdAfter,
-        Integer size,
-        Integer totalElements,
+        Long nextIdAfter,
+        int size,
+        Long totalElements,
         boolean hasNext
 ) {
 }

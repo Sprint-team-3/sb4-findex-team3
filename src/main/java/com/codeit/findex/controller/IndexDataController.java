@@ -42,11 +42,11 @@ public class IndexDataController {
             @RequestParam(required = false) Long indexInfoId,
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate,
-            @RequestParam(required = false) Integer idAfter,
+            @RequestParam(required = false) Long idAfter,
             @RequestParam(required = false) String cursor,
             @RequestParam(defaultValue = "baseDate") String sortField,
             @RequestParam(defaultValue = "desc") String sortDirection,
-            @RequestParam(defaultValue = "10") Integer size
+            @RequestParam(defaultValue = "10") int size
     )
     {
         CursorPageResponseIndexDataDto cursorPageResponseIndexDataDto =

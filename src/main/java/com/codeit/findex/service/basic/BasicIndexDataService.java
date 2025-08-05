@@ -103,20 +103,10 @@ public class BasicIndexDataService implements IndexDataService {
      * 정확한 페이지네이션을 위해 {이전 페이지의 마지막 요소 ID}를 활용합니다.
      * 화면을 고려해 적절한 페이지네이션 전략을 선택합니다.
      */
-//    @Override
-//    public Page<IndexDataDto> searchByIndexAndDate(IndexDataSortPageRequest request, Pageable pageable) {
-//
-//        IndexInfo indexInfo = infoRepository.findById(request.getIndexInfoId()) // infoRepository에서 일단 id를 찾고
-//                .orElseThrow(() -> new EntityNotFoundException("IndexInfo not found!"));
-//
-//        Sort sort = createSort()
-//
-//
-//        return null;
-//    }
+
     @Transactional
     @Override
-    public CursorPageResponseIndexDataDto searchByIndexAndDate(Long indexInfoId, String startDate, String endDate, Integer idAfter, String cursor, String sortField, String sortDirection, Integer size) {
+    public CursorPageResponseIndexDataDto searchByIndexAndDate(Long indexInfoId, String startDate, String endDate, Long idAfter, String cursor, String sortField, String sortDirection, int size) {
         IndexInfo indexInfo = infoRepository.findById(indexInfoId) // infoRepository에서 일단 id를 찾고
         .orElseThrow(() -> new EntityNotFoundException("IndexInfo not found!"));
 
@@ -124,7 +114,8 @@ public class BasicIndexDataService implements IndexDataService {
         Sort sort = createSort(sortField, sortDirection);
 
         // Pageable을 생성하기
-        Pageable pageable = PageRequest.of(idAfter, size, sort);
+        Pageable pageable = PageRequest.of(0, size, sort);
+        // PageRequest.of(idAfter, size, sort);
 
         // Repository 호출하기, Slice는 끊어서 보내준다 size가 10이면 10개씩 짧게 짧게 가져와주는 것이다
         Slice<IndexData> sliceData = indexDataRepository.findByConditionsWithCursor(indexInfoId, startDate, endDate, pageable);
@@ -135,30 +126,30 @@ public class BasicIndexDataService implements IndexDataService {
                 .map(mapper::toDto).toList();
         // 다음에 자료가 더 있는지, 데이터가 더 있는지 true이면 데이터를 더 가져온다
         boolean hasNext = sliceData.hasNext();
-        // 불러온 데이터의 마지막에 있는 녀석의 id를 가져옴 그 이후의 것들을 불러오기 위한 것
-        long nextIdAfter = !content.isEmpty() ? content.get(content.size() - 1).getId() : 0L;
-        String nextcursor = 
+        // 불러온 데이터의 마지막에 있는 녀석의 id(Long타입)를 가져옴 그 이후의 것들을 불러오기 위한 것
+        Long nextIdAfter = !content.isEmpty() ? content.get(content.size() -1).getId().intValue() : 0L;
 
+        // 커서 값 설정하기, nextCursor는 기준 날짜임
+        String nextcursor = null;
+        if(indexDataDto.isEmpty()) {
+            nextcursor = startDate;
+        }
 
-        return null;
+        // 전체 요소 개수 조회
+        Long totalElements = indexDataRepository.countByIndexInfoId(indexInfoId);
+
+        return new CursorPageResponseIndexDataDto(indexDataDto,nextcursor,nextIdAfter,size,totalElements,hasNext);
     }
 
     // {소스 타입}을 제외한 모든 속성으로 정렬 및 페이지네이션을 구현합니다.
     private Sort createSort(String sortField, String sortDirection) {
+        // 정렬 방향을 결정하는거임
         Sort.Direction direction = "desc".equalsIgnoreCase(sortDirection) ? Sort.Direction.DESC : Sort.Direction.ASC;
 
         if(sortField == null) {
             throw new NoSuchElementException("sortField is not found!");
         }
-
-        String sortProperty = sortField;
-
-//        if(sortField.equals("baseDate")) {
-//            sortProperty = "baseDate";
-//        } else if(sortField.equals("closingPrice")) {
-//            sortProperty = "closingPrice";
-//        }
-        return Sort.by(direction, sortProperty).and(Sort.by(Sort.Direction.ASC,"id"));
+        return Sort.by(direction, sortField).and(Sort.by(Sort.Direction.ASC,"id"));
     }
 
 
