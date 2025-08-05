@@ -59,16 +59,26 @@ public class BasicIndexInfoService implements IndexInfoService {
             .map(indexInfoMapper::toIndexInfoDto)
             .toList();
 
+    // 5. 다음 페이지 존재 여부
     boolean hasNext = resultSlice.hasNext();
+
+    // 6. 다음 커서 값 설정: 마지막 요소의 indexClassification (null 체크)
+    String nextCursor = null;
+    if (!dtoContent.isEmpty()) {
+      nextCursor = dtoContent.get(dtoContent.size() -1).getIndexClassification();
+    }
+
+    // 7. 다음 idAfter 설정
     long nextIdAfter = !content.isEmpty() ? content.get(content.size() - 1).getId() : 0L;
+
+    // 8. 전체 요소 개수 조회
     long totalElement = indexInfoRepository.countBySearchCond(
             indexName, classification, favorite
     );
-    //String nextCursor = !dtoContent.isEmpty() ? dtoContent.get(dtoContent.size() - 1).getId() : null;
 
     return new CursorPageResponseIndexInfoDto(
             dtoContent,
-            null,  //필요 시 구현
+            nextCursor,
             nextIdAfter,
             cond.getSize(),
             totalElement,
