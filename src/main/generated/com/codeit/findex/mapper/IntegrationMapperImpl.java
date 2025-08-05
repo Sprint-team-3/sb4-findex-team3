@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-08-05T11:06:11+0900",
+    date = "2025-08-05T12:53:23+0900",
     comments = "version: 1.5.3.Final, compiler: javac, environment: Java 17.0.12 (Oracle Corporation)"
 )
 @Component
@@ -35,7 +35,7 @@ public class IntegrationMapperImpl implements IntegrationMapper {
         id = integration.getId();
         jobType = integration.getJobType();
         indexInfoId = integrationIndexInfoId( integration );
-        targetDate = integrationIndexInfoBasepointInTime( integration );
+        targetDate = integration.getBaseDate();
         worker = integration.getWorker();
         jobTime = integration.getJobTime();
         result = integration.getResult();
@@ -53,22 +53,10 @@ public class IntegrationMapperImpl implements IntegrationMapper {
         if ( indexInfo == null ) {
             return null;
         }
-        long id = indexInfo.getId();
+        Long id = indexInfo.getId();
+        if ( id == null ) {
+            return null;
+        }
         return id;
-    }
-
-    private LocalDate integrationIndexInfoBasepointInTime(Integration integration) {
-        if ( integration == null ) {
-            return null;
-        }
-        IndexInfo indexInfo = integration.getIndexInfo();
-        if ( indexInfo == null ) {
-            return null;
-        }
-        LocalDate basepointInTime = indexInfo.getBasepointInTime();
-        if ( basepointInTime == null ) {
-            return null;
-        }
-        return basepointInTime;
     }
 }

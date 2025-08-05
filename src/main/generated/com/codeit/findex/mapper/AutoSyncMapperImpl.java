@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-08-05T11:06:11+0900",
+    date = "2025-08-05T11:26:43+0900",
     comments = "version: 1.5.3.Final, compiler: javac, environment: Java 17.0.12 (Oracle Corporation)"
 )
 @Component
@@ -27,10 +27,14 @@ public class AutoSyncMapperImpl implements AutoSyncMapper {
         long id = 0L;
         boolean enabled = false;
 
-        indexInfoId = indexInfo.getId();
+        if ( indexInfo.getId() != null ) {
+            indexInfoId = indexInfo.getId();
+        }
         indexClassification = indexInfo.getIndexClassification();
         indexName = indexInfo.getIndexName();
-        id = indexInfo.getId();
+        if ( indexInfo.getId() != null ) {
+            id = indexInfo.getId();
+        }
         enabled = indexInfo.isEnabled();
 
         AutoSyncConfigDto autoSyncConfigDto = new AutoSyncConfigDto( id, indexInfoId, indexClassification, indexName, enabled );

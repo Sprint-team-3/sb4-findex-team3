@@ -23,7 +23,7 @@ public class QIndexInfo extends EntityPathBase<IndexInfo> {
 
     public final NumberPath<Double> baseIndex = createNumber("baseIndex", Double.class);
 
-    public final DatePath<java.time.LocalDate> basepointInTime = createDate("basepointInTime", java.time.LocalDate.class);
+    public final DatePath<java.time.LocalDate> basePointInTime = createDate("basePointInTime", java.time.LocalDate.class);
 
     //inherited
     public final DatePath<java.time.LocalDate> createdAt = _super.createdAt;

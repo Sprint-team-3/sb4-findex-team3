@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-08-05T11:06:11+0900",
+    date = "2025-08-05T11:26:42+0900",
     comments = "version: 1.5.3.Final, compiler: javac, environment: Java 17.0.12 (Oracle Corporation)"
 )
 @Component
@@ -28,7 +28,7 @@ public class IndexInfoMapperImpl implements IndexInfoMapper {
         indexInfo.setIndexClassification( dto.getIndexClassification() );
         indexInfo.setIndexName( dto.getIndexName() );
         indexInfo.setEmployedItemsCount( dto.getEmployedItemsCount() );
-        indexInfo.setBasepointInTime( dto.getBasepointInTime() );
+        indexInfo.setBasePointInTime( dto.getBasePointInTime() );
         indexInfo.setBaseIndex( dto.getBaseIndex() );
         indexInfo.setSourceType( dto.getSourceType() );
         indexInfo.setFavorite( dto.getFavorite() );
@@ -48,7 +48,7 @@ public class IndexInfoMapperImpl implements IndexInfoMapper {
         indexInfoDto.setIndexClassification( entity.getIndexClassification() );
         indexInfoDto.setIndexName( entity.getIndexName() );
         indexInfoDto.setEmployedItemsCount( entity.getEmployedItemsCount() );
-        indexInfoDto.setBasepointInTime( entity.getBasepointInTime() );
+        indexInfoDto.setBasePointInTime( entity.getBasePointInTime() );
         indexInfoDto.setBaseIndex( entity.getBaseIndex() );
         indexInfoDto.setSourceType( entity.getSourceType() );
         indexInfoDto.setFavorite( entity.getFavorite() );
@@ -78,7 +78,9 @@ public class IndexInfoMapperImpl implements IndexInfoMapper {
 
         IndexInfoSummaryDto indexInfoSummaryDto = new IndexInfoSummaryDto();
 
-        indexInfoSummaryDto.setId( indexInfo.getId() );
+        if ( indexInfo.getId() != null ) {
+            indexInfoSummaryDto.setId( indexInfo.getId() );
+        }
         indexInfoSummaryDto.setIndexClassification( indexInfo.getIndexClassification() );
         indexInfoSummaryDto.setIndexName( indexInfo.getIndexName() );
 
@@ -96,6 +98,7 @@ public class IndexInfoMapperImpl implements IndexInfoMapper {
         indexInfo.setIndexClassification( dto.getIndexClassification() );
         indexInfo.setIndexName( dto.getIndexName() );
         indexInfo.setEmployedItemsCount( dto.getEmployedItemsCount() );
+        indexInfo.setBasePointInTime( dto.getBasePointInTime() );
         indexInfo.setBaseIndex( dto.getBaseIndex() );
         indexInfo.setFavorite( dto.getFavorite() );
 
@@ -117,8 +120,8 @@ public class IndexInfoMapperImpl implements IndexInfoMapper {
             entity.setIndexName( dto.getIndexName() );
         }
         entity.setEmployedItemsCount( dto.getEmployedItemsCount() );
-        if ( dto.getBasepointInTime() != null ) {
-            entity.setBasepointInTime( dto.getBasepointInTime() );
+        if ( dto.getBasePointInTime() != null ) {
+            entity.setBasePointInTime( dto.getBasePointInTime() );
         }
         entity.setBaseIndex( dto.getBaseIndex() );
         if ( dto.getSourceType() != null ) {

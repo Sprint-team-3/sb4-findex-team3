@@ -48,7 +48,7 @@ public class BasicIntegrationService implements IntegrationService {
   public List<SyncJobDto> integrateIndexInfo(HttpServletRequest request) {
     OpenApiResponseDto openApiDto = externalApiService.fetchStockMarketIndex();
     List<IndexInfoDto> indexInfoDtosInOpenApi = toIndexInfoDtoList(openApiDto);
-    String workerIp = request.getRemoteAddr();
+    String workerIp = extractClientIp(request);
 
     return indexInfoDtosInOpenApi.stream()
         .map(
@@ -66,12 +66,31 @@ public class BasicIntegrationService implements IntegrationService {
                 indexInfoRepository.save(indexInfo);
               }
 
-              Integration integration = saveIntegrationInfoLog(indexInfo, workerIp);
+              // 중복 방지: 최근 동일한 성공 로그가 있으면 재사용
+              Integration integration;
+              Optional<Integration> latestOpt =
+                  integrationRepository.findTopByIndexInfoAndJobTypeAndWorkerOrderByJobTimeDesc(
+                      indexInfo, JobType.INDEX_INFO, workerIp);
+
+              if (latestOpt.isPresent()) {
+                Integration latest = latestOpt.get();
+                boolean isRecentSuccess =
+                    latest.getResult() == Result.SUCCESS
+                        && latest.getJobTime().isAfter(LocalDateTime.now().minusMinutes(1));
+                if (isRecentSuccess) {
+                  integration = latest;
+                } else {
+                  integration = saveIntegrationInfoLog(indexInfo, workerIp);
+                }
+              } else {
+                integration = saveIntegrationInfoLog(indexInfo, workerIp);
+              }
 
               return integrationMapper.toSyncJobDto(integration);
             })
         .toList();
   }
+
 
   @Override
   public List<SyncJobDto> integrateIndexData(
@@ -80,7 +99,7 @@ public class BasicIntegrationService implements IntegrationService {
     OpenApiResponseDto openApiDto = externalApiService.fetchStockMarketIndex();
     List<IndexInfo> indexInfos =
         indexInfoRepository.findAllById(indexDataSyncRequest.indexInfoIds());
-    String workerIp = request.getRemoteAddr();
+    String workerIp = extractClientIp(request);
 
     return indexInfos.stream()
         .flatMap(
@@ -105,14 +124,30 @@ public class BasicIntegrationService implements IntegrationService {
                           indexDataRepository.save(indexData);
                         }
 
-                        Integration integration =
-                            saveIntegrationDataLog(indexInfo, indexData, workerIp);
+                        // 중복 Integration 로그 방지
+                        Integration integration;
+                        Optional<Integration> latestOpt =
+                            integrationRepository
+                                .findTopByIndexInfoAndIndexDataAndJobTypeAndWorkerOrderByJobTimeDesc(
+                                    indexInfo, indexData, JobType.INDEX_DATA, workerIp);
+
+                        boolean isRecentSuccess =
+                            latestOpt.isPresent()
+                                && latestOpt.get().getResult() == Result.SUCCESS
+                                && latestOpt.get().getJobTime().isAfter(LocalDateTime.now().minusMinutes(1));
+
+                        if (isRecentSuccess) {
+                          integration = latestOpt.get();
+                        } else {
+                          integration = saveIntegrationDataLog(indexInfo, indexData, workerIp);
+                        }
 
                         return integrationMapper.toSyncJobDto(integration);
                       });
             })
         .toList();
   }
+
 
   @Override
   public CursorPageResponseSyncJobDto integrateCursorPage(
@@ -180,11 +215,13 @@ public class BasicIntegrationService implements IntegrationService {
       }
     }
 
+    List<SyncJobDto> syncJobDtos = integrationSlice.getContent().stream()
+        .map(integrationMapper::toSyncJobDto)
+        .toList();
+
     // 응답 생성
     return CursorPageResponseSyncJobDto.of(
-        integrationSlice.getContent().stream()
-            .map(integrationMapper::toSyncJobDto)
-            .toList(),
+        syncJobDtos,
         nextCursor,     // 이번 페이지 마지막 아이템의 jobTime 커서 (다음 페이지 요청 때 사용)
         nextIdAfter,    // 이번 페이지 마지막 아이템의 id (동일 jobTime 내 중복 방지용)
         size,
@@ -249,7 +286,7 @@ public class BasicIntegrationService implements IntegrationService {
     integration.setIndexInfo(indexInfo);
     integration.setIndexData(null);
     integration.setJobType(JobType.INDEX_INFO);
-    integration.setBaseDate(indexInfo.getBasePointInTime());
+    integration.setBaseDate(null);
     integration.setWorker(workerIp);
     integration.setJobTime(LocalDateTime.now());
     integration.setResult(Result.SUCCESS);
@@ -269,5 +306,14 @@ public class BasicIntegrationService implements IntegrationService {
     integration.setResult(Result.SUCCESS);
 
     return integrationRepository.save(integration);
+  }
+
+  private String extractClientIp(HttpServletRequest request) {
+    String xForwardedFor = request.getHeader("X-Forwarded-For");
+    if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+      // 다중 프록시일 경우 제일 앞의 IP가 실제 클라이언트 IP
+      return xForwardedFor.split(",")[0].trim();
+    }
+    return request.getRemoteAddr(); // fallback
   }
 }

@@ -1,7 +1,9 @@
 package com.codeit.findex.mapper;
 
+import com.codeit.findex.dto.dashboard.OpenApiResponseDto;
 import com.codeit.findex.dto.indexData.response.IndexDataDto;
 import com.codeit.findex.entity.IndexData;
+import com.codeit.findex.entity.IndexInfo;
 import com.codeit.findex.entityEnum.SourceType;
 import java.time.LocalDate;
 import javax.annotation.processing.Generated;
@@ -9,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-08-05T11:06:11+0900",
+    date = "2025-08-05T11:26:43+0900",
     comments = "version: 1.5.3.Final, compiler: javac, environment: Java 17.0.12 (Oracle Corporation)"
 )
 @Component
@@ -105,5 +107,33 @@ public class IndexDataMapperImpl implements IndexDataMapper {
         entity.setLowPrice( dto.lowPrice() );
         entity.setFluctuationRate( dto.fluctuationRate() );
         entity.setMarketTotalAmount( dto.marketTotalAmount() );
+    }
+
+    @Override
+    public IndexData toIndexData(IndexInfo indexInfo, OpenApiResponseDto.IndexItemDto item) {
+        if ( indexInfo == null && item == null ) {
+            return null;
+        }
+
+        IndexData indexData = new IndexData();
+
+        if ( indexInfo != null ) {
+            indexData.setSourceType( indexInfo.getSourceType() );
+            indexData.setEnabled( indexInfo.isEnabled() );
+        }
+        if ( item != null ) {
+            indexData.setBaseDate( stringToLocalDate( item.basDt() ) );
+            indexData.setOpenPrice( doubleToDoubleSafe( item.mkp() ) );
+            indexData.setClosingPrice( doubleToDoubleSafe( item.clpr() ) );
+            indexData.setHighPrice( doubleToDoubleSafe( item.hipr() ) );
+            indexData.setLowPrice( doubleToDoubleSafe( item.lopr() ) );
+            indexData.setChangeValue( doubleToDoubleSafe( item.vs() ) );
+            indexData.setFluctuationRate( doubleToDoubleSafe( item.fltRt() ) );
+            indexData.setTradingVolume( longToIntSafe( item.trqu() ) );
+            indexData.setTradingValue( longToLongSafe( item.trPrc() ) );
+            indexData.setMarketTotalAmount( longToLongSafe( item.lstgMrktTotAmt() ) );
+        }
+
+        return indexData;
     }
 }
