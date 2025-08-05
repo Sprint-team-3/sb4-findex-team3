@@ -120,7 +120,7 @@
 
 # 📋 파일 구조
 ```text
-sb4-findex-team3
+sb4-findex-team3 [findex]
 ├─ .github                        
 ├─ .gradle                        
 ├─ .idea                          
