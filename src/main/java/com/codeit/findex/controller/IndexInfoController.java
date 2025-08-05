@@ -7,7 +7,7 @@ import com.codeit.findex.dto.indexInfo.request.IndexInfoUpdateRequest;
 import com.codeit.findex.dto.indexInfo.response.CursorPageResponseIndexInfoDto;
 import com.codeit.findex.dto.indexInfo.response.IndexInfoDto;
 import com.codeit.findex.dto.indexInfo.response.IndexInfoSummaryDto;
-import com.codeit.findex.service.basic.BasicIndexInfoService;
+import com.codeit.findex.service.indexinfo.basic.BasicIndexInfoService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

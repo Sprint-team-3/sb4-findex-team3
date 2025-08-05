@@ -24,7 +24,7 @@ batch:
     info:
       fixed-delay: PT40S               # syncInfoAndSave: 종료 후 40초 대기
     enabled-index-data:
-      fixed-delay: PT10S
+      fixed-delay: P1D
 
 # Logging 설정
 logging:

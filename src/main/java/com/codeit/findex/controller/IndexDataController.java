@@ -4,7 +4,7 @@ import com.codeit.findex.dto.indexData.response.CursorPageResponseIndexDataDto;
 import com.codeit.findex.dto.indexData.response.IndexDataDto;
 import com.codeit.findex.dto.indexData.request.IndexDataCreateRequest;
 import com.codeit.findex.dto.indexData.request.IndexDataUpdateRequest;
-import com.codeit.findex.service.IndexDataService;
+import com.codeit.findex.service.indexdata.IndexDataService;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Pageable;

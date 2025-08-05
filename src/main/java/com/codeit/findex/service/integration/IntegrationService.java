@@ -1,4 +1,4 @@
- package com.codeit.findex.service;
+ package com.codeit.findex.service.integration;
 
  import com.codeit.findex.dto.integration.CursorPageResponseSyncJobDto;
  import com.codeit.findex.dto.integration.IndexDataSyncRequest;

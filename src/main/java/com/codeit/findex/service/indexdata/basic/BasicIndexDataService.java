@@ -1,4 +1,4 @@
-package com.codeit.findex.service.basic;
+package com.codeit.findex.service.indexdata.basic;
 
 import com.codeit.findex.dto.indexData.request.*;
 import com.codeit.findex.dto.indexData.response.CursorPageResponseIndexDataDto;
@@ -10,7 +10,7 @@ import com.codeit.findex.mapper.CSVStringMapper;
 import com.codeit.findex.mapper.IndexDataMapper;
 import com.codeit.findex.repository.IndexDataRepository;
 import com.codeit.findex.repository.IndexInfoRepository;
-import com.codeit.findex.service.IndexDataService;
+import com.codeit.findex.service.indexdata.IndexDataService;
 import com.opencsv.CSVWriter;
 import com.opencsv.ICSVWriter;
 import jakarta.persistence.EntityNotFoundException;

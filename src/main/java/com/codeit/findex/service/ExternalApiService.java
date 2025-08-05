@@ -1,12 +1,6 @@
 package com.codeit.findex.service;
 
-import com.codeit.findex.dto.dashboard.OpenApiResponseDto;
-import com.codeit.findex.entity.IndexInfo;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import com.codeit.findex.dto.openapi.OpenApiResponseDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -40,7 +34,7 @@ public class ExternalApiService {
                     .path("/getStockMarketIndex")
                     .queryParam("serviceKey", apiKey)
                     .queryParam("resultType", "json")
-                    .queryParam("numOfRows", 5)
+                    .queryParam("numOfRows", 50)
                     .build())
         .accept(MediaType.APPLICATION_JSON)
         .retrieve()

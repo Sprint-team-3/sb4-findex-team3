@@ -5,7 +5,7 @@ import com.codeit.findex.dto.integration.IndexDataSyncRequest;
 import com.codeit.findex.dto.integration.SyncJobDto;
 import com.codeit.findex.entityEnum.JobType;
 import com.codeit.findex.entityEnum.Result;
-import com.codeit.findex.service.IntegrationService;
+import com.codeit.findex.service.integration.IntegrationService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
