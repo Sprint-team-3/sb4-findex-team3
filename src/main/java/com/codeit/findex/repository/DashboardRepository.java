@@ -55,11 +55,14 @@ public interface DashboardRepository extends JpaRepository<IndexData, Long> {
       value =
           """
         WITH RankedData AS (
-            SELECT id, indexInfoId, base_date, closing_price,
-                   ROW_NUMBER() OVER(PARTITION BY indexInfoId ORDER BY base_date DESC) as rn
-            FROM IndexData
+            SELECT *,  -- THIS IS THE CRITICAL LINE. It makes all columns available.
+                   ROW_NUMBER() OVER(PARTITION BY index_info_id ORDER BY base_date DESC) as rn
+            FROM index_data
         )
-        SELECT id, indexInfoId, base_date, closing_price
+        SELECT id, index_info_id, base_date, source_type, market_price,
+               closing_price, high_price, low_price, versus, fluctuation_rate,
+               trading_quantity, trading_price, market_total_amount, enabled,
+               created_at, updated_at
         FROM RankedData
         WHERE rn = 1
       """,
@@ -74,12 +77,15 @@ public interface DashboardRepository extends JpaRepository<IndexData, Long> {
       value =
           """
       WITH RankedData AS (
-          SELECT id, indexInfoId, base_date, closing_price,
-              ROW_NUMBER() OVER(PARTITION BY indexInfoId ORDER BY base_date DESC) as rn
-          FROM IndexData
+          SELECT *,
+              ROW_NUMBER() OVER(PARTITION BY index_info_id ORDER BY base_date DESC) as rn
+          FROM index_data
           WHERE base_date <= :pastDate
       )
-      SELECT id, indexInfoId, base_date, closing_price
+      SELECT id, index_info_id, base_date, source_type, market_price,
+                              closing_price, high_price, low_price, versus, fluctuation_rate,
+                              trading_quantity, trading_price, market_total_amount, enabled,
+                              created_at, updated_at -- Select all columns
       FROM RankedData
       WHERE rn = 1
     """,

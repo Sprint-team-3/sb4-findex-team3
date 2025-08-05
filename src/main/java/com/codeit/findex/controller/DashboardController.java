@@ -41,7 +41,7 @@ public class DashboardController {
    */
   @GetMapping("/index-data/performance/rank")
   public List<RankedIndexPerformanceDto> getPerformanceRank(
-      @RequestParam("indexInfoId") long indexInfoId,
+      @RequestParam(name = "indexInfoId", required = false) Long indexInfoId,
       @RequestParam("periodType") PeriodType periodType,
       @RequestParam("limit") int limit) {
     return basicDashboardService.getPerformanceRank(indexInfoId, periodType, limit);
