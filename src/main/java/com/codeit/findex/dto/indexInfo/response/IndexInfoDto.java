@@ -16,7 +16,7 @@ public class IndexInfoDto {
   private String indexClassification;
   private String indexName;
   private int employedItemsCount;
-  private LocalDate basepointInTime;
+  private LocalDate basePointInTime;
   private double baseIndex;
   private SourceType sourceType;
   private Boolean favorite;

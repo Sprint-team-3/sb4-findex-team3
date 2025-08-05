@@ -15,10 +15,21 @@ spring:
     name: Findex
   config:
     import: application-secret.yml
+  task:
+    scheduling:
+      enabled: true
+
+batch:
+  sync:
+    info:
+      fixed-delay: PT40S               # syncInfoAndSave: 종료 후 40초 대기
+    enabled-index-data:
+      fixed-delay: PT10S
 
 # Logging 설정
 logging:
   level:
+    org.springframework.data.jpa.domain.support.AuditingEntityListener : DEBUG
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
 
