@@ -5,11 +5,10 @@ import com.codeit.findex.dto.integration.IndexDataSyncRequest;
 import com.codeit.findex.dto.integration.SyncJobDto;
 import com.codeit.findex.entityEnum.JobType;
 import com.codeit.findex.entityEnum.Result;
-import com.codeit.findex.service.Integration.IntegrationService;
+import com.codeit.findex.service.IntegrationService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -41,39 +40,37 @@ public class IntergrationController {
     return ResponseEntity.ok(syncJobDtos);
   }
 
-//  @GetMapping
-//  public ResponseEntity<CursorPageResponseSyncJobDto> getCursorPageResponseSyncJobDto(
-//      @RequestParam(required = false) JobType jobType,
-//      @RequestParam(required = false) List<Long> indexInfoIds,
-//      @RequestParam(required = false) LocalDate baseDateFrom,
-//      @RequestParam(required = false) LocalDate baseDateTo,
-//      @RequestParam(required = false) String worker,
-//      @RequestParam(required = false) LocalDateTime jobTimeFrom,
-//      @RequestParam(required = false) LocalDateTime jobTimeTo,
-//      @RequestParam(required = false) Result status,
-//      @RequestParam(required = false) Long idAfter,
-//      @RequestParam(required = false) String cursor,
-//      @RequestParam(defaultValue = "jobTime") String sortField,
-//      @RequestParam(defaultValue = "DESC") String sortDirection,
-//      @RequestParam(defaultValue = "10") int size) {
-//    IndexDataSyncRequest indexDataSyncRequest =
-//        new IndexDataSyncRequest(
-//            indexInfoIds == null ? Collections.emptyList() : indexInfoIds,
-//            baseDateFrom,
-//            baseDateTo);
-//    CursorPageResponseSyncJobDto cursorPageResponseSyncJobDto =
-//        integrationService.integrateCursorPage(
-//            jobType,
-//            indexDataSyncRequest,
-//            worker,
-//            jobTimeFrom,
-//            jobTimeTo,
-//            status,
-//            idAfter,
-//            cursor,
-//            sortField,
-//            sortDirection,
-//            size);
-//    return ResponseEntity.ok(cursorPageResponseSyncJobDto);
-//  }
+  @GetMapping
+  public ResponseEntity<CursorPageResponseSyncJobDto> getCursorPageResponseSyncJobDto(
+      @RequestParam(required = false) JobType jobType,
+      @RequestParam(required = false) Long indexInfoId,
+      @RequestParam(required = false) LocalDate baseDateFrom,
+      @RequestParam(required = false) LocalDate baseDateTo,
+      @RequestParam(required = false) String worker,
+      @RequestParam(required = false) LocalDateTime jobTimeFrom,
+      @RequestParam(required = false) LocalDateTime jobTimeTo,
+      @RequestParam(required = false) Result status,
+      @RequestParam(required = false) Long idAfter,
+      @RequestParam(required = false) String cursor,
+      @RequestParam(defaultValue = "jobTime") String sortField,
+      @RequestParam(defaultValue = "DESC") String sortDirection,
+      @RequestParam(defaultValue = "10") int size) {
+
+    CursorPageResponseSyncJobDto cursorPageResponseSyncJobDto =
+        integrationService.integrateCursorPage(
+            jobType,
+            indexInfoId,
+            baseDateFrom,
+            baseDateTo,
+            worker,
+            jobTimeFrom,
+            jobTimeTo,
+            status,
+            idAfter,
+            cursor,
+            sortField,
+            sortDirection,
+            size);
+    return ResponseEntity.ok(cursorPageResponseSyncJobDto);
+  }
 }

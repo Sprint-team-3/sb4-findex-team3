@@ -3,7 +3,6 @@ package com.codeit.findex.entity;
 import com.codeit.findex.entity.base.BaseEntity;
 import com.codeit.findex.entityEnum.SourceType;
 import jakarta.persistence.*;
-
 import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,7 +30,7 @@ public class IndexInfo extends BaseEntity {
 
   /** 지수 산출의 기준이 되는 날짜 및 시간 */
   @Column(name = "basepoint_intime", nullable = false)
-  private LocalDate basepointInTime;
+  private LocalDate basePointInTime;
 
   /** 기준 시점의 지수 값 (보통 100 또는 1000) */
   @Column(name = "base_index", nullable = false)
@@ -48,5 +47,5 @@ public class IndexInfo extends BaseEntity {
 
   /** 활성화 여부 (예: 자동 연동 설정의 활성/비활성 상태) */
   @Column(name = "enabled", nullable = false)
-  private boolean enabled = false; //필드 선언 시 기본값 할당하도록 함
+  private boolean enabled = false; // 필드 선언 시 기본값 할당하도록 함
 }

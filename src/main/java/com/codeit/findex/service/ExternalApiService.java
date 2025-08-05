@@ -2,8 +2,6 @@ package com.codeit.findex.service;
 
 import com.codeit.findex.dto.dashboard.OpenApiResponseDto;
 import com.codeit.findex.entity.IndexInfo;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -42,7 +40,7 @@ public class ExternalApiService {
                     .path("/getStockMarketIndex")
                     .queryParam("serviceKey", apiKey)
                     .queryParam("resultType", "json")
-                    .queryParam("numOfRows", 50)
+                    .queryParam("numOfRows", 5)
                     .build())
         .accept(MediaType.APPLICATION_JSON)
         .retrieve()
