@@ -8,6 +8,7 @@ spring:
     hibernate:
       ddl-auto: validate # 운영 배포 시엔 none 또는 validate 권장
     show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     properties:
       hibernate:
         format_sql: true
@@ -18,7 +19,7 @@ spring:
   task:
     scheduling:
       enabled: true
-  database-platform: org.hibernate.dialect.PostgreSQLDialect
+
 
 
 batch:
