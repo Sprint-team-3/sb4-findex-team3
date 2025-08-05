@@ -209,8 +209,8 @@
 
      // 중복 검사: classification + name + basepointInTime 기준
      Optional<IndexInfo> existing =
-             indexInfoRepository.findFirstByIndexClassificationAndIndexNameAndBasepointInTimeOrderByCreatedAtDesc(
-                     request.getIndexClassification(), request.getIndexName(), basepointInTime);
+             indexInfoRepository.findFirstByIndexClassificationAndIndexNameOrderByCreatedAtDesc(
+                     request.getIndexClassification(), request.getIndexName());
 
      if (existing.isPresent()) {
        log.debug(
