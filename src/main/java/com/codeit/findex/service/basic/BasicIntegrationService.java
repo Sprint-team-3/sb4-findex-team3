@@ -25,6 +25,7 @@ import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -92,63 +93,53 @@ public class BasicIntegrationService implements IntegrationService {
   }
 
   @Override
-  public List<SyncJobDto> integrateIndexData(
-      IndexDataSyncRequest indexDataSyncRequest, HttpServletRequest request) {
+  public List<SyncJobDto> integrateIndexData(IndexDataSyncRequest indexDataSyncRequest, HttpServletRequest request) {
 
     OpenApiResponseDto openApiDto = externalApiService.fetchStockMarketIndex();
-    List<IndexInfo> indexInfos =
-        indexInfoRepository.findAllById(indexDataSyncRequest.indexInfoIds());
+    List<IndexInfo> indexInfos = indexInfoRepository.findAllByIdIn(indexDataSyncRequest.indexInfoIds());
     String workerIp = extractClientIp(request);
 
-    return indexInfos.stream()
-        .flatMap(
-            indexInfo -> {
-              List<IndexDataDto> indexDataDtos =
-                  toIndexDataDtoList(openApiDto, indexInfo, indexDataSyncRequest);
+    List<SyncJobDto> result = new ArrayList<>();
 
-              return indexDataDtos.stream()
-                  .map(
-                      dto -> {
-                        Optional<IndexData> existingOpt =
-                            indexDataRepository.findByIndexInfoIdAndBaseDate(
-                                indexInfo.getId(), dto.baseDate());
+    for (IndexInfo indexInfo : indexInfos) {
+      List<IndexDataDto> indexDataDtos = toIndexDataDtoList(openApiDto, indexInfo, indexDataSyncRequest);
 
-                        IndexData indexData;
-                        if (existingOpt.isPresent()) {
-                          indexData = existingOpt.get();
-                          indexDataMapper.updateDataFromDto(dto, indexData);
-                        } else {
-                          indexData = indexDataMapper.toIndexData(dto);
-                          indexData.setIndexInfo(indexInfo);
-                          indexDataRepository.save(indexData);
-                        }
+      for (IndexDataDto dto : indexDataDtos) {
+        Optional<IndexData> existingOpt = indexDataRepository.findByIndexInfoIdAndBaseDate(indexInfo.getId(), dto.baseDate());
 
-                        // 중복 Integration 로그 방지
-                        Integration integration;
-                        Optional<Integration> latestOpt =
-                            integrationRepository
-                                .findTopByIndexInfoAndIndexDataAndJobTypeAndWorkerOrderByJobTimeDesc(
-                                    indexInfo, indexData, JobType.INDEX_DATA, workerIp);
+        IndexData indexData;
+        if (existingOpt.isPresent()) {
+          indexData = existingOpt.get();
+          indexDataMapper.updateDataFromDto(dto, indexData);
+        } else {
+          indexData = indexDataMapper.toIndexData(dto);
+          indexData.setIndexInfo(indexInfo);
+          indexDataRepository.save(indexData);
+        }
 
-                        boolean isRecentSuccess =
-                            latestOpt.isPresent()
-                                && latestOpt.get().getResult() == Result.SUCCESS
-                                && latestOpt
-                                    .get()
-                                    .getJobTime()
-                                    .isAfter(LocalDateTime.now().minusMinutes(1));
+        Optional<Integration> latestOpt = integrationRepository
+            .findTopByIndexInfoAndIndexDataAndJobTypeAndWorkerOrderByJobTimeDesc(
+                indexInfo, indexData, JobType.INDEX_DATA, workerIp);
 
-                        if (isRecentSuccess) {
-                          integration = latestOpt.get();
-                        } else {
-                          integration = saveIntegrationDataLog(indexInfo, indexData, workerIp);
-                        }
+        boolean isRecentSuccess = latestOpt.isPresent()
+            && latestOpt.get().getResult() == Result.SUCCESS
+            && latestOpt.get().getJobTime().isAfter(LocalDateTime.now().minusMinutes(1));
 
-                        return integrationMapper.toSyncJobDto(integration);
-                      });
-            })
-        .toList();
+        Integration integration;
+        if (isRecentSuccess) {
+          integration = latestOpt.get();
+        } else {
+          integration = saveIntegrationDataLog(indexInfo, indexData, workerIp);
+        }
+
+        SyncJobDto dtoResult = integrationMapper.toSyncJobDto(integration);
+        result.add(dtoResult);
+      }
+    }
+
+    return result;
   }
+
 
   @Override
   public CursorPageResponseSyncJobDto integrateCursorPage(
@@ -243,9 +234,11 @@ public class BasicIntegrationService implements IntegrationService {
       IndexInfo indexInfo,
       IndexDataSyncRequest indexDataSyncRequest) {
     String indexName = indexInfo.getIndexName();
+    String indexClassification = indexInfo.getIndexClassification();
 
     return responseDto.response().body().items().item().stream()
         .filter(item -> indexName.equals(item.idxNm()))
+        .filter(item -> indexClassification.equals(item.idxCsf()))
         .filter(
             item -> {
               LocalDate itemDate =
@@ -257,7 +250,7 @@ public class BasicIntegrationService implements IntegrationService {
             item ->
                 new IndexDataDto(
                     null,
-                    null,
+                    indexInfo.getId(),
                     LocalDate.parse(item.basDt(), DateTimeFormatter.ofPattern("yyyyMMdd")),
                     SourceType.OPEN_API,
                     item.mkp(),
