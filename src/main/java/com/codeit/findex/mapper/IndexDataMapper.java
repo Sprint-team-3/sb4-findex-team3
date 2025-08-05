@@ -1,20 +1,10 @@
 package com.codeit.findex.mapper;
 
 import com.codeit.findex.dto.dashboard.OpenApiResponseDto;
-import com.codeit.findex.dto.indexData.request.IndexDataSaveRequest;
 import com.codeit.findex.dto.indexData.response.IndexDataDto;
 import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.entity.IndexInfo;
 import org.mapstruct.*;
-
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Objects;
 
 @Mapper(componentModel = "spring")
 public interface IndexDataMapper {

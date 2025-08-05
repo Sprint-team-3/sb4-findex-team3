@@ -30,7 +30,7 @@ public class BasicIndexDataService implements IndexDataService {
     private final IndexDataMapper mapper;
 
     @Override
-    public IndexDataDto registerIndexData(IndexDataSaveRequest request) { // 지수 데이터 등록
+    public IndexDataDto registerIndexData(IndexDataCreateRequest request) { // 지수 데이터 등록
         // 만약, 지수와 날짜의 조합값이 중복된다면 예외를 발생시킨다
         // 중복된다라는 의미는 dataRepository에 지수, 날짜 조합이 이미 존재한다면 이니까 repository와 관련이 있다.
         if(dataRepository.existsByIndexInfoIdAndBaseDate(request.indexInfoId(), request.baseDate())) {
@@ -40,22 +40,51 @@ public class BasicIndexDataService implements IndexDataService {
         IndexInfo indexInfo = infoRepository.findById(request.indexInfoId())
                 .orElseThrow(() -> new EntityNotFoundException("IndexInfo not found!"));
 
+//        // IndexData 객체를 생성한다
+//        IndexData indexData = new IndexData();
+//
+//        // indexData에 데이터를 넣는다
+//        indexData.setIndexInfo(indexInfo);
+//        indexData.setBaseDate(request.baseDate());
+//        indexData.setSourceType(SourceType.USER);
+//        indexData.setOpenPrice(request.openPrice());
+//        indexData.setClosingPrice(request.closingPrice());
+//        indexData.setHighPrice(request.highPrice());
+//        indexData.setLowPrice(request.lowPrice());
+//        indexData.setChangeValue(request.changeValue());
+//        indexData.setFluctuationRate(request.fluctuationRate());
+//        indexData.setTradingVolume(request.tradingVolume());
+//        indexData.setTradingValue(request.tradingValue());
+//        indexData.setMarketTotalAmount(request.marketTotalAmount());
+////        dataRepository.save(indexData); // dataRepository에 indexData 타입으로 저장
+//
+//        // dataRepository에 indexData를 저장한다. 이 때 indexData의 id가 자동적으로 생성된다
+//        IndexData saved = dataRepository.save(indexData);
+//        System.out.println(saved.getIndexInfo().getId());
+//        IndexDataDto savedDto = mapper.toDto(saved);
+//        System.out.println(savedDto.indexInfoId());
+//        return savedDto; // 여기에서 Dto로 바꿨다
+
         // IndexData 객체를 생성한다
         IndexData indexData = new IndexData();
 
         // indexData에 데이터를 넣는다
         indexData.setIndexInfo(indexInfo);
         indexData.setBaseDate(request.baseDate());
-        indexData.setSourceType(SourceType.USER);
-        indexData.setOpenPrice(request.openPrice());
+
+        indexData.setOpenPrice(request.marketPrice()); // <<
+
         indexData.setClosingPrice(request.closingPrice());
         indexData.setHighPrice(request.highPrice());
         indexData.setLowPrice(request.lowPrice());
-        indexData.setChangeValue(request.changeValue());
+
+        indexData.setChangeValue(request.versus());
         indexData.setFluctuationRate(request.fluctuationRate());
-        indexData.setTradingVolume(request.tradingVolume());
-        indexData.setTradingValue(request.tradingValue());
+        indexData.setTradingVolume(request.tradingQuantity());
+        indexData.setTradingValue(request.tradingPrice());
         indexData.setMarketTotalAmount(request.marketTotalAmount());
+
+        indexData.setSourceType(SourceType.USER);
 //        dataRepository.save(indexData); // dataRepository에 indexData 타입으로 저장
 
         // dataRepository에 indexData를 저장한다. 이 때 indexData의 id가 자동적으로 생성된다
@@ -69,18 +98,21 @@ public class BasicIndexDataService implements IndexDataService {
 //    IndexData의 ID를 repository에서 찾은 다음
 //    그 ID에 해당하는 IndexData의 지수, 날짜를 제외한 값을 변경한다
     @Override
-    public IndexDataDto updateIndexData(IndexDataUpdateRequest request) {
+    public IndexDataDto updateIndexData(IndexDataUpdateRequest request, Long id) {
         // 만약 id로 indexData를 못찾으면 예외가 뜸
-        IndexData indexData = dataRepository.findById(request.id())
+        IndexData indexData = dataRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("IndexData not found!"));
 
-        indexData.setOpenPrice(request.openPrice());
+        indexData.setOpenPrice(request.marketPrice()); // <<<
+
         indexData.setClosingPrice(request.closingPrice());
         indexData.setHighPrice(request.highPrice());
         indexData.setLowPrice(request.lowPrice());
-        indexData.setTradingVolume(request.tradingVolume());
-        indexData.setChangeValue(request.changeValue());
+        indexData.setChangeValue(request.versus());
         indexData.setFluctuationRate(request.fluctuationRate());
+        indexData.setTradingVolume(request.tradingQuantity());
+        indexData.setTradingValue(request.tradingPrice());
+        indexData.setMarketTotalAmount(request.marketTotalAmount());
 
         return mapper.toDto(indexData);
     }

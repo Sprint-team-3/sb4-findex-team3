@@ -8,10 +8,10 @@ import org.springframework.data.domain.Pageable;
 
 public interface IndexDataService {
     // 지수 데이터 등록
-    IndexDataDto registerIndexData(IndexDataSaveRequest request);
+    IndexDataDto registerIndexData(IndexDataCreateRequest request);
 
     // 지수 데이터 수정
-    IndexDataDto updateIndexData(IndexDataUpdateRequest request);
+    IndexDataDto updateIndexData(IndexDataUpdateRequest request, Long id);
 
     // 지수, 날짜로 지수 데이터 목록을 조회하는 메서드
     Page<IndexDataDto> searchByIndexAndDate(IndexDataDateRequest request, Pageable pageable);

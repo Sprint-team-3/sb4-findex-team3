@@ -2,7 +2,7 @@ package com.codeit.findex.controller;
 
 import com.codeit.findex.dto.indexData.response.IndexDataDto;
 import com.codeit.findex.dto.indexData.request.IndexDataDateRequest;
-import com.codeit.findex.dto.indexData.request.IndexDataSaveRequest;
+import com.codeit.findex.dto.indexData.request.IndexDataCreateRequest;
 import com.codeit.findex.dto.indexData.request.IndexDataUpdateRequest;
 import com.codeit.findex.service.IndexDataService;
 import lombok.RequiredArgsConstructor;
@@ -24,32 +24,41 @@ public class IndexDataController {
     private final IndexDataService indexDataService;
 
     // 지수 데이터 등록
+    // =============================== 완료 ==================================
     @PostMapping("/index-data")
-    public ResponseEntity<IndexDataDto> register(@RequestBody IndexDataSaveRequest request) {
+    public ResponseEntity<IndexDataDto> register(@RequestBody IndexDataCreateRequest request) {
         IndexDataDto indexDataDto = indexDataService.registerIndexData(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(indexDataDto);
         // return ResponseEntity.ok(indexDataDto);
     }
 
     // 지수 데이터 목록 조회
+    // 여기 안에서 커서 해야함
     @GetMapping("/index-data")
     public ResponseEntity<Page<IndexDataDto>> searchData(
             @PageableDefault(sort = "baseDate", direction = Sort.Direction.DESC) Pageable pageable,
-            @ModelAttribute IndexDataDateRequest request) {
+            @ModelAttribute IndexDataDateRequest request
+
+    )
+
+    {
 
             Page<IndexDataDto> searchData = indexDataService.searchByIndexAndDate(request, pageable);
             return ResponseEntity.ok(searchData);
     }
 
     // 지수 데이터 수정
+    // =============================== 완료 ==================================
     @PatchMapping("/index-data/{id}")
     public ResponseEntity<IndexDataDto> updateData(
-            @RequestBody IndexDataUpdateRequest request) {
-        IndexDataDto updateData = indexDataService.updateIndexData(request);
+            @RequestBody IndexDataUpdateRequest request,
+        @PathVariable Long id) {
+        IndexDataDto updateData = indexDataService.updateIndexData(request, id);
         return ResponseEntity.ok(updateData);
     }
 
     // 지수 데이터 삭제
+    // =============================== 완료 ==================================
     @DeleteMapping("index-data/{id}")
     public ResponseEntity<IndexDataDto> delete(@PathVariable Long id) { // @RequestParam은 쓰면 안되는건가?
         indexDataService.deleteIndexData(id);
