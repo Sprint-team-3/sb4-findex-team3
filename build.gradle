@@ -56,13 +56,6 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-// === 코드 포맷 ===
-//spotless {
-//	java {
-//		googleJavaFormat()
-//	}
-//}
-
 // === Q파일 위치 설정 ===
 sourceSets {
 	main.java.srcDirs += querydslDir
