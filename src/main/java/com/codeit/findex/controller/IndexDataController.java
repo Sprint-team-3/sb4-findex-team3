@@ -33,16 +33,13 @@ public class IndexDataController {
     }
 
     // 지수 데이터 목록 조회
-    // 여기 안에서 커서 해야함
+    // 여기 안에서 커서 해야함 <<<<<<<<<<<<<<<<<<
     @GetMapping("/index-data")
     public ResponseEntity<Page<IndexDataDto>> searchData(
             @PageableDefault(sort = "baseDate", direction = Sort.Direction.DESC) Pageable pageable,
             @ModelAttribute IndexDataDateRequest request
-
     )
-
     {
-
             Page<IndexDataDto> searchData = indexDataService.searchByIndexAndDate(request, pageable);
             return ResponseEntity.ok(searchData);
     }
@@ -78,7 +75,13 @@ public class IndexDataController {
      * 정렬방향 : Default(desc)
      */
     @GetMapping("index-data/export/csv")
-    public ResponseEntity<byte[]> exportCsv() {
+    public ResponseEntity<byte[]> exportCsv(
+        @RequestParam("indexInfoId") Long indexInfoId,
+        @RequestParam("startDate") String startDate,
+        @RequestParam("endDate") String endDate,
+        @RequestParam("sortField") String sortField,
+        @RequestParam("sortDirection") String sortDirection
+    ) {
         byte[] response = indexDataService.downloadIndexData();
 
         if(response == null) {

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-08-05T11:26:43+0900",
+    date = "2025-08-05T14:37:20+0900",
     comments = "version: 1.5.3.Final, compiler: javac, environment: Java 17.0.12 (Oracle Corporation)"
 )
 @Component
@@ -30,7 +30,7 @@ public class IndexDataMapperImpl implements IndexDataMapper {
         double highPrice = 0.0d;
         double lowPrice = 0.0d;
         double fluctuationRate = 0.0d;
-        long marketTotalAmount = 0L;
+        Long marketTotalAmount = null;
 
         id = entity.getId();
         baseDate = entity.getBaseDate();
@@ -44,8 +44,8 @@ public class IndexDataMapperImpl implements IndexDataMapper {
         Long indexInfoId = null;
         double marketPrice = 0.0d;
         double versus = 0.0d;
-        long tradingQuantity = 0L;
-        long tradingPrice = 0L;
+        Long tradingQuantity = null;
+        Long tradingPrice = null;
 
         IndexDataDto indexDataDto = new IndexDataDto( id, indexInfoId, baseDate, sourceType, marketPrice, closingPrice, highPrice, lowPrice, versus, fluctuationRate, tradingQuantity, tradingPrice, marketTotalAmount );
 
@@ -66,7 +66,9 @@ public class IndexDataMapperImpl implements IndexDataMapper {
         indexData.setHighPrice( dto.highPrice() );
         indexData.setLowPrice( dto.lowPrice() );
         indexData.setFluctuationRate( dto.fluctuationRate() );
-        indexData.setMarketTotalAmount( dto.marketTotalAmount() );
+        if ( dto.marketTotalAmount() != null ) {
+            indexData.setMarketTotalAmount( dto.marketTotalAmount() );
+        }
 
         return indexData;
     }
@@ -85,7 +87,9 @@ public class IndexDataMapperImpl implements IndexDataMapper {
         indexData.setHighPrice( dto.highPrice() );
         indexData.setLowPrice( dto.lowPrice() );
         indexData.setFluctuationRate( dto.fluctuationRate() );
-        indexData.setMarketTotalAmount( dto.marketTotalAmount() );
+        if ( dto.marketTotalAmount() != null ) {
+            indexData.setMarketTotalAmount( dto.marketTotalAmount() );
+        }
 
         return indexData;
     }
@@ -106,7 +110,9 @@ public class IndexDataMapperImpl implements IndexDataMapper {
         entity.setHighPrice( dto.highPrice() );
         entity.setLowPrice( dto.lowPrice() );
         entity.setFluctuationRate( dto.fluctuationRate() );
-        entity.setMarketTotalAmount( dto.marketTotalAmount() );
+        if ( dto.marketTotalAmount() != null ) {
+            entity.setMarketTotalAmount( dto.marketTotalAmount() );
+        }
     }
 
     @Override

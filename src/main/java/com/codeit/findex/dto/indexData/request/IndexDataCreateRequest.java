@@ -27,9 +27,9 @@ public record IndexDataCreateRequest(
     double lowPrice, // 저가
     double versus,
     double fluctuationRate, // 등락률
-    int tradingQuantity,
-    long tradingPrice,
-    long marketTotalAmount // 상장 시가총액
+    Integer tradingQuantity,
+    Long tradingPrice,
+    Long marketTotalAmount // 상장 시가총액
 
 ) {
 }

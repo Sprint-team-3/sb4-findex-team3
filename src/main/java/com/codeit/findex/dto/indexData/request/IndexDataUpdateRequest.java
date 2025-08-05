@@ -26,8 +26,8 @@ public record IndexDataUpdateRequest(
         double lowPrice, // 저가 *
         double versus,
         double fluctuationRate, // 등락률 *
-        int tradingQuantity,
-        long tradingPrice,
-        long marketTotalAmount
+        Integer tradingQuantity,
+        Long tradingPrice,
+        Long marketTotalAmount
 ) {
 }

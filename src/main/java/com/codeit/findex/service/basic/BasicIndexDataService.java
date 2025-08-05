@@ -72,7 +72,7 @@ public class BasicIndexDataService implements IndexDataService {
         indexData.setIndexInfo(indexInfo);
         indexData.setBaseDate(request.baseDate());
 
-        indexData.setOpenPrice(request.marketPrice()); // <<
+        indexData.setOpenPrice(request.marketPrice()); // << 시가
 
         indexData.setClosingPrice(request.closingPrice());
         indexData.setHighPrice(request.highPrice());
@@ -122,7 +122,7 @@ public class BasicIndexDataService implements IndexDataService {
      */
     @Override
     public Page<IndexDataDto> searchByIndexAndDate(IndexDataDateRequest request, Pageable pageable) {
-        IndexInfo indexInfo = infoRepository.findById(request.indexInfo()) // infoRepository에서 일단 id를 찾고
+        IndexInfo indexInfo = infoRepository.findById(request.indexInfoId()) // infoRepository에서 일단 id를 찾고
                 .orElseThrow(() -> new EntityNotFoundException("IndexInfo not found!"));
         // indexInfo와 request를 통해 받은 값들을 입력해서 찾는다
         Page<IndexData> searchData = dataRepository.findByIndexInfoAndBaseDateBetween(indexInfo, request.startDate(), request.endDate(), pageable);

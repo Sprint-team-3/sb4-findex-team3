@@ -12,6 +12,6 @@ public record IndexDataDownloadRequest(
     double changeValue, // 전일 대비 변동값
     double fluctuationRate, // 등락률
     double tradingVolume, // 거래량
-    long tradingValue, // 거래대금
-    long marketTotalAmount // 시가총액
+    Long tradingValue, // 거래대금
+    Long marketTotalAmount // 시가총액
     ) {}
