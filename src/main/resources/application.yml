@@ -1,16 +1,16 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/team3 # DB이름 설정 필요
+    url: jdbc:postgresql://yamanote.proxy.rlwy.net:24280/railway
     username: team3
     password: team3123
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: create # 개발 단계는 update, 운영은 none 권장
-    show-sql: true       # 실행 쿼리 확인
+      ddl-auto: create # 운영 배포 시엔 none 또는 validate 권장
+    show-sql: true
     properties:
       hibernate:
-        format_sql: true # SQL 포맷팅 가독성
+        format_sql: true
   application:
     name: Findex
   config:
@@ -22,23 +22,15 @@ spring:
 batch:
   sync:
     info:
-      fixed-delay: PT40S               # syncInfoAndSave: 종료 후 40초 대기
+      fixed-delay: PT40S
     enabled-index-data:
       fixed-delay: P1D
 
-# Logging 설정
 logging:
   level:
     org.springframework.data.jpa.domain.support.AuditingEntityListener : DEBUG
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
-
-
-
-#  sql:
-#    init:
-#      mode: update
-#      schema-locations: classpath:schema.sql
 
 external:
   api:
