@@ -201,7 +201,7 @@ public class BasicIntegrationService implements IntegrationService {
     if (content != null && !content.isEmpty()) {
       int lastIndex = content.size() - 1;
 
-      if (integrationSlice.hasNext() && lastIndex >= 0) {
+      if (integrationSlice.hasNext()) {
         Integration lastIntegration = content.get(lastIndex);
         nextCursor = lastIntegration.getJobTime().toString();
         nextIdAfter = lastIntegration.getId();
