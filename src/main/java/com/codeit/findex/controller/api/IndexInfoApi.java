@@ -176,7 +176,7 @@ public interface IndexInfoApi {
                                   "indexClassification": "KOSPI시리즈",
                                   "indexName": "IT 서비스",
                                   "employedItemsCount": 200,
-                                  "basepointInTime": "2000-01-01",
+                                  "basePointInTime": "2000-01-01",
                                   "baseIndex": 1000.0,
                                   "sourceType": "OPEN_API",
                                   "favorite": true
