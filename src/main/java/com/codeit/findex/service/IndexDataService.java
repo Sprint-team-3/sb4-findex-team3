@@ -7,6 +7,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDate;
+
 
 public interface IndexDataService {
     // 지수 데이터 등록
@@ -32,5 +34,5 @@ public interface IndexDataService {
     void deleteIndexData(long id);
 
     // 지수 데이터 Export(지수 데이터 다운로드)
-    byte[] downloadIndexData();
+    byte[] downloadIndexData(Long indexInfoId, LocalDate startDate, LocalDate endDate, String sortField, String sortDirection);
 }

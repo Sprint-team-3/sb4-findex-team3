@@ -1,22 +1,21 @@
 package com.codeit.findex.controller;
 
-import com.codeit.findex.dto.indexData.request.IndexDataSortPageRequest;
 import com.codeit.findex.dto.indexData.response.CursorPageResponseIndexDataDto;
 import com.codeit.findex.dto.indexData.response.IndexDataDto;
-import com.codeit.findex.dto.indexData.request.IndexDataDateRequest;
 import com.codeit.findex.dto.indexData.request.IndexDataCreateRequest;
 import com.codeit.findex.dto.indexData.request.IndexDataUpdateRequest;
 import com.codeit.findex.service.IndexDataService;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 
 @RestController
 @RequiredArgsConstructor
@@ -90,13 +89,13 @@ public class IndexDataController {
      */
     @GetMapping("index-data/export/csv")
     public ResponseEntity<byte[]> exportCsv(
-        @RequestParam("indexInfoId") Long indexInfoId,
-        @RequestParam("startDate") String startDate,
-        @RequestParam("endDate") String endDate,
-        @RequestParam("sortField") String sortField,
-        @RequestParam("sortDirection") String sortDirection
+        @RequestParam(required = false) Long indexInfoId,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+        @RequestParam(required = false, defaultValue = "baseDate") String sortField,
+        @RequestParam(required = false, defaultValue = "DESC") String sortDirection
     ) {
-        byte[] response = indexDataService.downloadIndexData();
+        byte[] response = indexDataService.downloadIndexData(indexInfoId,startDate,endDate,sortField,sortDirection);
 
         if(response == null) {
             System.out.println("꺄아악 IndexData가 아무것도 없어요!");
@@ -104,8 +103,13 @@ public class IndexDataController {
         }
 
         HttpHeaders headers = new HttpHeaders(); // HttpHeaders 객체를 만듬
-        // Headername, HeaderValue를 적는데, 말 그대로 header 이름이랑 다운로드되는 file의 이름을 입력한다.
-        headers.add("Content-Disposition", "attachment; filename=IndexData.csv");
+        headers.setContentType(MediaType.parseMediaType("text/csv; charset=utf-8"));
+
+        headers.setContentDisposition(ContentDisposition.attachment().filename("IndexData.csv", StandardCharsets.UTF_8).build());
+        headers.setContentLength(response.length);
+
+//        // Headername, HeaderValue를 적는데, 말 그대로 header 이름이랑 다운로드되는 file의 이름을 입력한다.
+//        headers.add("Content-Disposition", "attachment; filename=IndexData.csv");
         // public ResponseEntity(@Nullable T body, @Nullable MultiValueMap<String, String> headers, HttpStatusCode statusCode)
         return new ResponseEntity<>(response, headers, HttpStatus.OK);
     }

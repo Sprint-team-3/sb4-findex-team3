@@ -59,4 +59,19 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
   @Query("SELECT count(d) FROM IndexData d WHERE d.baseDate BETWEEN :startDate AND :endDate")
   Long countByDateRange(@Param("startDate") String startDate, @Param("endDate") String endDate);
 
+  // CSV에 사용되는 메서드
+  @Query("""
+    SELECT d FROM IndexData d
+    WHERE (:indexInfoId IS NULL OR d.indexInfo.id = :indexInfoId)
+      AND (:startDate IS NULL OR d.baseDate >= :startDate)
+      AND (:endDate IS NULL OR d.baseDate <= :endDate)
+    ORDER BY 
+      CASE WHEN :sortField = 'baseDate' AND :sortDirection = 'DESC' THEN d.baseDate END DESC,
+      CASE WHEN :sortField = 'baseDate' AND :sortDirection = 'ASC' THEN d.baseDate END ASC
+""")
+  List<IndexData> findByFilters(@Param("indexInfoId") Long indexInfoId,
+                                @Param("startDate") LocalDate startDate,
+                                @Param("endDate") LocalDate endDate,
+                                @Param("sortField") String sortField,
+                                @Param("sortDirection") String sortDirection);
 }

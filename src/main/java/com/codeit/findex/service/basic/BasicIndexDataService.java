@@ -12,14 +12,20 @@ import com.codeit.findex.repository.IndexDataRepository;
 import com.codeit.findex.repository.IndexInfoRepository;
 import com.codeit.findex.service.IndexDataService;
 import com.opencsv.CSVWriter;
+import com.opencsv.ICSVWriter;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -67,10 +73,10 @@ public class BasicIndexDataService implements IndexDataService {
 
         // dataRepository에 indexData를 저장한다. 이 때 indexData의 id가 자동적으로 생성된다
         IndexData saved = dataRepository.save(indexData);
-        System.out.println(saved.getIndexInfo().getId());
+//        System.out.println(saved.getIndexInfo().getId());
         IndexDataDto savedDto = mapper.toDto(saved);
-        System.out.println(savedDto.indexInfoId());
-        return savedDto; // 여기에서 Dto로 바꿨다
+//        System.out.println(savedDto.indexInfoId());
+        return savedDto;
     }
 
 //    IndexData의 ID를 repository에서 찾은 다음
@@ -230,29 +236,53 @@ public class BasicIndexDataService implements IndexDataService {
      * CSVWriter.
      */
     @Override
-    public byte[] downloadIndexData() {
-            // try-catch
-            try {
-            List<IndexData> listData = dataRepository.findAll();
-                // ByteArrayOutputStream을 씀
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                CSVWriter csvWriter = new CSVWriter(
-                        new OutputStreamWriter(outputStream, "UTF-8")); // 직렬화, 역직렬화를 할땐 예외 필수
+    public byte[] downloadIndexData(Long indexInfoId, LocalDate startDate, LocalDate endDate, String sortField, String sortDirection) {
 
-                // CSV header 작성
-                String[] header = {"기준일자", "시가", "종가", "고가", "저가", "전일대비등락", "등락률", "거래량", "거래대금", "시가총액"};
-                csvWriter.writeNext(header);
-                // 0번째 indexData에 있는 기준날짜, 등등을 받아와야됨
-                // 반복문을 통해 List<IndexData>를 돌면서 header에 따라 데이터를 넣는다, CSV 작성
-                for (int i = 0; i < listData.size(); i++) {
-                    IndexData indexData = listData.get(i);
-                    String[] csvData = CSVStringMapper.mapper(indexData);
-                    csvWriter.writeNext(csvData);
-                } // for문 끝
-                csvWriter.close();
-                return outputStream.toByteArray();
-        }catch(Exception e) {
-                return null;
-        }
+       List<IndexData> listData = dataRepository.findByFilters(indexInfoId, startDate, endDate, sortField, sortDirection);
+
+       try(ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+            OutputStreamWriter osw = new OutputStreamWriter(byteStream, StandardCharsets.UTF_8);
+            CSVWriter csvWriter = new CSVWriter(osw)) {
+
+           String[] header = {"기준일자","시가","종가","고가","저가","전일대비등락","등락률","거래량","거래대금","시가총액"};
+            csvWriter.writeNext(header);
+
+           for(IndexData indexData : listData) {
+               String[] csvRow = CSVStringMapper.mapper(indexData);
+               csvWriter.writeNext(csvRow);
+           }
+
+           csvWriter.flush();
+           return byteStream.toByteArray();
+
+       } catch(IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CSV create fail", e);
+       }
+
+
+
+//        // try-catch
+//            try {
+//            List<IndexData> listData = dataRepository.findAll();
+//                // ByteArrayOutputStream을 씀
+//                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+//                CSVWriter csvWriter = new CSVWriter(
+//                        new OutputStreamWriter(outputStream, "UTF-8")); // 직렬화, 역직렬화를 할땐 예외 필수
+//
+//                // CSV header 작성
+//                String[] header = {"기준일자", "시가", "종가", "고가", "저가", "전일대비등락", "등락률", "거래량", "거래대금", "시가총액"};
+//                csvWriter.writeNext(header);
+//                // 0번째 indexData에 있는 기준날짜, 등등을 받아와야됨
+//                // 반복문을 통해 List<IndexData>를 돌면서 header에 따라 데이터를 넣는다, CSV 작성
+//                for (int i = 0; i < listData.size(); i++) {
+//                    IndexData indexData = listData.get(i);
+//                    String[] csvData = CSVStringMapper.mapper(indexData);
+//                    csvWriter.writeNext(csvData);
+//                } // for문 끝
+//                csvWriter.close();
+//                return outputStream.toByteArray();
+//        }catch(Exception e) {
+//                return null;
+//        }
     }
 }
