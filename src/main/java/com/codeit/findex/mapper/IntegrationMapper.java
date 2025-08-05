@@ -10,7 +10,7 @@
   @Mapping(target = "id", source = "integration.id")
   @Mapping(target = "jobType", source = "integration.jobType")
   @Mapping(target = "indexInfoId", source = "integration.indexInfo.id")
-  @Mapping(target = "targetDate", source = "integration.indexInfo.basepointInTime")
+  @Mapping(target = "targetDate", source = "integration.indexInfo.basePointInTime")
   @Mapping(target = "worker", source = "integration.worker")
   @Mapping(target = "jobTime", source = "integration.jobTime")
   @Mapping(target = "result", source = "integration.result")

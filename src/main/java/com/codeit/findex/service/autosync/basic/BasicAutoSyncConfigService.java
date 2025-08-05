@@ -127,8 +127,8 @@
            LocalDate lastSyncDate = latestDataOpt.get().getBaseDate();
            fromDate = lastSyncDate.plusDays(1); // 이미 있는 날짜 다음부터
          } else {
-           // 이전 데이터가 없으면, 기준 시점(basepointInTime)부터 시작
-           fromDate = indexInfo.getBasepointInTime();
+           // 이전 데이터가 없으면, 기준 시점(basePointInTime)부터 시작
+           fromDate = indexInfo.getBasePointInTime();
          }
 
          if (fromDate.isAfter(today)) {
@@ -205,12 +205,12 @@
    @Transactional
    public IndexInfoDto createAutoSyncConfig(IndexInfoCreateRequest request) {
 
-     LocalDate basepointInTime = request.getBasepointInTime();
+     LocalDate basepointInTime = request.getBasePointInTime();
 
      // 중복 검사: classification + name + basepointInTime 기준
      Optional<IndexInfo> existing =
-             indexInfoRepository.findFirstByIndexClassificationAndIndexNameAndBasepointInTimeOrderByCreatedAtDesc(
-                     request.getIndexClassification(), request.getIndexName(), basepointInTime);
+             indexInfoRepository.findFirstByIndexClassificationAndIndexNameOrderByCreatedAtDesc(
+                     request.getIndexClassification(), request.getIndexName());
 
      if (existing.isPresent()) {
        log.debug(
@@ -224,7 +224,7 @@
      indexInfo.setIndexClassification(request.getIndexClassification());
      indexInfo.setIndexName(request.getIndexName());
      indexInfo.setEmployedItemsCount(request.getEmployedItemsCount());
-     indexInfo.setBasepointInTime(basepointInTime);
+     indexInfo.setBasePointInTime(basepointInTime);
      indexInfo.setBaseIndex(request.getBaseIndex());
      indexInfo.setSourceType(SourceType.OPEN_API);
      indexInfo.setFavorite(request.getFavorite());
@@ -243,7 +243,7 @@
      request.setIndexClassification(item.idxCsf());
      request.setIndexName(item.idxNm());
      request.setEmployedItemsCount(item.epyItmsCnt());
-     request.setBasepointInTime(parseStringToLocalDate(item.basPntm())); // Date 타입으로 가정
+     request.setBasePointInTime(parseStringToLocalDate(item.basPntm())); // Date 타입으로 가정
      request.setBaseIndex(item.basIdx());
      request.setFavorite(false); // 자동 동기화 데이터는 기본적으로 즐겨찾기 해제
 

@@ -15,7 +15,6 @@ import com.codeit.findex.repository.IndexInfoRepository;
 import com.codeit.findex.service.IndexInfoService;
 import jakarta.transaction.Transactional;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -160,7 +159,7 @@ public class BasicIndexInfoService implements IndexInfoService {
       indexInfo.setEmployedItemsCount(dto.getEmployedItemsCount());
     }
     if (dto.getBasePointInTime() != null) {
-      indexInfo.setBasepointInTime(dto.getBasePointInTime());
+      indexInfo.setBasePointInTime(dto.getBasePointInTime());
     }
     if (dto.getBaseIndex() != null) {
       indexInfo.setBaseIndex(dto.getBaseIndex());
