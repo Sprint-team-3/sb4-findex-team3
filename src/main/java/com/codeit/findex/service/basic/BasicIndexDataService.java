@@ -4,6 +4,7 @@ import com.codeit.findex.dto.indexData.request.*;
 import com.codeit.findex.dto.indexData.response.IndexDataDto;
 import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.entity.IndexInfo;
+import com.codeit.findex.entityEnum.SourceType;
 import com.codeit.findex.mapper.CSVStringMapper;
 import com.codeit.findex.mapper.IndexDataMapper;
 import com.codeit.findex.repository.IndexDataRepository;
@@ -29,23 +30,23 @@ public class BasicIndexDataService implements IndexDataService {
     private final IndexDataMapper mapper;
 
     @Override
-    public IndexDataDto registerIndexData(IndexDataSaveRequest request) {
+    public IndexDataDto registerIndexData(IndexDataSaveRequest request) { // 지수 데이터 등록
         // 만약, 지수와 날짜의 조합값이 중복된다면 예외를 발생시킨다
         // 중복된다라는 의미는 dataRepository에 지수, 날짜 조합이 이미 존재한다면 이니까 repository와 관련이 있다.
         if(dataRepository.existsByIndexInfoIdAndBaseDate(request.indexInfoId(), request.baseDate())) {
-            throw new IllegalArgumentException("지수와 날짜의 조합이 이미 존재해요!");
+            throw new IllegalArgumentException("Index and Date already exists!");
         }
-
         // 만약, IndexDataSaveRequest로부터 받은 Long타입 indexInfoId가 존재하지 않는다면, 예외발생
         IndexInfo indexInfo = infoRepository.findById(request.indexInfoId())
-                .orElseThrow(() -> new EntityNotFoundException("지수 정보가 존재하지 않아요!"));
+                .orElseThrow(() -> new EntityNotFoundException("IndexInfo not found!"));
 
-        // 지수, 날짜부터 상장 시가 총액까지 모든 속성을 입력해 지수 데이터를 등록함
+        // IndexData 객체를 생성한다
         IndexData indexData = new IndexData();
-        // IndexData 안의 indexinfo는 indexinfo타입이니까 long이 들어가면 안됨
+
+        // indexData에 데이터를 넣는다
         indexData.setIndexInfo(indexInfo);
         indexData.setBaseDate(request.baseDate());
-        indexData.setSourceType(request.sourceType());
+        indexData.setSourceType(SourceType.USER);
         indexData.setOpenPrice(request.openPrice());
         indexData.setClosingPrice(request.closingPrice());
         indexData.setHighPrice(request.highPrice());
@@ -55,9 +56,14 @@ public class BasicIndexDataService implements IndexDataService {
         indexData.setTradingVolume(request.tradingVolume());
         indexData.setTradingValue(request.tradingValue());
         indexData.setMarketTotalAmount(request.marketTotalAmount());
-        dataRepository.save(indexData); // dataRepository에 indexData 타입으로 저장
+//        dataRepository.save(indexData); // dataRepository에 indexData 타입으로 저장
 
-        return mapper.toDto(indexData); // 여기에서 Dto로 바꿨다
+        // dataRepository에 indexData를 저장한다. 이 때 indexData의 id가 자동적으로 생성된다
+        IndexData saved = dataRepository.save(indexData);
+        System.out.println(saved.getIndexInfo().getId());
+        IndexDataDto savedDto = mapper.toDto(saved);
+        System.out.println(savedDto.indexInfoId());
+        return savedDto; // 여기에서 Dto로 바꿨다
     }
 
 //    IndexData의 ID를 repository에서 찾은 다음
@@ -66,7 +72,7 @@ public class BasicIndexDataService implements IndexDataService {
     public IndexDataDto updateIndexData(IndexDataUpdateRequest request) {
         // 만약 id로 indexData를 못찾으면 예외가 뜸
         IndexData indexData = dataRepository.findById(request.id())
-                .orElseThrow(() -> new EntityNotFoundException("IndexData를 찾을 수 없어요!"));
+                .orElseThrow(() -> new EntityNotFoundException("IndexData not found!"));
 
         indexData.setOpenPrice(request.openPrice());
         indexData.setClosingPrice(request.closingPrice());
@@ -85,7 +91,7 @@ public class BasicIndexDataService implements IndexDataService {
     @Override
     public Page<IndexDataDto> searchByIndexAndDate(IndexDataDateRequest request, Pageable pageable) {
         IndexInfo indexInfo = infoRepository.findById(request.indexInfo()) // infoRepository에서 일단 id를 찾고
-                .orElseThrow(() -> new EntityNotFoundException("IndexInfo를 찾을수가 없어요!"));
+                .orElseThrow(() -> new EntityNotFoundException("IndexInfo not found!"));
         // indexInfo와 request를 통해 받은 값들을 입력해서 찾는다
         Page<IndexData> searchData = dataRepository.findByIndexInfoAndBaseDateBetween(indexInfo, request.startDate(), request.endDate(), pageable);
         return searchData.map(mapper::toDto); // map을 통한 형변환, Page<IndexDataDto>으로 변환한다

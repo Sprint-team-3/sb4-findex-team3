@@ -34,14 +34,15 @@ public class AutoSyncConfigController {
    */
   @GetMapping
   public ResponseEntity<CursorPageResponseAutoSyncConfigDto> list(
-      @RequestParam(required = false) Long indexInfoId, //indexId
+      @RequestParam(required = false) Long indexInfoId, // indexId
       @RequestParam(required = false) Boolean enabled,
       @RequestParam(required = false) Long lastId,
       @RequestParam(defaultValue = "20") int size,
       @RequestParam(defaultValue = "id") String sortBy,
       @RequestParam(defaultValue = "asc") String sortDir) {
     CursorPageResponseAutoSyncConfigDto dto =
-        autoSyncConfigService.listAutoSyncConfigs(indexInfoId, enabled, lastId, size, sortBy, sortDir);
+        autoSyncConfigService.listAutoSyncConfigs(
+            indexInfoId, enabled, lastId, size, sortBy, sortDir);
     return ResponseEntity.ok(dto);
   }
 }
