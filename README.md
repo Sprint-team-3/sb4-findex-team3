@@ -3,7 +3,7 @@
 ## 💫 팀원 소개
 | 김이준 | 문은서 | 신은수 | 김찬호 | 신동진 |
 | :---: | :---: | :---: | :---: | :---: |
-| [![김이준](https://avatars.githubusercontent.com/u/93887188?v=4)](https://github.com/lkim0402) | [![문은서](https://avatars.githubusercontent.com/u/191211966?v=4)](https://github.com/kosy00) | [![신은수](URL_for_image_3)](https://github.com/Shinsu98) | [![김찬호](URL_for_image_4)](https://github.com/cheis11) | [![신동진](https://avatars.githubusercontent.com/u/135810601?v=4)](https://github.com/B1uffer) |
+| [![김이준](https://avatars.githubusercontent.com/u/93887188?v=4)](https://github.com/lkim0402) | [![문은서](https://avatars.githubusercontent.com/u/191211966?v=4)](https://github.com/kosy00) | [![신은수](URL_for_image_3)](https://github.com/Shinsu98) | [![김찬호]([URL_for_image_4](https://avatars.githubusercontent.com/u/106953872?v=4))](https://github.com/cheis11) | [![신동진](https://avatars.githubusercontent.com/u/135810601?v=4)](https://github.com/B1uffer) |
 
 ## 📌프로젝트 소개
 한눈에 보는 금융 지수 데이터 대시보드 서비스
