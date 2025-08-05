@@ -1,7 +1,7 @@
 package com.codeit.findex.dto.dashboard.response;
 
 public record PerformanceDto(
-    long indexInfoId,
+    Long indexInfoId,
     String indexClassification,
     String indexName,
     double versus,

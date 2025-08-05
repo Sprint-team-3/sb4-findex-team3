@@ -178,13 +178,16 @@ public class BasicDashboardService implements DashboardService {
         // window 사이즈 이후
         // 0,1,2,3,4 -> 5개니까 4부터 시작
         if (i >= ma5Window - 1) {
-          // 평균값 구하기 위해 /5
-          ma5DataPoints.add(new ChartDataPoint(currentDate, ma5Sum / 5));
+          ma5DataPoints.add(new ChartDataPoint(currentDate, ma5Sum / ma5Window));
+        } else {
+          ma5DataPoints.add(new ChartDataPoint(currentDate, null)); // Add null placeholder
         }
 
+        // For MA20, do the same
         if (i >= ma20Window - 1) {
-          // 평균값 구하기 위해 /20
-          ma20DataPoints.add(new ChartDataPoint(currentDate, ma20Sum / 20));
+          ma20DataPoints.add(new ChartDataPoint(currentDate, ma20Sum / ma20Window));
+        } else {
+          ma20DataPoints.add(new ChartDataPoint(currentDate, null)); // Add null placeholder
         }
       }
     }
