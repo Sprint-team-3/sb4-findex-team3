@@ -11,6 +11,7 @@ import org.mapstruct.*;
 public interface IndexDataMapper {
 
   // @Mapping에서 target은 바꿔야하는 변수
+
   @Mapping(target = "tradingPrice", source = "entity.tradingVolume")
   @Mapping(target = "tradingQuantity", source = "entity.tradingValue")
   @Mapping(target = "indexInfoId", source = "entity.indexInfo.id")

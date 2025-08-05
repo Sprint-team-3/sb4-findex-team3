@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import lombok.Setter;
 
 public record IndexDataDto(
-    Long id,
+    Long id, // 지수 데이터 ID
     Long indexInfoId,
     LocalDate baseDate,
     SourceType sourceType,
