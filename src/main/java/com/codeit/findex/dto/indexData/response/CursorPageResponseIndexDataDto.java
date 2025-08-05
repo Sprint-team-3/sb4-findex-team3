@@ -3,7 +3,7 @@ package com.codeit.findex.dto.indexData.response;
 import java.util.List;
 
 public record CursorPageResponseIndexDataDto(
-        List<IndexDataDto> data,
+        List<IndexDataDto> content,
         String nextCursor,
         Long nextIdAfter,
         int size,

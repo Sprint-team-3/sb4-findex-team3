@@ -2,6 +2,7 @@ package com.codeit.findex.dto.indexData.response;
 
 import com.codeit.findex.entityEnum.SourceType;
 import java.time.LocalDate;
+import lombok.Setter;
 
 public record IndexDataDto(
     Long id,

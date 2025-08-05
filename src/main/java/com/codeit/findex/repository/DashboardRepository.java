@@ -29,8 +29,8 @@ public interface DashboardRepository extends JpaRepository<IndexData, Long> {
   List<IndexData> findRecentByIndexInfoIds(@Param("indexInfoIds") List<Long> indexInfoIds);
 
   /**
-   * For a given list of IndexInfo IDs, finds all their data points that occurred on or before a
-   * specified date. This is used to fetch a superset of all potential comparison data in a single
+   * For a given list of IndexInfo IDs, finds all their content points that occurred on or before a
+   * specified date. This is used to fetch a superset of all potential comparison content in a single
    * query.
    */
   @Query(

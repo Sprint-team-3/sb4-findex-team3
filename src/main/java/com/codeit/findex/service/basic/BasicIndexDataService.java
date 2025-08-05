@@ -92,7 +92,8 @@ public class BasicIndexDataService implements IndexDataService {
         indexData.setTradingValue(request.tradingPrice());
         indexData.setMarketTotalAmount(request.marketTotalAmount());
 
-        return mapper.toDto(indexData);
+        IndexDataDto indexDataDto = mapper.toDto(indexData);
+        return indexDataDto;
     }
 
     /**
