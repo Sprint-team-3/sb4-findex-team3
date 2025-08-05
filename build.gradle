@@ -22,46 +22,39 @@ repositories {
 }
 
 dependencies {
-// === Spring Boot Starters ===
+	// === Spring Boot Starters ===
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
-// === Lombok ===
+	// === Lombok ===
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
-// === DB Drivers ===
+	// === DB Drivers ===
 	runtimeOnly 'org.postgresql:postgresql'
 	runtimeOnly 'com.h2database:h2'
 
-// === QueryDSL ===
+	// === QueryDSL ===
 	implementation "com.querydsl:querydsl-core:${queryDslVersion}"
 	implementation "com.querydsl:querydsl-jpa:${queryDslVersion}:jakarta"
 	annotationProcessor "com.querydsl:querydsl-apt:${queryDslVersion}:jakarta"
 	annotationProcessor 'jakarta.persistence:jakarta.persistence-api:3.1.0'
 	annotationProcessor 'jakarta.annotation:jakarta.annotation-api:2.1.1'
 
-// === MapStruct ===
+	// === MapStruct ===
 	implementation 'org.mapstruct:mapstruct:1.5.3.Final'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
 
-// === Swagger ===
+	// === Swagger ===
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4'
 
-// === CSV ===
+	// === CSV ===
 	implementation 'com.opencsv:opencsv:5.6'
 
-// === 테스트 ===
+	// === 테스트 ===
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
-
-// === 코드 포맷 ===
-//spotless {
-//java {
-//googleJavaFormat()
-//}
-//}
 
 // === Q파일 위치 설정 ===
 sourceSets {

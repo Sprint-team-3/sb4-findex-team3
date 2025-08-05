@@ -55,4 +55,6 @@ public interface IndexInfoRepository extends JpaRepository<IndexInfo, Long> {
 
   Optional<IndexInfo> findByIndexClassificationAndIndexName(
       String indexClassification, String indexName);
+
+  List<IndexInfo> findAllByIdIn(List<Long> ids);
 }
