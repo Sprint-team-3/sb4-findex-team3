@@ -112,7 +112,133 @@
 - 성능 향상을 위해 @Query를 사용해서 적절한 SQL문 작성
 
 # 📋 파일 구조
-(팀 논의 후 추가)
+sb4-findex-team3[Findex]
+├─ .github
+├─ .gradle
+├─ .idea
+├─ build
+├─ gradle
+├─ out
+├─ src
+│  ├─ main
+│  │  ├─ generated
+│  │  ├─ java
+│  │  │  └─ com
+│  │  │     └─ codeit
+│  │  │        └─ findex
+│  │  │           ├─ controller
+│  │  │           │  └─ api
+│  │  │           │     ├─ AutoSyncConfigController.java
+│  │  │           │     ├─ DashboardController.java
+│  │  │           │     ├─ ExternalApiController.java
+│  │  │           │     ├─ IndexDataController.java
+│  │  │           │     ├─ IndexInfoController.java
+│  │  │           │     └─ IntergrationController.java
+│  │  │           ├─ dto
+│  │  │           │  ├─ autosync
+│  │  │           │  │  ├─ request
+│  │  │           │  │  │  └─ AutoSyncConfigUpdateRequest.java
+│  │  │           │  │  └─ response
+│  │  │           │  │     ├─ AutoSyncConfigDto.java
+│  │  │           │  │     └─ CursorPageResponseAutoSyncConfigDto.java
+│  │  │           │  ├─ dashboard
+│  │  │           │  │  └─ response
+│  │  │           │  │     └─ ChartDataPoint.java
+│  │  │           │  ├─ indexData
+│  │  │           │  │  ├─ request
+│  │  │           │  │  │  ├─ IndexDataCreateRequest.java
+│  │  │           │  │  │  ├─ IndexDataDateRequest.java
+│  │  │           │  │  │  ├─ IndexDataDownloadRequest.java
+│  │  │           │  │  │  ├─ IndexDataSearchRequest.java
+│  │  │           │  │  │  ├─ IndexDataSortPageRequest.java
+│  │  │           │  │  │  └─ IndexDataUpdateRequest.java
+│  │  │           │  │  └─ response
+│  │  │           │  │     ├─ CursorPageResponseIndexDataDto.java
+│  │  │           │  │     └─ IndexDataDto.java
+│  │  │           │  ├─ indexinfo
+│  │  │           │  │  ├─ request
+│  │  │           │  │  │  ├─ IndexInfoCreateRequest.java
+│  │  │           │  │  │  ├─ IndexInfoSearchCond.java
+│  │  │           │  │  │  └─ IndexInfoUpdateRequest.java
+│  │  │           │  │  └─ response
+│  │  │           │  │     ├─ CursorPageResponseIndexInfoDto.java
+│  │  │           │  │     ├─ ErrorResponse.java
+│  │  │           │  │     ├─ IndexInfoDto.java
+│  │  │           │  │     └─ IndexInfoSummaryDto.java
+│  │  │           │  ├─ integration
+│  │  │           │  │  ├─ CursorPageResponseSyncJobDto.java
+│  │  │           │  │  ├─ IndexDataSyncRequest.java
+│  │  │           │  │  └─ SyncJobDto.java
+│  │  │           │  └─ openapi
+│  │  │           │     └─ OpenApiResponseDto.java
+│  │  │           ├─ entity
+│  │  │           │  ├─ base
+│  │  │           │  │  ├─ IndexData.java
+│  │  │           │  │  ├─ IndexInfo.java
+│  │  │           │  │  └─ Integration.java
+│  │  │           │  └─ entityEnum
+│  │  │           │     ├─ JobType.java
+│  │  │           │     ├─ Result.java
+│  │  │           │     └─ SourceType.java
+│  │  │           ├─ exception
+│  │  │           │  └─ GlobalExceptionHandler.java
+│  │  │           ├─ mapper
+│  │  │           │  ├─ AutoSyncMapper.java
+│  │  │           │  ├─ CSVStringMapper.java
+│  │  │           │  ├─ GenericMapper.java
+│  │  │           │  ├─ IndexDataIntegrationMapper.java
+│  │  │           │  ├─ IndexDataMapper.java
+│  │  │           │  ├─ IndexInfoMapper.java
+│  │  │           │  └─ IntegrationMapper.java
+│  │  │           ├─ repository
+│  │  │           │  ├─ custom
+│  │  │           │  │  └─IntegrationCustomRepositoryImpl.java
+│  │  │           │  ├─ AutoSyncRepository.java
+│  │  │           │  ├─ DashboardRepository.java
+│  │  │           │  ├─ IndexDataRepository.java
+│  │  │           │  ├─ IndexInfoRepository.java
+│  │  │           │  ├─ IntegrationCustomRepository.java
+│  │  │           │  └─ IntegrationRepository.java
+│  │  │           ├─ service
+│  │  │           │  ├─ autosync
+│  │  │           │  │  └─ basic
+│  │  │           │  │     ├─ BasicAutoSyncConfigService.java
+│  │  │           │  │     └─ AutoSyncConfigService.java
+│  │  │           │  ├─ dashboard
+│  │  │           │  │  └─ basic
+│  │  │           │  │     ├─ BasicDashboardService.java
+│  │  │           │  │     └─ DashboardService.java
+│  │  │           │  ├─ indexdata
+│  │  │           │  │  └─ basic
+│  │  │           │  │     ├─ BasicIndexDataService.java
+│  │  │           │  │     └─ IndexDataService.java
+│  │  │           │  ├─ indexinfo
+│  │  │           │  │  └─ basic
+│  │  │           │  │     ├─ BasicIndexInfoService.java
+│  │  │           │  │     └─ IndexInfoService.java
+│  │  │           │  └─ integration
+│  │  │           │     └─ basic
+│  │  │           │        ├─ BasicIntegrationService.java
+│  │  │           │        └─ IntegrationService.java
+│  │  │           ├─ ExternalApiService.java
+│  │  │           └─ FindexApplication.java
+│  │  └─ resources
+│  │     ├─ static
+│  │     │  └─ assets
+│  │     │     ├─ favicon.ico
+│  │     │     ├─ findex_diagram.png
+│  │     │     └─ index.html
+│  │     ├─ application.yml
+│  │     ├─ application-secret.yml
+│  │     └─ schema.sql
+│  ├─ querydsl
+│  └─ test
+├─ build.gradle
+├─ gradlew
+├─ gradlew.bat
+├─ README.md
+├─ settings.gradle
+└─ .gitignore
 
 # 🚀구현 홈페이지
 (링크, 스크린샷 추가)
