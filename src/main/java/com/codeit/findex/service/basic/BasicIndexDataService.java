@@ -1,6 +1,7 @@
 package com.codeit.findex.service.basic;
 
 import com.codeit.findex.dto.indexData.request.*;
+import com.codeit.findex.dto.indexData.response.CursorPageResponseIndexDataDto;
 import com.codeit.findex.dto.indexData.response.IndexDataDto;
 import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.entity.IndexInfo;
@@ -13,13 +14,14 @@ import com.codeit.findex.service.IndexDataService;
 import com.opencsv.CSVWriter;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +30,7 @@ public class BasicIndexDataService implements IndexDataService {
     private final IndexInfoRepository infoRepository;
     private final IndexDataRepository dataRepository;
     private final IndexDataMapper mapper;
+    private final IndexDataRepository indexDataRepository;
 
     @Override
     public IndexDataDto registerIndexData(IndexDataCreateRequest request) { // 지수 데이터 등록
@@ -39,31 +42,6 @@ public class BasicIndexDataService implements IndexDataService {
         // 만약, IndexDataSaveRequest로부터 받은 Long타입 indexInfoId가 존재하지 않는다면, 예외발생
         IndexInfo indexInfo = infoRepository.findById(request.indexInfoId())
                 .orElseThrow(() -> new EntityNotFoundException("IndexInfo not found!"));
-
-//        // IndexData 객체를 생성한다
-//        IndexData indexData = new IndexData();
-//
-//        // indexData에 데이터를 넣는다
-//        indexData.setIndexInfo(indexInfo);
-//        indexData.setBaseDate(request.baseDate());
-//        indexData.setSourceType(SourceType.USER);
-//        indexData.setOpenPrice(request.openPrice());
-//        indexData.setClosingPrice(request.closingPrice());
-//        indexData.setHighPrice(request.highPrice());
-//        indexData.setLowPrice(request.lowPrice());
-//        indexData.setChangeValue(request.changeValue());
-//        indexData.setFluctuationRate(request.fluctuationRate());
-//        indexData.setTradingVolume(request.tradingVolume());
-//        indexData.setTradingValue(request.tradingValue());
-//        indexData.setMarketTotalAmount(request.marketTotalAmount());
-////        dataRepository.save(indexData); // dataRepository에 indexData 타입으로 저장
-//
-//        // dataRepository에 indexData를 저장한다. 이 때 indexData의 id가 자동적으로 생성된다
-//        IndexData saved = dataRepository.save(indexData);
-//        System.out.println(saved.getIndexInfo().getId());
-//        IndexDataDto savedDto = mapper.toDto(saved);
-//        System.out.println(savedDto.indexInfoId());
-//        return savedDto; // 여기에서 Dto로 바꿨다
 
         // IndexData 객체를 생성한다
         IndexData indexData = new IndexData();
@@ -119,15 +97,70 @@ public class BasicIndexDataService implements IndexDataService {
 
     /**
      * 정렬을 하지 않은 상태
+     * 커서 기능을 구현해야한다
+     * {소스 타입}을 제외한 모든 속성으로 정렬 및 페이지네이션을 구현합니다.
+     * 여러 개의 정렬 조건 중 선택적으로 1개의 정렬 조건만 가질 수 있습니다.
+     * 정확한 페이지네이션을 위해 {이전 페이지의 마지막 요소 ID}를 활용합니다.
+     * 화면을 고려해 적절한 페이지네이션 전략을 선택합니다.
      */
+//    @Override
+//    public Page<IndexDataDto> searchByIndexAndDate(IndexDataSortPageRequest request, Pageable pageable) {
+//
+//        IndexInfo indexInfo = infoRepository.findById(request.getIndexInfoId()) // infoRepository에서 일단 id를 찾고
+//                .orElseThrow(() -> new EntityNotFoundException("IndexInfo not found!"));
+//
+//        Sort sort = createSort()
+//
+//
+//        return null;
+//    }
+    @Transactional
     @Override
-    public Page<IndexDataDto> searchByIndexAndDate(IndexDataDateRequest request, Pageable pageable) {
-        IndexInfo indexInfo = infoRepository.findById(request.indexInfoId()) // infoRepository에서 일단 id를 찾고
-                .orElseThrow(() -> new EntityNotFoundException("IndexInfo not found!"));
-        // indexInfo와 request를 통해 받은 값들을 입력해서 찾는다
-        Page<IndexData> searchData = dataRepository.findByIndexInfoAndBaseDateBetween(indexInfo, request.startDate(), request.endDate(), pageable);
-        return searchData.map(mapper::toDto); // map을 통한 형변환, Page<IndexDataDto>으로 변환한다
+    public CursorPageResponseIndexDataDto searchByIndexAndDate(Long indexInfoId, String startDate, String endDate, Integer idAfter, String cursor, String sortField, String sortDirection, Integer size) {
+        IndexInfo indexInfo = infoRepository.findById(indexInfoId) // infoRepository에서 일단 id를 찾고
+        .orElseThrow(() -> new EntityNotFoundException("IndexInfo not found!"));
+
+        // 정렬 객체를 생성하기
+        Sort sort = createSort(sortField, sortDirection);
+
+        // Pageable을 생성하기
+        Pageable pageable = PageRequest.of(idAfter, size, sort);
+
+        // Repository 호출하기, Slice는 끊어서 보내준다 size가 10이면 10개씩 짧게 짧게 가져와주는 것이다
+        Slice<IndexData> sliceData = indexDataRepository.findByConditionsWithCursor(indexInfoId, startDate, endDate, pageable);
+
+        // Slice<IndexData>를 최종 응답 DTO로 변환하기
+        List<IndexData> content = sliceData.getContent();
+        List<IndexDataDto> indexDataDto = content.stream()
+                .map(mapper::toDto).toList();
+        // 다음에 자료가 더 있는지, 데이터가 더 있는지 true이면 데이터를 더 가져온다
+        boolean hasNext = sliceData.hasNext();
+        // 불러온 데이터의 마지막에 있는 녀석의 id를 가져옴 그 이후의 것들을 불러오기 위한 것
+        long nextIdAfter = !content.isEmpty() ? content.get(content.size() - 1).getId() : 0L;
+        String nextcursor = 
+
+
+        return null;
     }
+
+    // {소스 타입}을 제외한 모든 속성으로 정렬 및 페이지네이션을 구현합니다.
+    private Sort createSort(String sortField, String sortDirection) {
+        Sort.Direction direction = "desc".equalsIgnoreCase(sortDirection) ? Sort.Direction.DESC : Sort.Direction.ASC;
+
+        if(sortField == null) {
+            throw new NoSuchElementException("sortField is not found!");
+        }
+
+        String sortProperty = sortField;
+
+//        if(sortField.equals("baseDate")) {
+//            sortProperty = "baseDate";
+//        } else if(sortField.equals("closingPrice")) {
+//            sortProperty = "closingPrice";
+//        }
+        return Sort.by(direction, sortProperty).and(Sort.by(Sort.Direction.ASC,"id"));
+    }
+
 
     @Override
     public IndexDataDto searchIndexData(IndexDataSearchRequest request) {
