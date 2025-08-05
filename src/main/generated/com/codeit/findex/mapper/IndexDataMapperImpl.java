@@ -1,7 +1,7 @@
 package com.codeit.findex.mapper;
 
+import com.codeit.findex.dto.dashboard.OpenApiResponseDto;
 import com.codeit.findex.dto.indexData.response.IndexDataDto;
-import com.codeit.findex.dto.openapi.OpenApiResponseDto;
 import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.entity.IndexInfo;
 import com.codeit.findex.entityEnum.SourceType;
@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-08-05T22:57:07+0900",
-    comments = "version: 1.5.3.Final, compiler: javac, environment: Java 17.0.15 (Microsoft)"
+    date = "2025-08-05T22:13:23+0900",
+    comments = "version: 1.5.3.Final, compiler: javac, environment: Java 17.0.12 (Oracle Corporation)"
 )
 @Component
 public class IndexDataMapperImpl implements IndexDataMapper {
@@ -23,6 +23,9 @@ public class IndexDataMapperImpl implements IndexDataMapper {
             return null;
         }
 
+        Long tradingPrice = null;
+        Long tradingQuantity = null;
+        Long indexInfoId = null;
         Long id = null;
         LocalDate baseDate = null;
         SourceType sourceType = null;
@@ -32,6 +35,9 @@ public class IndexDataMapperImpl implements IndexDataMapper {
         double fluctuationRate = 0.0d;
         Long marketTotalAmount = null;
 
+        tradingPrice = (long) entity.getTradingVolume();
+        tradingQuantity = entity.getTradingValue();
+        indexInfoId = entityIndexInfoId( entity );
         id = entity.getId();
         baseDate = entity.getBaseDate();
         sourceType = entity.getSourceType();
@@ -41,11 +47,8 @@ public class IndexDataMapperImpl implements IndexDataMapper {
         fluctuationRate = entity.getFluctuationRate();
         marketTotalAmount = entity.getMarketTotalAmount();
 
-        Long indexInfoId = null;
         double marketPrice = 0.0d;
         double versus = 0.0d;
-        Long tradingQuantity = null;
-        Long tradingPrice = null;
 
         IndexDataDto indexDataDto = new IndexDataDto( id, indexInfoId, baseDate, sourceType, marketPrice, closingPrice, highPrice, lowPrice, versus, fluctuationRate, tradingQuantity, tradingPrice, marketTotalAmount );
 
@@ -60,6 +63,14 @@ public class IndexDataMapperImpl implements IndexDataMapper {
 
         IndexData indexData = new IndexData();
 
+        indexData.setIndexInfo( indexDataDtoToIndexInfo( dto ) );
+        if ( dto.tradingPrice() != null ) {
+            indexData.setTradingVolume( dto.tradingPrice().intValue() );
+        }
+        if ( dto.tradingQuantity() != null ) {
+            indexData.setTradingValue( dto.tradingQuantity() );
+        }
+        indexData.setId( dto.id() );
         indexData.setBaseDate( dto.baseDate() );
         indexData.setSourceType( dto.sourceType() );
         indexData.setClosingPrice( dto.closingPrice() );
@@ -81,6 +92,7 @@ public class IndexDataMapperImpl implements IndexDataMapper {
 
         IndexData indexData = new IndexData();
 
+        indexData.setId( dto.id() );
         indexData.setBaseDate( dto.baseDate() );
         indexData.setSourceType( dto.sourceType() );
         indexData.setClosingPrice( dto.closingPrice() );
@@ -100,6 +112,9 @@ public class IndexDataMapperImpl implements IndexDataMapper {
             return;
         }
 
+        if ( dto.id() != null ) {
+            entity.setId( dto.id() );
+        }
         if ( dto.baseDate() != null ) {
             entity.setBaseDate( dto.baseDate() );
         }
@@ -124,6 +139,9 @@ public class IndexDataMapperImpl implements IndexDataMapper {
         IndexData indexData = new IndexData();
 
         if ( indexInfo != null ) {
+            indexData.setId( indexInfo.getId() );
+            indexData.setCreatedAt( indexInfo.getCreatedAt() );
+            indexData.setUpdatedAt( indexInfo.getUpdatedAt() );
             indexData.setSourceType( indexInfo.getSourceType() );
             indexData.setEnabled( indexInfo.isEnabled() );
         }
@@ -141,5 +159,32 @@ public class IndexDataMapperImpl implements IndexDataMapper {
         }
 
         return indexData;
+    }
+
+    private Long entityIndexInfoId(IndexData indexData) {
+        if ( indexData == null ) {
+            return null;
+        }
+        IndexInfo indexInfo = indexData.getIndexInfo();
+        if ( indexInfo == null ) {
+            return null;
+        }
+        Long id = indexInfo.getId();
+        if ( id == null ) {
+            return null;
+        }
+        return id;
+    }
+
+    protected IndexInfo indexDataDtoToIndexInfo(IndexDataDto indexDataDto) {
+        if ( indexDataDto == null ) {
+            return null;
+        }
+
+        IndexInfo indexInfo = new IndexInfo();
+
+        indexInfo.setId( indexDataDto.indexInfoId() );
+
+        return indexInfo;
     }
 }

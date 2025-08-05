@@ -48,4 +48,15 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
 
   // 전체 요소 개수 조회
   Long countByIndexInfoId(Long indexInfoId);
+
+  //
+
+  // New method for when ID is NOT present
+  @Query("SELECT d FROM IndexData d WHERE d.baseDate BETWEEN :startDate AND :endDate")
+  Slice<IndexData> findAllByDateRangeWithCursor(@Param("startDate") String startDate, @Param("endDate") String endDate, Pageable pageable);
+
+  // New count method for when ID is NOT present
+  @Query("SELECT count(d) FROM IndexData d WHERE d.baseDate BETWEEN :startDate AND :endDate")
+  Long countByDateRange(@Param("startDate") String startDate, @Param("endDate") String endDate);
+
 }

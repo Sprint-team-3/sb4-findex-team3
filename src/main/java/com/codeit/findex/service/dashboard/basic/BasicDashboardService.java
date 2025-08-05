@@ -15,6 +15,7 @@ import com.codeit.findex.service.indexinfo.IndexInfoService;
 import com.codeit.findex.service.dashboard.DashboardService;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +59,11 @@ public class BasicDashboardService implements DashboardService {
       long indexInfoId = i.getId();
 
       IndexData current = recentIndexDataMap.get(indexInfoId);
+
+      if (current == null) {
+        continue; // 스킵
+      }
+
       LocalDate currentDate = current.getBaseDate();
 
       Optional<IndexData> comparisonData =
@@ -94,9 +100,13 @@ public class BasicDashboardService implements DashboardService {
 
   /** 지수 차트 */
   @Override
-  public IndexChartDto getChartData(long indexInfoId, ChartPeriodType chartPeriodType) {
+  public IndexChartDto getChartData(Long indexInfoId, ChartPeriodType chartPeriodType) {
 
-    IndexInfo indexInfoDto =
+    if (indexInfoId == null ) {
+      return null;
+    }
+
+    IndexInfo indexInfo =
         indexInfoRepository
             .findById(indexInfoId)
             .orElseThrow(
@@ -104,9 +114,17 @@ public class BasicDashboardService implements DashboardService {
                     new NoSuchElementException("IndexInfo does not exist for id: " + indexInfoId));
 
     // 가장 최신 IndexData fetch
-    IndexData latestIndexData =
-        findRecentIndexData(indexInfoId)
-            .orElseThrow(() -> new NoSuchElementException("IndexData does not exist"));
+//    IndexData latestIndexData =
+//        findRecentIndexData(indexInfoId)
+//            .orElseThrow(() -> new NoSuchElementException("IndexData does not exist"));
+
+    Optional<IndexData> latestIndexDataGet = findRecentIndexData(indexInfoId);
+
+    if (latestIndexDataGet.isEmpty()) {
+      return null;
+    }
+
+    IndexData latestIndexData = latestIndexDataGet.get();
 
     // endDate 계산
     LocalDate endDate = latestIndexData.getBaseDate();
@@ -119,7 +137,7 @@ public class BasicDashboardService implements DashboardService {
         };
 
     // startDate 30일전 - endDate의 모든 IndexData을 fetch
-    // sliding window를 위한 data buffer
+    // sliding window를 위한 content buffer
     List<IndexData> indexDataList =
         findRangeIndexData(
             indexInfoId,
@@ -153,7 +171,7 @@ public class BasicDashboardService implements DashboardService {
         ma20Sum -= indexDataList.get(i - ma20Window).getClosingPrice();
       }
 
-      // startDate 이후에만 data point 더함
+      // startDate 이후에만 content point 더함
       if (currentDate.isEqual(startDate) || currentDate.isAfter(startDate)) {
         dataPoints.add(new ChartDataPoint(currentDate, currentData.getClosingPrice()));
 
@@ -173,8 +191,8 @@ public class BasicDashboardService implements DashboardService {
 
     return new IndexChartDto(
         indexInfoId,
-        indexInfoDto.getIndexClassification(),
-        indexInfoDto.getIndexName(),
+        indexInfo.getIndexClassification(),
+        indexInfo.getIndexName(),
         chartPeriodType,
         dataPoints,
         ma5DataPoints,
@@ -184,12 +202,26 @@ public class BasicDashboardService implements DashboardService {
   /** 지수 성과 */
   @Override
   public List<RankedIndexPerformanceDto> getPerformanceRank(
-      long indexInfoId, PeriodType periodType, int limit) {
+      Long indexInfoId, PeriodType periodType, int limit) {
+
+    if (indexInfoId == null) {
+      // Or log a warning: "indexInfoId was null, returning empty result."
+      return Collections.emptyList();
+    }
+
 
     // IndexInfo의 가장 최신 IndexData fetch
-    IndexData indexData =
-        findRecentIndexData(indexInfoId)
-            .orElseThrow(() -> new NoSuchElementException("IndexData not found"));
+//    IndexData indexData =
+//        findRecentIndexData(indexInfoId)
+//            .orElseThrow(() -> new NoSuchElementException("IndexData not found"));
+
+      Optional<IndexData> indexDataGet =
+        findRecentIndexData(indexInfoId);
+
+    if (indexDataGet.isEmpty()) {
+      return Collections.emptyList();
+    }
+    IndexData indexData = indexDataGet.get();
 
     LocalDate currentDate = indexData.getBaseDate();
     LocalDate pastDate =

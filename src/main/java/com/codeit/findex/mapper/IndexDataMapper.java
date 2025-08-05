@@ -1,6 +1,7 @@
 package com.codeit.findex.mapper;
 
-import com.codeit.findex.dto.openapi.OpenApiResponseDto;
+import com.codeit.findex.dto.dashboard.OpenApiResponseDto;
+import com.codeit.findex.dto.indexData.request.IndexDataCreateRequest;
 import com.codeit.findex.dto.indexData.response.IndexDataDto;
 import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.entity.IndexInfo;
@@ -10,8 +11,15 @@ import org.mapstruct.*;
 public interface IndexDataMapper {
 
   // @Mapping에서 target은 바꿔야하는 변수
+
+  @Mapping(target = "tradingPrice", source = "entity.tradingVolume")
+  @Mapping(target = "tradingQuantity", source = "entity.tradingValue")
+  @Mapping(target = "indexInfoId", source = "entity.indexInfo.id")
   IndexDataDto toDto(IndexData entity);
 
+  @Mapping(target = "tradingVolume", source = "dto.tradingPrice")
+  @Mapping(target = "tradingValue",source = "dto.tradingQuantity")
+  @Mapping(target = "indexInfo.id",source = "dto.indexInfoId")
   IndexData toEntity(IndexDataDto dto);
 
   IndexData toIndexData(IndexDataDto dto);
