@@ -3,8 +3,8 @@ package com.codeit.findex.dto.dashboard;
 import java.time.LocalDateTime;
 
 public record IndexDataDto(
-    long id,
-    long indexInfoId,
+    Long id,
+    Long indexInfoId,
     LocalDateTime baseDate, // date
     String sourceType,
     double closingPrice // current price
