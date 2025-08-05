@@ -37,7 +37,6 @@ public class IndexDataController {
     // 여기 안에서 커서 해야함 <<<<<<<<<<<<<<<<<<
     @GetMapping("/index-data")
     public ResponseEntity<CursorPageResponseIndexDataDto> searchData(
-            @PageableDefault(sort = "baseDate", direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(required = false) Long indexInfoId,
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate,
