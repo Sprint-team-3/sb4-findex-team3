@@ -3,10 +3,11 @@
 ## 💫 팀원 소개
 | 김이준 | 문은서 | 신은수 | 김찬호 | 신동진 |
 | :---: | :---: | :---: | :---: | :---: |
-| [![김이준](https://avatars.githubusercontent.com/u/93887188?v=4)](https://github.com/lkim0402) | [![문은서](URL_for_image_2)](https://github.com/kosy00) | [![신은수](URL_for_image_3)](https://github.com/Shinsu98) | [![김찬호](URL_for_image_4)](https://github.com/cheis11) | [![신동진](https://avatars.githubusercontent.com/u/135810601?v=4)](https://github.com/B1uffer) |
+| [![김이준](https://avatars.githubusercontent.com/u/93887188?v=4)](https://github.com/lkim0402) | [![문은서](https://avatars.githubusercontent.com/u/191211966?v=4)](https://github.com/kosy00) | [![신은수](URL_for_image_3)](https://github.com/Shinsu98) | [![김찬호](URL_for_image_4)](https://github.com/cheis11) | [![신동진](https://avatars.githubusercontent.com/u/135810601?v=4)](https://github.com/B1uffer) |
 
 ## 📌프로젝트 소개
-한눈에 보는 금융 지수 데이터
+한눈에 보는 금융 지수 데이터 대시보드 서비스
+
 프로젝트 기간: 2025. 07.28. ~ 2025. 08.06.
 
 ## 프로젝트 다이어그램
@@ -36,19 +37,21 @@
 ### 지수 정보 등록
 - 지수 분류명, 지수명, 채용 종목 수, 기준 시점, 기준 지수, 즐겨찾기를 통해 지수 정보를 등록하는 기능 구현
 - 채용 종목 수, 기준 시점, 기준 지수, 즐겨찾기를 통해 지수 정보를 등록하는 기능 구현
-  - 지수 분류명, 지수명 조합값은 중복되지 않도록 함.
+
 ### 지수 정보 수정
 - 채용 종목 수, 기준 시점, 기준 지수, 즐겨찾기을 수정할 수 있는 기능 구현
 - 채용 종목 수, 기준 시, 기준 지수는 Open API를 활용해 자동으로 수정할 수 있게끔 구현
+
 ### 지수 정보 삭제
 - 지수 정보를 삭제하면 관련된 지수 데이터도 같이 삭제되는 기능 구현
+
 ### 지수 정보 목록 조회
 - 지수 분류명, 지수명, 즐겨찾기로 지수 정보 목록을 조회할 수 있는 기능 구현.
   - 조회 조건이 여러 개인 경우 모든 조건을 만족한 결과로 조회
+
+
 - 지수 분류명, 지수명, 채용 종목 수로 정렬 및 페이지네이션을 구현.
-  - 여러 개의 정렬 조건 중 선택적으로 1개의 정렬 조건만 가질 수 있습니다.
-  - 정확한 페이지네이션을 위해 이전 페이지의 마지막 요소 ID를 활용합니다.
-  - 화면을 고려해 적절한 페이지네이션 전략을 선택합니다.
+  - nextIdAfter, nextCursor를 활용하여 페이지네이션 구현
 
 ## 신동진 - 지수 데이터 관리
 - 지수 정보의 외래키와 기준일자를 바탕으로 지수 데이터를 등록할 수 있는 기능
