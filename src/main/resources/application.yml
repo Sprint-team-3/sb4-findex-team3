@@ -22,7 +22,7 @@ spring:
 batch:
   sync:
     info:
-      fixed-rate: PT40S               # syncInfoAndSave: 종료 후 40초 대기
+      fixed-delay: PT40S               # syncInfoAndSave: 종료 후 40초 대기
     enabled-index-data:
       fixed-delay: P1D
 
