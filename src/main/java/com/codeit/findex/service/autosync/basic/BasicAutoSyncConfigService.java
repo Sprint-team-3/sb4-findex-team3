@@ -207,23 +207,21 @@
 
      LocalDate basepointInTime = request.getBasepointInTime();
 
-     // 중복 검사: classification + name + basepointInTime 기준
+     // 중복 검사: classification + name 기준
      Optional<IndexInfo> existing =
-             indexInfoRepository.findFirstByIndexClassificationAndIndexNameAndBasepointInTimeOrderByCreatedAtDesc(
-                     request.getIndexClassification(), request.getIndexName(), basepointInTime);
+             indexInfoRepository.findFirstByIndexClassificationAndIndexNameOrderByCreatedAtDesc(
+                     request.getIndexClassification(), request.getIndexName());
 
      if (existing.isPresent()) {
        log.debug(
                "이미 존재하는 지수 설정 - 등록 스킵: {} - {}",
                request.getIndexClassification(),
                request.getIndexName());
-//       IndexInfoDto indexInfo = indexInfoMapper.toIndexInfoDto(existing.get());
-//       System.out.println("INDEX NAME:" + indexInfo.getIndexName());
-//       return indexInfo;
-       return indexInfoMapper.toIndexInfoDto(existing.get());
+       IndexInfoDto indexInfo = indexInfoMapper.toIndexInfoDto(existing.get());
+
+       return indexInfo;
      }
 
-     System.out.println("Making new IndexInfo");
      IndexInfo indexInfo = new IndexInfo();
      indexInfo.setIndexClassification(request.getIndexClassification());
      indexInfo.setIndexName(request.getIndexName());
@@ -234,7 +232,6 @@
      indexInfo.setFavorite(request.getFavorite());
 
      IndexInfo saved = indexInfoRepository.save(indexInfo);
-     System.out.println("(finished) saved: " + saved.getIndexName());
      log.info("새로운 지수 설정 등록: {} - {}", request.getIndexClassification(), request.getIndexName());
 
      return indexInfoMapper.toIndexInfoDto(saved);
@@ -264,9 +261,6 @@
 
      entity.setEnabled(enabled);
      IndexInfo saved = indexInfoRepository.save(entity);
-
-     System.out.println("IN SERVICE: saved.isEnabled() = " + saved.isEnabled());
-
      return autoSyncMapper.toAutoSyncConfigDto(saved);
    }
 

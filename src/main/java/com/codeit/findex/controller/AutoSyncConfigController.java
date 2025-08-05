@@ -19,7 +19,6 @@ public class AutoSyncConfigController {
       @PathVariable Long id, @RequestBody Map<String, Boolean> request) {
     Boolean enabled = request.get("enabled");
     AutoSyncConfigDto dto = autoSyncConfigService.updateEnabled(id, enabled);
-    System.out.println("IN CONTROLLER: dto.enabled() = " + dto.enabled());
     return ResponseEntity.ok(dto);
   }
 
