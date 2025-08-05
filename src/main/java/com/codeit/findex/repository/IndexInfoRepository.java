@@ -40,8 +40,8 @@ public interface IndexInfoRepository extends JpaRepository<IndexInfo, Long> {
           @Param("favorite") Boolean favorite
   );
 
-  Optional<IndexInfo> findFirstByIndexClassificationAndIndexNameAndBasepointInTimeOrderByCreatedAtDesc(
-          String indexClassification, String indexName, LocalDate basepointInTime);
+  Optional<IndexInfo> findFirstByIndexClassificationAndIndexNameOrderByCreatedAtDesc(
+          String indexClassification, String indexName);
 
   List<IndexInfo> findAll();
 

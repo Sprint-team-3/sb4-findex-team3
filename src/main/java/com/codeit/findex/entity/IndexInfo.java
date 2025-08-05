@@ -11,7 +11,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "indexinfo")
+@Table(name = "IndexInfo")
 public class IndexInfo extends BaseEntity {
 
   //  @OneToMany(mappedBy = "IndexInfo", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -22,7 +22,7 @@ public class IndexInfo extends BaseEntity {
   private String indexClassification;
 
   /** 지수의 분류명 (예: 코스피 200) */
-  @Column(name = "index_name", length = 255, nullable = false, unique = true)
+  @Column(name = "index_name", length = 255, nullable = false)
   private String indexName;
 
   /** 해당 지수를 구성하는 종목의 총 개수 */
