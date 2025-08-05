@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -48,8 +46,6 @@ public class BasicAutoSyncConfigService implements AutoSyncConfigService {
   private final IndexInfoMapper indexInfoMapper;
   private final IndexDataMapper indexDataMapper;
 
-  private static final Logger log = LoggerFactory.getLogger(BasicAutoSyncConfigService.class);
-
   /** 외부 API를 호출하여 지수 정보를 동기화하고 저장 */
   @Scheduled(fixedDelayString = "${batch.sync.info.fixed-delay}", zone = "Asia/Seoul")
   public void syncInfoAndSave() {
@@ -59,8 +55,8 @@ public class BasicAutoSyncConfigService implements AutoSyncConfigService {
 
       // 유효성 검증
       if (apiResponse == null
-              || apiResponse.response().body().items().item() == null
-              || apiResponse.response().body().items().item().isEmpty()) {
+          || apiResponse.response().body().items().item() == null
+          || apiResponse.response().body().items().item().isEmpty()) {
         return;
       }
 
@@ -164,6 +160,7 @@ public class BasicAutoSyncConfigService implements AutoSyncConfigService {
   }
 
   @Override
+  @Transactional
   public IndexInfoDto createAutoSyncConfig(IndexInfoCreateRequest request) {
 
     LocalDate basepointInTime = request.getBasePointInTime();
@@ -174,10 +171,6 @@ public class BasicAutoSyncConfigService implements AutoSyncConfigService {
             request.getIndexClassification(), request.getIndexName());
 
     if (existing.isPresent()) {
-      log.debug(
-          "이미 존재하는 지수 설정 - 등록 스킵: {} - {}",
-          request.getIndexClassification(),
-          request.getIndexName());
       return indexInfoMapper.toIndexInfoDto(existing.get());
     }
 
@@ -191,12 +184,11 @@ public class BasicAutoSyncConfigService implements AutoSyncConfigService {
     indexInfo.setFavorite(request.getFavorite());
 
     IndexInfo saved = indexInfoRepository.save(indexInfo);
-    log.info("새로운 지수 설정 등록: {} - {}", request.getIndexClassification(), request.getIndexName());
 
     return indexInfoMapper.toIndexInfoDto(saved);
   }
 
-  /** OpenApiItemDto를 IndexInfoCreateRequest로 변환 */
+  /* OpenApiItemDto를 IndexInfoCreateRequest로 변환 */
   private IndexInfoCreateRequest convertApiItemToCreateRequest(
       OpenApiResponseDto.IndexItemDto item) {
     IndexInfoCreateRequest request = new IndexInfoCreateRequest();
@@ -270,7 +262,6 @@ public class BasicAutoSyncConfigService implements AutoSyncConfigService {
       } catch (DateTimeParseException e) {
         // 실패하면 다음 포맷으로 넘어간다.
         lastException = e;
-        log.debug("날짜 '{}' 를 포맷 '{}' 으로 파싱하지 못함, 다음 포맷 시도...", trimmed, formatter);
       }
     }
     // 어떤 것도 맞지 않으면 설명 있는 예외를 던진다
