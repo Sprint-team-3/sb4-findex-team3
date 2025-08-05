@@ -1,10 +1,10 @@
 package com.codeit.findex.controller;
 
-import com.codeit.findex.dto.dashboard.ChartPeriodType;
-import com.codeit.findex.dto.dashboard.IndexChartDto;
-import com.codeit.findex.dto.dashboard.PerformanceDto;
-import com.codeit.findex.dto.dashboard.PeriodType;
-import com.codeit.findex.dto.dashboard.RankedIndexPerformanceDto;
+import com.codeit.findex.dto.dashboard.response.ChartPeriodType;
+import com.codeit.findex.dto.dashboard.response.IndexChartDto;
+import com.codeit.findex.dto.dashboard.response.PerformanceDto;
+import com.codeit.findex.dto.dashboard.response.PeriodType;
+import com.codeit.findex.dto.dashboard.response.RankedIndexPerformanceDto;
 import com.codeit.findex.service.dashboard.basic.BasicDashboardService;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,7 +41,7 @@ public class DashboardController {
    */
   @GetMapping("/index-data/performance/rank")
   public List<RankedIndexPerformanceDto> getPerformanceRank(
-      @RequestParam("indexInfoId") long indexInfoId,
+      @RequestParam(name = "indexInfoId", required = false) Long indexInfoId,
       @RequestParam("periodType") PeriodType periodType,
       @RequestParam("limit") int limit) {
     return basicDashboardService.getPerformanceRank(indexInfoId, periodType, limit);

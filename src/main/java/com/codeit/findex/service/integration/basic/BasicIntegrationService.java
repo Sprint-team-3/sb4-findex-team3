@@ -1,6 +1,6 @@
-package com.codeit.findex.service.basic;
+package com.codeit.findex.service.integration.basic;
 
-import com.codeit.findex.dto.dashboard.OpenApiResponseDto;
+import com.codeit.findex.dto.openapi.OpenApiResponseDto;
 import com.codeit.findex.dto.indexData.response.IndexDataDto;
 import com.codeit.findex.dto.indexInfo.response.IndexInfoDto;
 import com.codeit.findex.dto.integration.CursorPageResponseSyncJobDto;
@@ -19,7 +19,7 @@ import com.codeit.findex.repository.IndexDataRepository;
 import com.codeit.findex.repository.IndexInfoRepository;
 import com.codeit.findex.repository.IntegrationRepository;
 import com.codeit.findex.service.ExternalApiService;
-import com.codeit.findex.service.IntegrationService;
+import com.codeit.findex.service.integration.IntegrationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;

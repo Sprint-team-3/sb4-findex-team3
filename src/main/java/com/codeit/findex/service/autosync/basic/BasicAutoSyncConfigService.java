@@ -2,7 +2,7 @@ package com.codeit.findex.service.autosync.basic;
 
 import com.codeit.findex.dto.autosync.response.AutoSyncConfigDto;
 import com.codeit.findex.dto.autosync.response.CursorPageResponseAutoSyncConfigDto;
-import com.codeit.findex.dto.dashboard.OpenApiResponseDto;
+import com.codeit.findex.dto.openapi.OpenApiResponseDto;
 import com.codeit.findex.dto.indexData.response.IndexDataDto;
 import com.codeit.findex.dto.indexInfo.request.IndexInfoCreateRequest;
 import com.codeit.findex.dto.indexInfo.response.IndexInfoDto;

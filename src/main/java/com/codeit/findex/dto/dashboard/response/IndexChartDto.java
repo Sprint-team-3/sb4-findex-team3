@@ -1,8 +1,9 @@
-package com.codeit.findex.dto.dashboard;
+package com.codeit.findex.dto.dashboard.response;
 
 import java.util.List;
 
 // 지수 차트 데이터 DTO
+
 public record IndexChartDto(
     long indexInfoId,
     String indexClassification,
