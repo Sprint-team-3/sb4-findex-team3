@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-08-05T11:26:42+0900",
+    date = "2025-08-05T14:37:21+0900",
     comments = "version: 1.5.3.Final, compiler: javac, environment: Java 17.0.12 (Oracle Corporation)"
 )
 @Component
@@ -29,7 +29,9 @@ public class IndexDataIntegrationMapperImpl implements IndexDataIntegrationMappe
         indexData.setHighPrice( dto.highPrice() );
         indexData.setLowPrice( dto.lowPrice() );
         indexData.setFluctuationRate( dto.fluctuationRate() );
-        indexData.setMarketTotalAmount( dto.marketTotalAmount() );
+        if ( dto.marketTotalAmount() != null ) {
+            indexData.setMarketTotalAmount( dto.marketTotalAmount() );
+        }
 
         return indexData;
     }
@@ -47,7 +49,7 @@ public class IndexDataIntegrationMapperImpl implements IndexDataIntegrationMappe
         double highPrice = 0.0d;
         double lowPrice = 0.0d;
         double fluctuationRate = 0.0d;
-        long marketTotalAmount = 0L;
+        Long marketTotalAmount = null;
 
         id = dto.getId();
         baseDate = dto.getBaseDate();
@@ -61,8 +63,8 @@ public class IndexDataIntegrationMapperImpl implements IndexDataIntegrationMappe
         Long indexInfoId = null;
         double marketPrice = 0.0d;
         double versus = 0.0d;
-        long tradingQuantity = 0L;
-        long tradingPrice = 0L;
+        Long tradingQuantity = null;
+        Long tradingPrice = null;
 
         IndexDataDto indexDataDto = new IndexDataDto( id, indexInfoId, baseDate, sourceType, marketPrice, closingPrice, highPrice, lowPrice, versus, fluctuationRate, tradingQuantity, tradingPrice, marketTotalAmount );
 
@@ -85,6 +87,8 @@ public class IndexDataIntegrationMapperImpl implements IndexDataIntegrationMappe
         entity.setHighPrice( dto.highPrice() );
         entity.setLowPrice( dto.lowPrice() );
         entity.setFluctuationRate( dto.fluctuationRate() );
-        entity.setMarketTotalAmount( dto.marketTotalAmount() );
+        if ( dto.marketTotalAmount() != null ) {
+            entity.setMarketTotalAmount( dto.marketTotalAmount() );
+        }
     }
 }
