@@ -10,11 +10,10 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring")
 public interface IndexDataIntegrationMapper {
 
-    IndexData toIndexData(IndexDataDto dto);
+  IndexData toIndexData(IndexDataDto dto);
 
-    IndexDataDto toIndexDataDto(IndexData dto);
+  IndexDataDto toIndexDataDto(IndexData dto);
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateDataFromDto(IndexDataDto dto, @MappingTarget IndexData entity);
-
+  @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+  void updateDataFromDto(IndexDataDto dto, @MappingTarget IndexData entity);
 }

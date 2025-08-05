@@ -1,9 +1,9 @@
 package com.codeit.findex.service.basic;
 
-
 import com.codeit.findex.dto.dashboard.OpenApiResponseDto;
 import com.codeit.findex.dto.indexData.response.IndexDataDto;
 import com.codeit.findex.dto.indexInfo.response.IndexInfoDto;
+import com.codeit.findex.dto.integration.CursorPageResponseSyncJobDto;
 import com.codeit.findex.dto.integration.IndexDataSyncRequest;
 import com.codeit.findex.dto.integration.SyncJobDto;
 import com.codeit.findex.entity.IndexData;
@@ -19,7 +19,7 @@ import com.codeit.findex.repository.IndexDataRepository;
 import com.codeit.findex.repository.IndexInfoRepository;
 import com.codeit.findex.repository.IntegrationRepository;
 import com.codeit.findex.service.ExternalApiService;
-import com.codeit.findex.service.Integration.IntegrationService;
+import com.codeit.findex.service.IntegrationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
@@ -28,6 +28,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -46,7 +48,7 @@ public class BasicIntegrationService implements IntegrationService {
   public List<SyncJobDto> integrateIndexInfo(HttpServletRequest request) {
     OpenApiResponseDto openApiDto = externalApiService.fetchStockMarketIndex();
     List<IndexInfoDto> indexInfoDtosInOpenApi = toIndexInfoDtoList(openApiDto);
-    String workerIp = request.getRemoteAddr();
+    String workerIp = extractClientIp(request);
 
     return indexInfoDtosInOpenApi.stream()
         .map(
@@ -64,7 +66,25 @@ public class BasicIntegrationService implements IntegrationService {
                 indexInfoRepository.save(indexInfo);
               }
 
-              Integration integration = saveIntegrationInfoLog(indexInfo, workerIp);
+              // 중복 방지: 최근 동일한 성공 로그가 있으면 재사용
+              Integration integration;
+              Optional<Integration> latestOpt =
+                  integrationRepository.findTopByIndexInfoAndJobTypeAndWorkerOrderByJobTimeDesc(
+                      indexInfo, JobType.INDEX_INFO, workerIp);
+
+              if (latestOpt.isPresent()) {
+                Integration latest = latestOpt.get();
+                boolean isRecentSuccess =
+                    latest.getResult() == Result.SUCCESS
+                        && latest.getJobTime().isAfter(LocalDateTime.now().minusMinutes(1));
+                if (isRecentSuccess) {
+                  integration = latest;
+                } else {
+                  integration = saveIntegrationInfoLog(indexInfo, workerIp);
+                }
+              } else {
+                integration = saveIntegrationInfoLog(indexInfo, workerIp);
+              }
 
               return integrationMapper.toSyncJobDto(integration);
             })
@@ -78,7 +98,7 @@ public class BasicIntegrationService implements IntegrationService {
     OpenApiResponseDto openApiDto = externalApiService.fetchStockMarketIndex();
     List<IndexInfo> indexInfos =
         indexInfoRepository.findAllById(indexDataSyncRequest.indexInfoIds());
-    String workerIp = request.getRemoteAddr();
+    String workerIp = extractClientIp(request);
 
     return indexInfos.stream()
         .flatMap(
@@ -103,13 +123,102 @@ public class BasicIntegrationService implements IntegrationService {
                           indexDataRepository.save(indexData);
                         }
 
-                        Integration integration =
-                            saveIntegrationDataLog(indexInfo, indexData, workerIp);
+                        // 중복 Integration 로그 방지
+                        Integration integration;
+                        Optional<Integration> latestOpt =
+                            integrationRepository
+                                .findTopByIndexInfoAndIndexDataAndJobTypeAndWorkerOrderByJobTimeDesc(
+                                    indexInfo, indexData, JobType.INDEX_DATA, workerIp);
+
+                        boolean isRecentSuccess =
+                            latestOpt.isPresent()
+                                && latestOpt.get().getResult() == Result.SUCCESS
+                                && latestOpt
+                                    .get()
+                                    .getJobTime()
+                                    .isAfter(LocalDateTime.now().minusMinutes(1));
+
+                        if (isRecentSuccess) {
+                          integration = latestOpt.get();
+                        } else {
+                          integration = saveIntegrationDataLog(indexInfo, indexData, workerIp);
+                        }
 
                         return integrationMapper.toSyncJobDto(integration);
                       });
             })
         .toList();
+  }
+
+  @Override
+  public CursorPageResponseSyncJobDto integrateCursorPage(
+      JobType jobType,
+      Long indexInfoId,
+      LocalDate baseDateFrom,
+      LocalDate baseDateTo,
+      String worker,
+      LocalDateTime jobTimeFrom,
+      LocalDateTime jobTimeTo,
+      Result status,
+      Long idAfter,
+      String cursor,
+      String sortField,
+      String sortDirection,
+      int size) {
+    PageRequest pageRequest = PageRequest.of(0, size);
+
+    // 커서 시간 파싱
+    LocalDateTime cursorDateTime = null;
+    if (cursor != null && !cursor.isEmpty()) {
+      cursorDateTime = LocalDateTime.parse(cursor);
+    }
+
+    // 데이터 조회
+    Slice<Integration> integrationSlice =
+        integrationRepository.searchIntegrations(
+            jobType,
+            indexInfoId,
+            baseDateFrom,
+            baseDateTo,
+            worker,
+            jobTimeFrom,
+            jobTimeTo,
+            status,
+            cursorDateTime,
+            sortField,
+            sortDirection,
+            pageRequest);
+
+    // 전체 갯수 조회
+    long totalElements =
+        integrationRepository.countIntegrations(
+            jobType, indexInfoId, baseDateFrom, baseDateTo, worker, jobTimeFrom, jobTimeTo, status);
+
+    String nextCursor = null;
+    Long nextIdAfter = null;
+
+    List<Integration> content = integrationSlice.getContent();
+    if (content != null && !content.isEmpty()) {
+      int lastIndex = content.size() - 1;
+
+      if (integrationSlice.hasNext()) {
+        Integration lastIntegration = content.get(lastIndex);
+        nextCursor = lastIntegration.getJobTime().toString();
+        nextIdAfter = lastIntegration.getId();
+      }
+    }
+
+    List<SyncJobDto> syncJobDtos =
+        integrationSlice.getContent().stream().map(integrationMapper::toSyncJobDto).toList();
+
+    // 응답 생성
+    return CursorPageResponseSyncJobDto.of(
+        syncJobDtos,
+        nextCursor, // 이번 페이지 마지막 아이템의 jobTime 커서 (다음 페이지 요청 때 사용)
+        nextIdAfter, // 이번 페이지 마지막 아이템의 id (동일 jobTime 내 중복 방지용)
+        size,
+        totalElements,
+        integrationSlice.hasNext());
   }
 
   private List<IndexInfoDto> toIndexInfoDtoList(OpenApiResponseDto responseDto) {
@@ -168,7 +277,7 @@ public class BasicIntegrationService implements IntegrationService {
     integration.setIndexInfo(indexInfo);
     integration.setIndexData(null);
     integration.setJobType(JobType.INDEX_INFO);
-    integration.setBaseDate(indexInfo.getBasePointInTime());
+    integration.setBaseDate(null);
     integration.setWorker(workerIp);
     integration.setJobTime(LocalDateTime.now());
     integration.setResult(Result.SUCCESS);
@@ -188,5 +297,14 @@ public class BasicIntegrationService implements IntegrationService {
     integration.setResult(Result.SUCCESS);
 
     return integrationRepository.save(integration);
+  }
+
+  private String extractClientIp(HttpServletRequest request) {
+    String xForwardedFor = request.getHeader("X-Forwarded-For");
+    if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+      // 다중 프록시일 경우 제일 앞의 IP가 실제 클라이언트 IP
+      return xForwardedFor.split(",")[0].trim();
+    }
+    return request.getRemoteAddr(); // fallback
   }
 }

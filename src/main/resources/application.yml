@@ -6,7 +6,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update # 개발 단계는 update, 운영은 none 권장
+      ddl-auto: create # 개발 단계는 update, 운영은 none 권장
     show-sql: true       # 실행 쿼리 확인
     properties:
       hibernate:
@@ -41,3 +41,6 @@ logging:
 external:
   api:
     baseurl: https://apis.data.go.kr/1160100/service/GetMarketIndexInfoService
+
+server:
+  forward-headers-strategy: framework

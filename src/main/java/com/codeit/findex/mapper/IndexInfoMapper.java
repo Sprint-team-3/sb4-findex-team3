@@ -4,7 +4,6 @@ import com.codeit.findex.dto.indexInfo.request.IndexInfoCreateRequest;
 import com.codeit.findex.dto.indexInfo.response.IndexInfoDto;
 import com.codeit.findex.dto.indexInfo.response.IndexInfoSummaryDto;
 import com.codeit.findex.entity.IndexInfo;
-import com.codeit.findex.entityEnum.SourceType;
 import java.util.List;
 import org.mapstruct.*;
 
