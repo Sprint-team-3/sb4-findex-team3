@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: jdbc:postgresql://yamanote.proxy.rlwy.net:24280/railway
+    username: postgres
+    password: aWGmDrHMwruuFHbEhdHPEPIpRnIECaUS
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
