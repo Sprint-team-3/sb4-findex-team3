@@ -1,6 +1,6 @@
 package com.codeit.findex.mapper;
 
-import com.codeit.findex.dto.dashboard.OpenApiResponseDto;
+import com.codeit.findex.dto.openapi.OpenApiResponseDto;
 import com.codeit.findex.dto.indexData.response.IndexDataDto;
 import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.entity.IndexInfo;

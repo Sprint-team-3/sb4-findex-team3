@@ -1,11 +1,8 @@
-package com.codeit.findex.service;
+package com.codeit.findex.service.indexdata;
 
 import com.codeit.findex.dto.indexData.request.*;
 import com.codeit.findex.dto.indexData.response.CursorPageResponseIndexDataDto;
 import com.codeit.findex.dto.indexData.response.IndexDataDto;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 public interface IndexDataService {

@@ -1,4 +1,4 @@
-package com.codeit.findex.dto.dashboard;
+package com.codeit.findex.dto.dashboard.response;
 
 import java.time.LocalDate;
 

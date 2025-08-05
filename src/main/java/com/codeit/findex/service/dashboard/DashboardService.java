@@ -1,10 +1,10 @@
 package com.codeit.findex.service.dashboard;
 
-import com.codeit.findex.dto.dashboard.ChartPeriodType;
-import com.codeit.findex.dto.dashboard.IndexChartDto;
-import com.codeit.findex.dto.dashboard.PerformanceDto;
-import com.codeit.findex.dto.dashboard.PeriodType;
-import com.codeit.findex.dto.dashboard.RankedIndexPerformanceDto;
+import com.codeit.findex.dto.dashboard.response.ChartPeriodType;
+import com.codeit.findex.dto.dashboard.response.IndexChartDto;
+import com.codeit.findex.dto.dashboard.response.PerformanceDto;
+import com.codeit.findex.dto.dashboard.response.PeriodType;
+import com.codeit.findex.dto.dashboard.response.RankedIndexPerformanceDto;
 import java.util.List;
 
 public interface DashboardService {

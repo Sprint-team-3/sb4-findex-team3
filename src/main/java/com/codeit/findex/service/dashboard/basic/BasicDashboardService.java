@@ -1,17 +1,17 @@
 package com.codeit.findex.service.dashboard.basic;
 
-import com.codeit.findex.dto.dashboard.ChartDataPoint;
-import com.codeit.findex.dto.dashboard.ChartPeriodType;
-import com.codeit.findex.dto.dashboard.IndexChartDto;
-import com.codeit.findex.dto.dashboard.PerformanceDto;
-import com.codeit.findex.dto.dashboard.PeriodType;
-import com.codeit.findex.dto.dashboard.RankedIndexPerformanceDto;
+import com.codeit.findex.dto.dashboard.response.ChartDataPoint;
+import com.codeit.findex.dto.dashboard.response.ChartPeriodType;
+import com.codeit.findex.dto.dashboard.response.IndexChartDto;
+import com.codeit.findex.dto.dashboard.response.PerformanceDto;
+import com.codeit.findex.dto.dashboard.response.PeriodType;
+import com.codeit.findex.dto.dashboard.response.RankedIndexPerformanceDto;
 import com.codeit.findex.dto.indexInfo.response.IndexInfoDto;
 import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.entity.IndexInfo;
 import com.codeit.findex.repository.DashboardRepository;
 import com.codeit.findex.repository.IndexInfoRepository;
-import com.codeit.findex.service.IndexInfoService;
+import com.codeit.findex.service.indexinfo.IndexInfoService;
 import com.codeit.findex.service.dashboard.DashboardService;
 import java.time.LocalDate;
 import java.util.ArrayList;

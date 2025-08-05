@@ -1,4 +1,4 @@
-package com.codeit.findex.service;
+package com.codeit.findex.service.indexinfo;
 
 import com.codeit.findex.dto.indexInfo.request.IndexInfoCreateRequest;
 import com.codeit.findex.dto.indexInfo.request.IndexInfoSearchCond;

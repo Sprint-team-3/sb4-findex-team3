@@ -1,4 +1,4 @@
-package com.codeit.findex.dto.dashboard;
+package com.codeit.findex.dto.openapi;
 
 import java.util.List;
 

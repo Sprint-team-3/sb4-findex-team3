@@ -1,9 +1,10 @@
-package com.codeit.findex.repository;
+package com.codeit.findex.repository.custom;
 
 import com.codeit.findex.entity.Integration;
 import com.codeit.findex.entity.QIntegration;
 import com.codeit.findex.entityEnum.JobType;
 import com.codeit.findex.entityEnum.Result;
+import com.codeit.findex.repository.IntegrationCustomRepository;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.PathBuilder;

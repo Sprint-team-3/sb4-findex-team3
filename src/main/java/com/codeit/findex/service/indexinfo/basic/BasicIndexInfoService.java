@@ -1,4 +1,4 @@
-package com.codeit.findex.service.basic;
+package com.codeit.findex.service.indexinfo.basic;
 
 import com.codeit.findex.dto.indexInfo.request.IndexInfoCreateRequest;
 import com.codeit.findex.dto.indexInfo.request.IndexInfoSearchCond;
@@ -12,7 +12,7 @@ import com.codeit.findex.mapper.IndexInfoMapper;
 import com.codeit.findex.repository.AutoSyncRepository;
 import com.codeit.findex.repository.IndexDataRepository;
 import com.codeit.findex.repository.IndexInfoRepository;
-import com.codeit.findex.service.IndexInfoService;
+import com.codeit.findex.service.indexinfo.IndexInfoService;
 import jakarta.transaction.Transactional;
 import java.util.List;
 
