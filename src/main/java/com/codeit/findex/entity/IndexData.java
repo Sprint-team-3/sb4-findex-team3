@@ -10,7 +10,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "IndexData")
+@Table(name = "indexdata")
 public class IndexData extends BaseEntity {
 
   /** 이 데이터가 속한 지수 정보 (외래 키) IndexInfo 엔티티와 다대일(N:1) 관계를 맺습니다. */

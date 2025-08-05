@@ -18,7 +18,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public class BaseEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   @CreatedDate
@@ -30,6 +30,6 @@ public class BaseEntity {
   LocalDate updatedAt;
 
   protected void updateTimeStamp() {
-    this.updatedAt = LocalDate.now();
+    this.updatedAt = LocalDate.now().now();
   }
 }

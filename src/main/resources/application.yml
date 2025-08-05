@@ -29,6 +29,7 @@ batch:
 # Logging 설정
 logging:
   level:
+    org.springframework.data.jpa.domain.support.AuditingEntityListener : DEBUG
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
 

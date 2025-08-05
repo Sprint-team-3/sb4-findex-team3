@@ -207,19 +207,17 @@
 
      LocalDate basepointInTime = request.getBasepointInTime();
 
-     // 중복 검사: classification + name 기준
+     // 중복 검사: classification + name + basepointInTime 기준
      Optional<IndexInfo> existing =
-             indexInfoRepository.findFirstByIndexClassificationAndIndexNameOrderByCreatedAtDesc(
-                     request.getIndexClassification(), request.getIndexName());
+             indexInfoRepository.findFirstByIndexClassificationAndIndexNameAndBasepointInTimeOrderByCreatedAtDesc(
+                     request.getIndexClassification(), request.getIndexName(), basepointInTime);
 
      if (existing.isPresent()) {
        log.debug(
                "이미 존재하는 지수 설정 - 등록 스킵: {} - {}",
                request.getIndexClassification(),
                request.getIndexName());
-       IndexInfoDto indexInfo = indexInfoMapper.toIndexInfoDto(existing.get());
-
-       return indexInfo;
+       return indexInfoMapper.toIndexInfoDto(existing.get());
      }
 
      IndexInfo indexInfo = new IndexInfo();

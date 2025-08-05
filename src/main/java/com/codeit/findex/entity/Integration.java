@@ -19,7 +19,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "Integration")
+@Table(name = "integration")
 public class Integration extends BaseEntity {
 
 
