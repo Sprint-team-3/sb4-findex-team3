@@ -128,7 +128,7 @@
            fromDate = lastSyncDate.plusDays(1); // 이미 있는 날짜 다음부터
          } else {
            // 이전 데이터가 없으면, 기준 시점(basepointInTime)부터 시작
-           fromDate = indexInfo.getBasepointInTime();
+           fromDate = indexInfo.getBasePointInTime();
          }
 
          if (fromDate.isAfter(today)) {
@@ -224,7 +224,7 @@
      indexInfo.setIndexClassification(request.getIndexClassification());
      indexInfo.setIndexName(request.getIndexName());
      indexInfo.setEmployedItemsCount(request.getEmployedItemsCount());
-     indexInfo.setBasepointInTime(basepointInTime);
+     indexInfo.setBasePointInTime(basepointInTime);
      indexInfo.setBaseIndex(request.getBaseIndex());
      indexInfo.setSourceType(SourceType.OPEN_API);
      indexInfo.setFavorite(request.getFavorite());
