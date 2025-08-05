@@ -3,7 +3,6 @@ package com.codeit.findex.entity;
 import com.codeit.findex.entity.base.BaseEntity;
 import com.codeit.findex.entityEnum.SourceType;
 import jakarta.persistence.*;
-
 import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
@@ -48,5 +47,5 @@ public class IndexInfo extends BaseEntity {
 
   /** 활성화 여부 (예: 자동 연동 설정의 활성/비활성 상태) */
   @Column(name = "enabled", nullable = false)
-  private boolean enabled = false; //필드 선언 시 기본값 할당하도록 함
+  private boolean enabled = false; // 필드 선언 시 기본값 할당하도록 함
 }

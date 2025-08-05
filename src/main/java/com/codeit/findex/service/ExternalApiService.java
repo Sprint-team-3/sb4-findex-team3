@@ -2,8 +2,6 @@ package com.codeit.findex.service;
 
 import com.codeit.findex.dto.dashboard.OpenApiResponseDto;
 import com.codeit.findex.entity.IndexInfo;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
