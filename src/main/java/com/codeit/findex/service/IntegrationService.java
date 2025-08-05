@@ -1,8 +1,13 @@
  package com.codeit.findex.service;
 
+ import com.codeit.findex.dto.integration.CursorPageResponseSyncJobDto;
  import com.codeit.findex.dto.integration.IndexDataSyncRequest;
  import com.codeit.findex.dto.integration.SyncJobDto;
+ import com.codeit.findex.entityEnum.JobType;
+ import com.codeit.findex.entityEnum.Result;
  import jakarta.servlet.http.HttpServletRequest;
+ import java.time.LocalDate;
+ import java.time.LocalDateTime;
  import java.util.List;
 
  public interface IntegrationService {
@@ -10,4 +15,19 @@
 
   List<SyncJobDto> integrateIndexData(
       IndexDataSyncRequest indexDataSyncRequest, HttpServletRequest request);
+
+  CursorPageResponseSyncJobDto integrateCursorPage(
+      JobType jobType,
+      Long indexInfoId,
+      LocalDate baseDateFrom,
+      LocalDate baseDateTo,
+      String worker,
+      LocalDateTime jobTimeFrom,
+      LocalDateTime jobTimeTo,
+      Result status,
+      Long idAfter,
+      String cursor,
+      String sortField,
+      String sortDirection,
+      int size);
  }
