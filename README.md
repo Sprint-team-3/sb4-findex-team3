@@ -119,16 +119,17 @@
 - 성능 향상을 위해 @Query를 사용해서 적절한 SQL문 작성
 
 # 📋 파일 구조
-sb4-findex-team3[Findex]
-├─ .github
-├─ .gradle
-├─ .idea
-├─ build
-├─ gradle
-├─ out
-├─ src
+```text
+sb4-findex-team3
+├─ .github                        
+├─ .gradle                        
+├─ .idea                          
+├─ build                          
+├─ gradle                         
+├─ out                            
+├─ src                            
 │  ├─ main
-│  │  ├─ generated
+│  │  ├─ generated                
 │  │  ├─ java
 │  │  │  └─ com
 │  │  │     └─ codeit
@@ -199,7 +200,7 @@ sb4-findex-team3[Findex]
 │  │  │           │  └─ IntegrationMapper.java
 │  │  │           ├─ repository
 │  │  │           │  ├─ custom
-│  │  │           │  │  └─IntegrationCustomRepositoryImpl.java
+│  │  │           │  │  └─ IntegrationCustomRepositoryImpl.java
 │  │  │           │  ├─ AutoSyncRepository.java
 │  │  │           │  ├─ DashboardRepository.java
 │  │  │           │  ├─ IndexDataRepository.java
@@ -246,6 +247,7 @@ sb4-findex-team3[Findex]
 ├─ README.md
 ├─ settings.gradle
 └─ .gitignore
+````
 
 # 🚀구현 홈페이지
 (링크, 스크린샷 추가)
