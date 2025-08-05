@@ -1,13 +1,14 @@
 package com.codeit.findex.repository;
 
 import com.codeit.findex.entity.Integration;
+import com.codeit.findex.entity.QIntegration;
 import com.codeit.findex.entityEnum.JobType;
 import com.codeit.findex.entityEnum.Result;
-import com.codeit.findex.entity.QIntegration;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,8 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
-
-import jakarta.persistence.EntityManager;
 
 @Repository
 public class IntegrationCustomRepositoryImpl implements IntegrationCustomRepository {
@@ -52,7 +51,6 @@ public class IntegrationCustomRepositoryImpl implements IntegrationCustomReposit
     }
 
     if (indexInfoId != null) {
-      System.out.println("==========================" + indexInfoId);
       query.where(integration.indexInfo.id.eq(indexInfoId));
     }
 
@@ -95,7 +93,11 @@ public class IntegrationCustomRepositoryImpl implements IntegrationCustomReposit
 
     // 정렬 추가
     Order order = "asc".equalsIgnoreCase(sortDirection) ? Order.ASC : Order.DESC;
-    query.orderBy(new OrderSpecifier<>(order, new PathBuilder<>(Integration.class, "integration").getComparable(sortField, Comparable.class)));
+    query.orderBy(
+        new OrderSpecifier<>(
+            order,
+            new PathBuilder<>(Integration.class, "integration")
+                .getComparable(sortField, Comparable.class)));
 
     // 페이징
     query.offset(pageable.getOffset());

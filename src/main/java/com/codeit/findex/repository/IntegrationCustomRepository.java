@@ -21,8 +21,7 @@ public interface IntegrationCustomRepository {
       LocalDateTime cursor,
       String sortField,
       String sortDirection,
-      Pageable pageable
-  );
+      Pageable pageable);
 
   long countIntegrations(
       JobType jobType,
@@ -32,7 +31,5 @@ public interface IntegrationCustomRepository {
       String worker,
       LocalDateTime jobTimeFrom,
       LocalDateTime jobTimeTo,
-      Result status
-  );
+      Result status);
 }
-

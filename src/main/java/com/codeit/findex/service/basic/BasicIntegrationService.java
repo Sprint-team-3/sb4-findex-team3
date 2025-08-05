@@ -91,7 +91,6 @@ public class BasicIntegrationService implements IntegrationService {
         .toList();
   }
 
-
   @Override
   public List<SyncJobDto> integrateIndexData(
       IndexDataSyncRequest indexDataSyncRequest, HttpServletRequest request) {
@@ -134,7 +133,10 @@ public class BasicIntegrationService implements IntegrationService {
                         boolean isRecentSuccess =
                             latestOpt.isPresent()
                                 && latestOpt.get().getResult() == Result.SUCCESS
-                                && latestOpt.get().getJobTime().isAfter(LocalDateTime.now().minusMinutes(1));
+                                && latestOpt
+                                    .get()
+                                    .getJobTime()
+                                    .isAfter(LocalDateTime.now().minusMinutes(1));
 
                         if (isRecentSuccess) {
                           integration = latestOpt.get();
@@ -147,7 +149,6 @@ public class BasicIntegrationService implements IntegrationService {
             })
         .toList();
   }
-
 
   @Override
   public CursorPageResponseSyncJobDto integrateCursorPage(
@@ -163,8 +164,7 @@ public class BasicIntegrationService implements IntegrationService {
       String cursor,
       String sortField,
       String sortDirection,
-      int size
-  ) {
+      int size) {
     PageRequest pageRequest = PageRequest.of(0, size);
 
     // 커서 시간 파싱
@@ -174,32 +174,25 @@ public class BasicIntegrationService implements IntegrationService {
     }
 
     // 데이터 조회
-    Slice<Integration> integrationSlice = integrationRepository.searchIntegrations(
-        jobType,
-        indexInfoId,
-        baseDateFrom,
-        baseDateTo,
-        worker,
-        jobTimeFrom,
-        jobTimeTo,
-        status,
-        cursorDateTime,
-        sortField,
-        sortDirection,
-        pageRequest
-    );
+    Slice<Integration> integrationSlice =
+        integrationRepository.searchIntegrations(
+            jobType,
+            indexInfoId,
+            baseDateFrom,
+            baseDateTo,
+            worker,
+            jobTimeFrom,
+            jobTimeTo,
+            status,
+            cursorDateTime,
+            sortField,
+            sortDirection,
+            pageRequest);
 
     // 전체 갯수 조회
-    long totalElements = integrationRepository.countIntegrations(
-        jobType,
-        indexInfoId,
-        baseDateFrom,
-        baseDateTo,
-        worker,
-        jobTimeFrom,
-        jobTimeTo,
-        status
-    );
+    long totalElements =
+        integrationRepository.countIntegrations(
+            jobType, indexInfoId, baseDateFrom, baseDateTo, worker, jobTimeFrom, jobTimeTo, status);
 
     String nextCursor = null;
     Long nextIdAfter = null;
@@ -215,19 +208,17 @@ public class BasicIntegrationService implements IntegrationService {
       }
     }
 
-    List<SyncJobDto> syncJobDtos = integrationSlice.getContent().stream()
-        .map(integrationMapper::toSyncJobDto)
-        .toList();
+    List<SyncJobDto> syncJobDtos =
+        integrationSlice.getContent().stream().map(integrationMapper::toSyncJobDto).toList();
 
     // 응답 생성
     return CursorPageResponseSyncJobDto.of(
         syncJobDtos,
-        nextCursor,     // 이번 페이지 마지막 아이템의 jobTime 커서 (다음 페이지 요청 때 사용)
-        nextIdAfter,    // 이번 페이지 마지막 아이템의 id (동일 jobTime 내 중복 방지용)
+        nextCursor, // 이번 페이지 마지막 아이템의 jobTime 커서 (다음 페이지 요청 때 사용)
+        nextIdAfter, // 이번 페이지 마지막 아이템의 id (동일 jobTime 내 중복 방지용)
         size,
         totalElements,
-        integrationSlice.hasNext()
-    );
+        integrationSlice.hasNext());
   }
 
   private List<IndexInfoDto> toIndexInfoDtoList(OpenApiResponseDto responseDto) {

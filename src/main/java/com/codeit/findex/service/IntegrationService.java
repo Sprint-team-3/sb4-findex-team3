@@ -20,7 +20,7 @@
       JobType jobType,
       Long indexInfoId,
       LocalDate baseDateFrom,
-      LocalDate baseDatoTo,
+      LocalDate baseDateTo,
       String worker,
       LocalDateTime jobTimeFrom,
       LocalDateTime jobTimeTo,

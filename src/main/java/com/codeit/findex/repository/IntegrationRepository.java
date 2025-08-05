@@ -7,11 +7,12 @@ import com.codeit.findex.entityEnum.JobType;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface IntegrationRepository extends JpaRepository<Integration, Long>, IntegrationCustomRepository {
+public interface IntegrationRepository
+    extends JpaRepository<Integration, Long>, IntegrationCustomRepository {
 
-  Optional<Integration> findTopByIndexInfoAndJobTypeAndWorkerOrderByJobTimeDesc(IndexInfo indexInfo, JobType jobType, String workerIp);
+  Optional<Integration> findTopByIndexInfoAndJobTypeAndWorkerOrderByJobTimeDesc(
+      IndexInfo indexInfo, JobType jobType, String workerIp);
 
   Optional<Integration> findTopByIndexInfoAndIndexDataAndJobTypeAndWorkerOrderByJobTimeDesc(
-      IndexInfo indexInfo, IndexData indexData,
-      JobType jobType, String workerIp);
+      IndexInfo indexInfo, IndexData indexData, JobType jobType, String workerIp);
 }
