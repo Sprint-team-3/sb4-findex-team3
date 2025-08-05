@@ -1,5 +1,7 @@
 package com.codeit.findex.controller;
 
+import com.codeit.findex.dto.indexData.request.IndexDataSortPageRequest;
+import com.codeit.findex.dto.indexData.response.CursorPageResponseIndexDataDto;
 import com.codeit.findex.dto.indexData.response.IndexDataDto;
 import com.codeit.findex.dto.indexData.request.IndexDataDateRequest;
 import com.codeit.findex.dto.indexData.request.IndexDataCreateRequest;
@@ -35,13 +37,25 @@ public class IndexDataController {
     // 지수 데이터 목록 조회
     // 여기 안에서 커서 해야함 <<<<<<<<<<<<<<<<<<
     @GetMapping("/index-data")
-    public ResponseEntity<Page<IndexDataDto>> searchData(
+    public ResponseEntity<CursorPageResponseIndexDataDto> searchData(
             @PageableDefault(sort = "baseDate", direction = Sort.Direction.DESC) Pageable pageable,
-            @ModelAttribute IndexDataDateRequest request
+            @RequestParam(required = false) Long indexInfoId,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
+            @RequestParam(required = false) Long idAfter,
+            @RequestParam(required = false) String cursor,
+            @RequestParam(defaultValue = "baseDate") String sortField,
+            @RequestParam(defaultValue = "desc") String sortDirection,
+            @RequestParam(defaultValue = "10") int size
     )
     {
-            Page<IndexDataDto> searchData = indexDataService.searchByIndexAndDate(request, pageable);
-            return ResponseEntity.ok(searchData);
+        CursorPageResponseIndexDataDto cursorPageResponseIndexDataDto =
+            indexDataService.searchByIndexAndDate(
+                    indexInfoId, startDate, endDate, idAfter, cursor,
+                    sortField, sortDirection, size);
+
+//            Page<IndexDataDto> searchData = indexDataService.searchByIndexAndDate(request, pageable);
+            return ResponseEntity.ok(cursorPageResponseIndexDataDto);
     }
 
     // 지수 데이터 수정

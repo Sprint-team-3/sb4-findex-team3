@@ -119,7 +119,7 @@ public class BasicDashboardService implements DashboardService {
         };
 
     // startDate 30일전 - endDate의 모든 IndexData을 fetch
-    // sliding window를 위한 data buffer
+    // sliding window를 위한 content buffer
     List<IndexData> indexDataList =
         findRangeIndexData(
             indexInfoId,
@@ -153,7 +153,7 @@ public class BasicDashboardService implements DashboardService {
         ma20Sum -= indexDataList.get(i - ma20Window).getClosingPrice();
       }
 
-      // startDate 이후에만 data point 더함
+      // startDate 이후에만 content point 더함
       if (currentDate.isEqual(startDate) || currentDate.isAfter(startDate)) {
         dataPoints.add(new ChartDataPoint(currentDate, currentData.getClosingPrice()));
 
