@@ -3,8 +3,10 @@ package com.codeit.findex.service.autosync.basic;
 import com.codeit.findex.dto.autosync.response.AutoSyncConfigDto;
 import com.codeit.findex.dto.autosync.response.CursorPageResponseAutoSyncConfigDto;
 import com.codeit.findex.dto.dashboard.OpenApiResponseDto;
+import com.codeit.findex.dto.indexData.response.IndexDataDto;
 import com.codeit.findex.dto.indexInfo.request.IndexInfoCreateRequest;
 import com.codeit.findex.dto.indexInfo.response.IndexInfoDto;
+import com.codeit.findex.dto.integration.IndexDataSyncRequest;
 import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.entity.IndexInfo;
 import com.codeit.findex.entityEnum.SourceType;
@@ -22,10 +24,9 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -45,14 +46,9 @@ public class BasicAutoSyncConfigService implements AutoSyncConfigService {
   private final IndexInfoMapper indexInfoMapper;
   private final IndexDataMapper indexDataMapper;
 
-  private static final Logger log = LoggerFactory.getLogger(BasicAutoSyncConfigService.class);
-
   /** 외부 API를 호출하여 지수 정보를 동기화하고 저장 */
   @Scheduled(fixedDelayString = "${batch.sync.info.fixed-delay}", zone = "Asia/Seoul")
   public void syncInfoAndSave() {
-
-    log.info("=== 지수 정보 자동 동기화 시작 ===");
-
     try {
       // 1. 외부 API 호출하여 주식 시장 지수 데이터 가져오기
       OpenApiResponseDto apiResponse = externalApiService.fetchStockMarketIndex();
@@ -61,7 +57,6 @@ public class BasicAutoSyncConfigService implements AutoSyncConfigService {
       if (apiResponse == null
           || apiResponse.response().body().items().item() == null
           || apiResponse.response().body().items().item().isEmpty()) {
-        log.warn("외부 API에서 받아온 데이터가 없습니다.");
         return;
       }
 
@@ -79,125 +74,89 @@ public class BasicAutoSyncConfigService implements AutoSyncConfigService {
           createAutoSyncConfig(request);
           successCount++;
 
-          log.debug(
-              "지수 정보 저장 성공: {} - {}", request.getIndexClassification(), request.getIndexName());
-
         } catch (IllegalStateException e) {
           // 중복 데이터인 경우 - 정상적인 상황으로 처리
           skipCount++;
-          log.debug("중복 데이터로 인한 스킵: {} - {}", item.idxCsf(), item.idxNm());
 
         } catch (Exception e) {
           errorCount++;
-          log.error(
-              "지수 정보 저장 실패 - 분류: {}, 지수명: {}, 오류: {}", item.idxCsf(), item.idxNm(), e.getMessage());
         }
       }
 
-      log.info(
-          "=== 지수 데이터 동기화 완료 - 성공: {}건, 스킵: {}건, 실패: {}건 ===", successCount, skipCount, errorCount);
-
     } catch (Exception e) {
-      log.error("지수 데이터 자동 동기화 중 전체 오류 발생", e);
+      throw new RuntimeException(e);
     }
   }
 
   /** 활성화된 지수들에 대해 지수 데이터(시계열)를 주기적으로 가져와 동기화 */
   @Scheduled(fixedDelayString = "${batch.sync.enabled-index-data.fixed-delay}")
   public void syncEnabledIndexData() {
-    log.info("=== 활성화된 지수 데이터 자동 연동 시작 ===");
 
     List<IndexInfo> enabledIndices = indexInfoRepository.findAllByEnabledTrue();
-    int totalIndexes = enabledIndices.size();
-    int successCount = 0;
-    int skipCount = 0;
-    int errorCount = 0;
+    int totalIndexes  = enabledIndices.size();
+    int successCount  = 0;
+    int skipCount     = 0;
+    int errorCount    = 0;
 
     LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
 
     for (IndexInfo indexInfo : enabledIndices) {
+      LocalDate fromDate;
       try {
         // 1. 마지막으로 저장된 지수 데이터의 날짜 조회
         Optional<IndexData> latestDataOpt =
-            indexDataRepository.findTopByIndexInfoOrderByBaseDateDesc(indexInfo);
+                indexDataRepository.findTopByIndexInfoOrderByBaseDateDesc(indexInfo);
 
-        LocalDate fromDate;
-        if (latestDataOpt.isPresent()) {
-          LocalDate lastSyncDate = latestDataOpt.get().getBaseDate();
-          fromDate = lastSyncDate.plusDays(1); // 이미 있는 날짜 다음부터
-        } else {
-          // 이전 데이터가 없으면, 기준 시점(basePointInTime)부터 시작
-          fromDate = indexInfo.getBasePointInTime();
-        }
+        fromDate = latestDataOpt
+                .map(d -> d.getBaseDate().plusDays(1))
+                .orElse(indexInfo.getBasePointInTime());
 
         if (fromDate.isAfter(today)) {
-          // 이미 최신 상태
           skipCount++;
-          log.debug(
-              "동기화 대상 없음 (이미 최신): {} - {} (fromDate={}, today={})",
-              indexInfo.getIndexClassification(),
-              indexInfo.getIndexName(),
-              fromDate,
-              today);
           continue;
         }
 
-        // 2. 외부 API 호출: fromDate ~ today 사이 데이터 가져오기
-        List<OpenApiResponseDto.IndexItemDto> dataItems =
-            externalApiService.fetchIndexData(indexInfo, fromDate, today);
+        // 2. 외부 API 호출 후 DTO 리스트로 변환
+        OpenApiResponseDto apiResp = externalApiService.fetchStockMarketIndex();
+        IndexDataSyncRequest req  = new IndexDataSyncRequest(List.of(indexInfo.getId()), fromDate, today);
+        List<IndexDataDto> dataDtos = toIndexDataDtoList(apiResp, indexInfo, req);
 
-        if (dataItems == null || dataItems.isEmpty()) {
+        if (dataDtos.isEmpty()) {
           skipCount++;
-          log.debug(
-              "외부 API에 해당 기간 데이터 없음: {} - {} (from={}, to={})",
-              indexInfo.getIndexClassification(),
-              indexInfo.getIndexName(),
-              fromDate,
-              today);
           continue;
         }
 
-        // 3. 가져온 데이터를 엔티티로 변환 후 저장
-        for (OpenApiResponseDto.IndexItemDto item : dataItems) {
-          try {
-            IndexData indexData = indexDataMapper.toIndexData(indexInfo, item);
-            indexDataRepository.save(indexData);
-          } catch (Exception e) {
-            log.warn(
-                "지수 데이터 저장 실패 (개별 항목) - {} - {}: {}",
-                indexInfo.getIndexClassification(),
-                indexInfo.getIndexName(),
-                e.getMessage(),
-                e);
-          }
+        // 3. DTO → Entity 변환
+        List<IndexData> entities = dataDtos.stream()
+                .map(dto -> {
+                  try {
+                    IndexData entity = indexDataMapper.toEntity(dto);
+                    entity.setIndexInfo(indexInfo);
+                    return entity;
+                  } catch (Exception mapEx) {
+                    return null;
+                  }
+                })
+                .filter(Objects::nonNull)
+                .toList();
+
+        if (entities.isEmpty()) {
+          skipCount++;
+          continue;
         }
 
-        successCount++;
-        log.info(
-            "지수 데이터 동기화 완료: {} - {} (from={}, to={}, items={})",
-            indexInfo.getIndexClassification(),
-            indexInfo.getIndexName(),
-            fromDate,
-            today,
-            dataItems.size());
+        // 4. 배치 저장
+        try {
+          indexDataRepository.saveAll(entities);
+          successCount++;
+        } catch (Exception saveEx) {
+          errorCount++;
+        }
 
       } catch (Exception e) {
         errorCount++;
-        log.error(
-            "지수 데이터 동기화 중 오류 발생 - {} - {}: {}",
-            indexInfo.getIndexClassification(),
-            indexInfo.getIndexName(),
-            e.getMessage(),
-            e);
       }
     }
-
-    log.info(
-        "=== 활성화된 지수 데이터 자동 연동 종료 (대상 {}개) - 성공: {}건, 스킵: {}건, 실패: {}건 ===",
-        totalIndexes,
-        successCount,
-        skipCount,
-        errorCount);
   }
 
   @Override
@@ -212,10 +171,6 @@ public class BasicAutoSyncConfigService implements AutoSyncConfigService {
             request.getIndexClassification(), request.getIndexName());
 
     if (existing.isPresent()) {
-      log.debug(
-          "이미 존재하는 지수 설정 - 등록 스킵: {} - {}",
-          request.getIndexClassification(),
-          request.getIndexName());
       return indexInfoMapper.toIndexInfoDto(existing.get());
     }
 
@@ -229,12 +184,11 @@ public class BasicAutoSyncConfigService implements AutoSyncConfigService {
     indexInfo.setFavorite(request.getFavorite());
 
     IndexInfo saved = indexInfoRepository.save(indexInfo);
-    log.info("새로운 지수 설정 등록: {} - {}", request.getIndexClassification(), request.getIndexName());
 
     return indexInfoMapper.toIndexInfoDto(saved);
   }
 
-  /** OpenApiItemDto를 IndexInfoCreateRequest로 변환 */
+  /* OpenApiItemDto를 IndexInfoCreateRequest로 변환 */
   private IndexInfoCreateRequest convertApiItemToCreateRequest(
       OpenApiResponseDto.IndexItemDto item) {
     IndexInfoCreateRequest request = new IndexInfoCreateRequest();
@@ -308,11 +262,55 @@ public class BasicAutoSyncConfigService implements AutoSyncConfigService {
       } catch (DateTimeParseException e) {
         // 실패하면 다음 포맷으로 넘어간다.
         lastException = e;
-        log.debug("날짜 '{}' 를 포맷 '{}' 으로 파싱하지 못함, 다음 포맷 시도...", trimmed, formatter);
       }
     }
     // 어떤 것도 맞지 않으면 설명 있는 예외를 던진다
     throw new IllegalArgumentException(
         "지원하지 않는 날짜 형식입니다. 허용되는 형식: yyyyMMdd 또는 yyyy-MM-dd. 입력: " + dateStr);
+  }
+
+  private List<IndexDataDto> toIndexDataDtoList(
+          OpenApiResponseDto responseDto,
+          IndexInfo indexInfo,
+          IndexDataSyncRequest request) {
+
+    DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyyMMdd");
+    String idxName = indexInfo.getIndexName();
+    Long   idxId   = indexInfo.getId();  // indexInfoId 필드
+
+    return responseDto
+            .response()
+            .body()
+            .items()
+            .item()
+            .stream()
+            // 1) 지수 이름 필터
+            .filter(item -> idxName.equals(item.idxNm()))
+            // 2) 날짜 범위 필터
+            .filter(item -> {
+              LocalDate d = LocalDate.parse(item.basDt(), fmt);
+              return !d.isBefore(request.baseDateFrom()) &&
+                      !d.isAfter(request.baseDateTo());
+            })
+            // 3) DTO 변환
+            .map(item -> {
+              LocalDate baseDate = LocalDate.parse(item.basDt(), fmt);
+              return new IndexDataDto(
+                      /* id */               null,
+                      /* indexInfoId */      idxId,
+                      /* baseDate */         baseDate,
+                      /* sourceType */       SourceType.OPEN_API,
+                      /* marketPrice */      item.mkp(),
+                      /* closingPrice */     item.clpr(),
+                      /* highPrice */        item.hipr(),
+                      /* lowPrice */         item.lopr(),
+                      /* versus */           item.vs(),
+                      /* fluctuationRate */  item.fltRt(),
+                      /* tradingQuantity */  item.trqu(),
+                      /* tradingPrice */     item.trPrc(),
+                      /* marketTotalAmount*/ item.lstgMrktTotAmt()
+              );
+            })
+            .toList();
   }
 }

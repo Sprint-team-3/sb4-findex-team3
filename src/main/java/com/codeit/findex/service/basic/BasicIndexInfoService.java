@@ -15,6 +15,7 @@ import com.codeit.findex.repository.IndexInfoRepository;
 import com.codeit.findex.service.IndexInfoService;
 import jakarta.transaction.Transactional;
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -40,44 +41,54 @@ public class BasicIndexInfoService implements IndexInfoService {
     // 2. cond 객체로부터 Pageable 생성
     Pageable pageable = PageRequest.of(0, cond.getSize(), sort);
 
-    String indexName =
-        (cond.getIndexName() != null && cond.getIndexName().trim().isEmpty())
-            ? null
-            : cond.getIndexName();
-    String classification =
-        (cond.getIndexClassification() != null && cond.getIndexClassification().trim().isEmpty())
-            ? null
-            : cond.getIndexClassification();
+    String indexName = (cond.getIndexName() != null && cond.getIndexName().trim().isEmpty()) ? null : cond.getIndexName();
+    String classification = (cond.getIndexClassification() != null && cond.getIndexClassification().trim().isEmpty()) ? null : cond.getIndexClassification();
     Boolean favorite = cond.getFavorite();
-
     // 3. Repository 호출
-    Slice<IndexInfo> resultSlice =
-        indexInfoRepository.findBySearchCondWithPaging(
-            indexName, classification, favorite, cond.getIdAfter(), pageable);
+    Slice<IndexInfo> resultSlice = indexInfoRepository.findBySearchCondWithPaging(
+            indexName,
+            classification,
+            favorite,
+            cond.getIdAfter(),
+            pageable
+    );
 
     // 4. Slice<IndexInfo>를 최종 응답 DTO인 CursorPageResponseIndexInfoDto로 변환
     List<IndexInfo> content = resultSlice.getContent();
-    List<IndexInfoDto> dtoContent = content.stream().map(indexInfoMapper::toIndexInfoDto).toList();
+    List<IndexInfoDto> dtoContent = content.stream()
+            .map(indexInfoMapper::toIndexInfoDto)
+            .toList();
 
+    // 5. 다음 페이지 존재 여부
     boolean hasNext = resultSlice.hasNext();
+
+    // 6. 다음 커서 값 설정: 마지막 요소의 indexClassification (null 체크)
+    String nextCursor = null;
+    if (!dtoContent.isEmpty()) {
+      nextCursor = dtoContent.get(dtoContent.size() -1).getIndexClassification();
+    }
+
+    // 7. 다음 idAfter 설정
     long nextIdAfter = !content.isEmpty() ? content.get(content.size() - 1).getId() : 0L;
-    long totalElement = indexInfoRepository.countBySearchCond(indexName, classification, favorite);
-    // String nextCursor = !dtoContent.isEmpty() ? dtoContent.get(dtoContent.size() - 1).getId() :
-    // null;
+
+    // 8. 전체 요소 개수 조회
+    long totalElement = indexInfoRepository.countBySearchCond(
+            indexName, classification, favorite
+    );
 
     return new CursorPageResponseIndexInfoDto(
-        dtoContent,
-        null, // 필요 시 구현
-        nextIdAfter,
-        cond.getSize(),
-        totalElement,
-        hasNext);
+            dtoContent,
+            nextCursor,
+            nextIdAfter,
+            cond.getSize(),
+            totalElement,
+            hasNext
+    );
   }
 
   private Sort createSort(String sortField, String sortDirection) {
     // 정렬 방향 결정
-    Sort.Direction direction =
-        "desc".equalsIgnoreCase(sortDirection) ? Sort.Direction.DESC : Sort.Direction.ASC;
+    Sort.Direction direction = "desc".equalsIgnoreCase(sortDirection) ? Sort.Direction.DESC : Sort.Direction.ASC;
 
     String sortProperty;
     // API 요청 파라미터(sortField)와 엔티티 필드명을 매핑
@@ -94,7 +105,8 @@ public class BasicIndexInfoService implements IndexInfoService {
         break;
     }
 
-    return Sort.by(direction, sortProperty).and(Sort.by(Sort.Direction.ASC, "id"));
+    return Sort.by(direction, sortProperty)
+            .and(Sort.by(Sort.Direction.ASC, "id"));
   }
 
   // 즐겨찾기만 조회하는 메서드
@@ -102,7 +114,9 @@ public class BasicIndexInfoService implements IndexInfoService {
   @Override
   public List<IndexInfoDto> findAllByFavorite(Boolean favorite) {
     List<IndexInfo> indexInfos = indexInfoRepository.findAllByFavorite(favorite);
-    return indexInfos.stream().map(indexInfoMapper::toIndexInfoDto).toList();
+    return indexInfos.stream()
+            .map(indexInfoMapper::toIndexInfoDto)
+            .toList();
   }
 
   @Transactional
