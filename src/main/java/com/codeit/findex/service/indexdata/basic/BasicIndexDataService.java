@@ -132,7 +132,7 @@ public class BasicIndexDataService implements IndexDataService {
             }
 
             // Call repository methods that filter by indexInfoId
-            sliceData = indexDataRepository.findByConditionsWithCursor(indexInfoId, startDate, endDate, pageable);
+            sliceData = indexDataRepository.findByConditionsWithCursor(indexInfoId, startDate, endDate, idAfter, pageable);
             totalElements = indexDataRepository.countByIndexInfoId(indexInfoId);
 
         } else {
