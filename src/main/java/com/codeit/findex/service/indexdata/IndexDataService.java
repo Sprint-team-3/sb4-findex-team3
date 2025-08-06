@@ -3,6 +3,7 @@ package com.codeit.findex.service.indexdata;
 import com.codeit.findex.dto.indexData.request.*;
 import com.codeit.findex.dto.indexData.response.CursorPageResponseIndexDataDto;
 import com.codeit.findex.dto.indexData.response.IndexDataDto;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 
@@ -22,7 +23,8 @@ public interface IndexDataService {
                                                         String cursor,
                                                         String sortField,
                                                         String sortDirection,
-                                                        int size);
+                                                        int size
+    );
 
     // 지수 정보의 id를 통해 지수 데이터를 가져오는 메서드, 팀장님 오더
     IndexDataDto searchIndexData(IndexDataSearchRequest request);

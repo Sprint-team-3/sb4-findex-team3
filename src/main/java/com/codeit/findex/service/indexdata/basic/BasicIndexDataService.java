@@ -114,6 +114,7 @@ public class BasicIndexDataService implements IndexDataService {
     @Transactional
     @Override
     public CursorPageResponseIndexDataDto searchByIndexAndDate(Long indexInfoId, String startDate, String endDate, Long idAfter, String cursor, String sortField, String sortDirection, int size) {
+        // source
 
         // 1. Create Sort and Pageable objects (this is common for both cases)
         Sort sort = createSort(sortField, sortDirection);
@@ -160,6 +161,8 @@ public class BasicIndexDataService implements IndexDataService {
         }
 
         return new CursorPageResponseIndexDataDto(indexDataDto, nextcursor, nextIdAfter, size, totalElements, hasNext);
+
+        // end source
 
 //        IndexInfo indexInfo = infoRepository.findById(indexInfoId) // infoRepository에서 일단 id를 찾고
 //        .orElseThrow(() -> new EntityNotFoundException("IndexInfo not found!"));
