@@ -49,26 +49,6 @@ public class BasicDashboardService implements DashboardService {
     LocalDate currentDate = LocalDate.now();
     LocalDate pastDate = calculateMinusDate(periodType);
 
-//    // pastDate & currentDate 사이 모든 IndexData 가져오기 - 1 query
-//    List<IndexData> allIndexDataList = dashboardRepository.findByIndexInfoIdInAndBaseDateIn(
-//        indexInfoIdList, List.of(currentDate, pastDate));
-//
-//    // IndexInfo Id : 오늘 날짜 IndexData 매핑
-//    Map<Long, IndexData> currentDataMap = allIndexDataList.stream()
-//        .filter(indexData -> indexData.getBaseDate().equals(currentDate))
-//        .collect(Collectors.toMap(
-//            indexData -> indexData.getIndexInfo().getId(), // key function
-//            Function.identity() // value function
-//            ));
-//
-//    // IndexInfo Id : periodType에 따라 다른 과거 IndexData 매핑
-//    Map<Long, IndexData> pastDataMap = allIndexDataList.stream()
-//        .filter(indexData -> indexData.getBaseDate().equals(pastDate))
-//        .collect(Collectors.toMap(
-//            indexData -> indexData.getIndexInfo().getId(), // key function
-//            Function.identity() // value function
-//        ));
-
     // **ROBUST: Get most recent available data (not exact dates)**
     List<IndexData> currentDataList = dashboardRepository
         .findMostRecentByIndexInfoIdsAndMaxDate(indexInfoIdList, currentDate);
@@ -227,32 +207,29 @@ public class BasicDashboardService implements DashboardService {
     // 모든 IndexInfo 가져오기
     List<IndexInfo> allIndexInfos = indexInfoRepository.findAll();
     // 위의 리스트 토대로 id 리스트 생성
-    List<Long> indexInfoIds = allIndexInfos.stream()
+    List<Long> indexInfoIdList = allIndexInfos.stream()
         .map(IndexInfo::getId)
         .toList();
 
     LocalDate currentDate = LocalDate.now();
     LocalDate pastDate = calculateMinusDate(periodType);
 
-    // pastDate & currentDate 사이 모든 IndexData 가져오기 - 1 query
-    List<IndexData> allIndexDataList = dashboardRepository.findByIndexInfoIdInAndBaseDateIn(
-        indexInfoIds, List.of(currentDate, pastDate));
+    // **ROBUST: Get most recent available data (not exact dates)**
+    List<IndexData> currentDataList = dashboardRepository
+        .findMostRecentByIndexInfoIdsAndMaxDate(indexInfoIdList, currentDate);
 
-    // IndexInfo Id : 오늘 날짜 IndexData 매핑
-    Map<Long, IndexData> currentDataMap = allIndexDataList.stream()
-        .filter(indexData -> indexData.getBaseDate().equals(currentDate))
-        .collect(Collectors.toMap(
-            indexData -> indexData.getIndexInfo().getId(), // key function
-            Function.identity() // value function
-        ));
+    List<IndexData> pastDataList = dashboardRepository
+        .findClosestPastByIndexInfoIdsAndTargetDate(
+            indexInfoIdList,
+            pastDate,
+            pastDate.minusDays(30)); // Look back up to 30 days for past data
 
-    // IndexInfo Id : periodType에 따라 다른 과거 IndexData 매핑
-    Map<Long, IndexData> pastDataMap = allIndexDataList.stream()
-        .filter(indexData -> indexData.getBaseDate().equals(pastDate))
-        .collect(Collectors.toMap(
-            indexData -> indexData.getIndexInfo().getId(), // key function
-            Function.identity() // value function
-        ));
+    // Convert to maps for O(1) lookup
+    Map<Long, IndexData> currentDataMap = currentDataList.stream()
+        .collect(Collectors.toMap(data -> data.getIndexInfo().getId(), Function.identity()));
+
+    Map<Long, IndexData> pastDataMap = pastDataList.stream()
+        .collect(Collectors.toMap(data -> data.getIndexInfo().getId(), Function.identity()));
 
 
     // 1) indexInfo당 위의 맵으로 currentData, pastData 구함
@@ -288,6 +265,11 @@ public class BasicDashboardService implements DashboardService {
         })
         .filter(Objects::nonNull) // Remove nulls
         .toList();
+
+    // Early return if no valid performance data
+    if (performanceDtoList.isEmpty()) {
+      return Collections.emptyList();
+    }
 
 
     // PerformanceDto 리스트를 fluctuationRate로 sort하기

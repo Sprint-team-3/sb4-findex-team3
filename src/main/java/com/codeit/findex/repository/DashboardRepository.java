@@ -86,47 +86,5 @@ public interface DashboardRepository extends JpaRepository<IndexData, Long> {
 
   // ==================================== 지수 성과 분석 랭킹 ====================================
 
-  /**
-   * 모든 IndexInfo에 대해 가장 최신의 IndexData를 한번의 쿼리로 조회합니다. N+1 문제를 해결하기 위해 Native SQL과 ROW_NUMBER를 사용합니다
-   */
-  @Query(
-      value =
-          """
-        WITH RankedData AS (
-            SELECT *,  -- THIS IS THE CRITICAL LINE. It makes all columns available.
-                   ROW_NUMBER() OVER(PARTITION BY index_info_id ORDER BY base_date DESC) as rn
-            FROM index_data
-        )
-        SELECT id, index_info_id, base_date, source_type, market_price,
-               closing_price, high_price, low_price, versus, fluctuation_rate,
-               trading_quantity, trading_price, market_total_amount, enabled,
-               created_at, updated_at
-        FROM RankedData
-        WHERE rn = 1
-      """,
-      nativeQuery = true)
-  List<IndexData> findAllRecentIndexData();
 
-  /**
-   * 모든 IndexInfo에 대해 특정 과거 시점 / 그 이전에 가장 최신인 IndexData를 한번의 쿼리로 조회합니다. 주말이나 공휴일 데이터를 처리하며, N+1문제를
-   * 해결하기 위해 Native SQL과 ROW_NUMBER를 사용합니다.
-   */
-  @Query(
-      value =
-          """
-      WITH RankedData AS (
-          SELECT *,
-              ROW_NUMBER() OVER(PARTITION BY index_info_id ORDER BY base_date DESC) as rn
-          FROM index_data
-          WHERE base_date <= :pastDate
-      )
-      SELECT id, index_info_id, base_date, source_type, market_price,
-                              closing_price, high_price, low_price, versus, fluctuation_rate,
-                              trading_quantity, trading_price, market_total_amount, enabled,
-                              created_at, updated_at -- Select all columns
-      FROM RankedData
-      WHERE rn = 1
-    """,
-      nativeQuery = true)
-  List<IndexData> findAllPastIndexData(@Param("pastDate") LocalDate pastDate);
 }
