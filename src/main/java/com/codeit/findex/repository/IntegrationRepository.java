@@ -1,9 +1,18 @@
 package com.codeit.findex.repository;
 
+import com.codeit.findex.entity.IndexData;
+import com.codeit.findex.entity.IndexInfo;
 import com.codeit.findex.entity.Integration;
-import java.util.UUID;
+import com.codeit.findex.entityEnum.JobType;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
-@Repository
-public interface IntegrationRepository extends JpaRepository<Integration, UUID> {}
+public interface IntegrationRepository
+    extends JpaRepository<Integration, Long>, IntegrationCustomRepository {
+
+  Optional<Integration> findTopByIndexInfoAndJobTypeAndWorkerOrderByJobTimeDesc(
+      IndexInfo indexInfo, JobType jobType, String workerIp);
+
+  Optional<Integration> findTopByIndexInfoAndIndexDataAndJobTypeAndWorkerOrderByJobTimeDesc(
+      IndexInfo indexInfo, IndexData indexData, JobType jobType, String workerIp);
+}

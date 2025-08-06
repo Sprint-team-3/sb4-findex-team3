@@ -1,32 +1,43 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/team3 # DB이름 설정 필요
-    username: team3
-    password: team3123
+    url: jdbc:postgresql://yamanote.proxy.rlwy.net:24280/railway
+    username: postgres
+    password: aWGmDrHMwruuFHbEhdHPEPIpRnIECaUS
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update # 개발 단계는 update, 운영은 none 권장
-    show-sql: true       # 실행 쿼리 확인
+      ddl-auto: update # 운영 배포 시엔 none 또는 validate 권장
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     properties:
       hibernate:
-        format_sql: true # SQL 포맷팅 가독성
+        format_sql: true
   application:
     name: Findex
   config:
     import: application-secret.yml
+  task:
+    scheduling:
+      enabled: true
 
-# Logging 설정
+
+
+batch:
+  sync:
+    info:
+      fixed-delay: PT1H
+    enabled-index-data:
+      fixed-delay: P1D
+
 logging:
   level:
+    org.springframework.data.jpa.domain.support.AuditingEntityListener : DEBUG
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
-
-#  sql:
-#    init:
-#      mode: update
-#      schema-locations: classpath:schema.sql
 
 external:
   api:
     baseurl: https://apis.data.go.kr/1160100/service/GetMarketIndexInfoService
+
+server:
+  forward-headers-strategy: framework

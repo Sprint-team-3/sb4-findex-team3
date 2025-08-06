@@ -1,73 +1,21 @@
 package com.codeit.findex.service.dashboard;
 
-import com.codeit.findex.dto.dashboard.IndexInfoDto;
-import com.codeit.findex.dto.dashboard.PerformanceDto;
-import com.codeit.findex.dto.dashboard.PeriodType;
-import com.codeit.findex.entity.IndexData;
-import com.codeit.findex.repository.DashboardRepository;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.UUID;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import com.codeit.findex.dto.dashboard.response.ChartPeriodType;
+import com.codeit.findex.dto.dashboard.response.IndexChartDto;
+import com.codeit.findex.dto.dashboard.response.PerformanceDto;
+import com.codeit.findex.dto.dashboard.response.PeriodType;
+import com.codeit.findex.dto.dashboard.response.RankedIndexPerformanceDto;
+import java.util.List;
 
-@Service
-@RequiredArgsConstructor
-public class DashboardService {
+public interface DashboardService {
 
-  private final DashboardRepository dashboardRepository;
+  /** 사용자가 즐겨찾기한 지수들의 성과 정보를 조회합니다. 성과는 지정된 기간(periodType) 동안의 종가를 기준으로 비교하여 계산됩니다. */
+  List<PerformanceDto> getFavPerformanceDto(PeriodType periodType);
 
-  public PerformanceDto getPerformanceDto(IndexInfoDto i, PeriodType periodType) {
-    UUID indexInfoId = i.infoId();
+  /** 특정 지수의 차트 데이터를 조회합니다. 월/분기/년 단위의 시계열 데이터는 종가를 기준으로 하며, 5일, 20일 이동평균선 데이터를 포함합니다. */
+  IndexChartDto getChartData(Long indexInfoId, ChartPeriodType chartPeriodType);
 
-    IndexData current =
-        findRecentIndexData(indexInfoId)
-            .orElseThrow(() -> new NoSuchElementException("IndexData does not exist"));
-
-    LocalDate currentDate = current.getBaseDate();
-
-    Optional<IndexData> comparisonData =
-        switch (periodType) {
-          case DAILY ->
-             findPastIndexData(
-                  indexInfoId, currentDate.minus(Duration.ofDays(1)));
-          case WEEKLY ->
-              findPastIndexData(
-                  indexInfoId, currentDate.minus(Duration.ofDays(7)));
-          case MONTHLY ->
-              findPastIndexData(
-                  indexInfoId, currentDate.minus(Duration.ofDays(30)));
-        };
-
-    // *** GRACEFUL HANDLING ***
-    if (comparisonData.isEmpty()) {
-      return null;
-    }
-
-    double currentPrice = current.getClosingPrice(); // 증가
-    double beforePrice = comparisonData.get().getClosingPrice();
-    double versus = currentPrice - beforePrice;
-    double fluctuationRate = versus / beforePrice * 100;
-
-    return new PerformanceDto(
-        indexInfoId,
-        i.indexClassification(),
-        i.indexName(),
-        versus,
-        fluctuationRate,
-        currentPrice,
-        beforePrice);
-  }
-
-  public Optional<IndexData> findRecentIndexData(UUID indexInfoId) {
-    return dashboardRepository.findTopByIndexInfoIdOrderByBaseDateDesc(indexInfoId);
-  }
-
-  public Optional<IndexData> findPastIndexData(UUID indexInfoId, LocalDate localDate) {
-
-    return dashboardRepository.findTopByIndexInfoIdAndBaseDateLessThanEqualOrderByBaseDateDesc(indexInfoId, localDate);
-
-  }
+  /** 지정된 기간 동안의 지수 성과 순위를 조회합니다. 전일/전주/전월 대비 성과를 종가 기준으로 비교하여, 상위 (limit)개의 순위 목록을 반환합니다. */
+  List<RankedIndexPerformanceDto> getPerformanceRank(
+      Long indexInfoId, PeriodType periodType, int limit);
 }

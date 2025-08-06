@@ -1,7 +1,6 @@
 package com.codeit.findex.controller;
 
-import com.codeit.findex.dto.dashboard.OpenApiResponseDto;
-import com.codeit.findex.dto.dashboard.OpenApiResponseDto.*;
+import com.codeit.findex.dto.openapi.OpenApiResponseDto;
 import com.codeit.findex.service.ExternalApiService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +18,6 @@ public class ExternalApiController {
 
   @GetMapping
   public OpenApiResponseDto getStockMarketIndex() {
-    OpenApiResponseDto openApiResponseDto = externalApiService.fetchStockMarketIndex();
-    return null;
+    return externalApiService.fetchStockMarketIndex();
   }
 }

@@ -1,7 +1,8 @@
 package com.codeit.findex.service;
 
-import com.codeit.findex.dto.dashboard.OpenApiResponseDto;
+import com.codeit.findex.dto.openapi.OpenApiResponseDto;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -25,7 +26,6 @@ public class ExternalApiService {
   }
 
   public OpenApiResponseDto fetchStockMarketIndex() {
-
     return restClient
         .get()
         .uri(
@@ -34,7 +34,9 @@ public class ExternalApiService {
                     .path("/getStockMarketIndex")
                     .queryParam("serviceKey", apiKey)
                     .queryParam("resultType", "json")
+                    .queryParam("numOfRows", 2000)
                     .build())
+        .accept(MediaType.APPLICATION_JSON)
         .retrieve()
         .body(OpenApiResponseDto.class);
   }
