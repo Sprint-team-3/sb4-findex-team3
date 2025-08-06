@@ -11,34 +11,27 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring")
 public interface IndexDataMapper {
 
-  // @Mapping에서 target은 바꿔야하는 변수
-
-  @Mapping(target = "tradingPrice", source = "entity.tradingVolume")
-  @Mapping(target = "tradingQuantity", source = "entity.tradingValue")
   @Mapping(target = "indexInfoId", source = "entity.indexInfo.id")
   IndexDataDto toDto(IndexData entity);
 
-  @Mapping(target = "tradingVolume", source = "dto.tradingPrice")
-  @Mapping(target = "tradingValue",source = "dto.tradingQuantity")
   @Mapping(target = "indexInfo.id",source = "dto.indexInfoId")
   IndexData toEntity(IndexDataDto dto);
 
   IndexData toIndexData(IndexDataDto dto);
 
-  @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
   void updateDataFromDto(IndexDataDto dto, @MappingTarget IndexData entity);
 
   @Mapping(target = "baseDate", source = "item.basDt", qualifiedByName = "stringToLocalDate")
-  @Mapping(target = "openPrice", source = "item.mkp", qualifiedByName = "doubleToDoubleSafe")
+  @Mapping(target = "marketPrice", source = "item.mkp", qualifiedByName = "doubleToDoubleSafe")
   @Mapping(target = "closingPrice", source = "item.clpr", qualifiedByName = "doubleToDoubleSafe")
   @Mapping(target = "highPrice", source = "item.hipr", qualifiedByName = "doubleToDoubleSafe")
   @Mapping(target = "lowPrice", source = "item.lopr", qualifiedByName = "doubleToDoubleSafe")
-  @Mapping(target = "changeValue", source = "item.vs", qualifiedByName = "doubleToDoubleSafe")
+  @Mapping(target = "versus", source = "item.vs", qualifiedByName = "doubleToDoubleSafe")
   @Mapping(
       target = "fluctuationRate",
       source = "item.fltRt",
       qualifiedByName = "doubleToDoubleSafe")
-  @Mapping(target = "tradingVolume", source = "item.trqu", qualifiedByName = "longToIntSafe")
+  @Mapping(target = "tradingQuantity", source = "item.trqu", qualifiedByName = "longToIntSafe")
   @Mapping(target = "tradingValue", source = "item.trPrc", qualifiedByName = "longToLongSafe")
   @Mapping(
       target = "marketTotalAmount",

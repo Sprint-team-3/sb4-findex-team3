@@ -27,7 +27,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -46,51 +49,54 @@ public class BasicIntegrationService implements IntegrationService {
   private final IntegrationMapper integrationMapper;
 
   @Override
+  @Transactional
   public List<SyncJobDto> integrateIndexInfo(HttpServletRequest request) {
     OpenApiResponseDto openApiDto = externalApiService.fetchStockMarketIndex();
     List<IndexInfoDto> indexInfoDtosInOpenApi = toIndexInfoDtoList(openApiDto);
     String workerIp = extractClientIp(request);
 
+    // 1. 필요한 IndexInfo를 모두 조회해서 Map으로 캐싱
+    List<String> keys = indexInfoDtosInOpenApi.stream()
+        .map(dto -> dto.getIndexClassification() + "::" + dto.getIndexName())
+        .distinct()
+        .toList();
+
+    List<IndexInfo> existingInfos = indexInfoRepository.findByCompositeKeys(keys); // Custom query 필요
+    Map<String, IndexInfo> existingMap = existingInfos.stream()
+        .collect(Collectors.toMap(
+            i -> i.getIndexClassification() + "::" + i.getIndexName(),
+            Function.identity()));
+
+    // 2. 최근 Integration 로그도 미리 조회 (Optional)
+    Map<Long, Integration> latestIntegrationMap =
+        integrationRepository.findRecentSuccessLogs(JobType.INDEX_INFO, workerIp, LocalDateTime.now().minusMinutes(1))
+            .stream()
+            .collect(Collectors.toMap(i -> i.getIndexInfo().getId(), Function.identity()));
+
+    // 3. 처리
     return indexInfoDtosInOpenApi.stream()
-        .map(
-            dto -> {
-              Optional<IndexInfo> existingOpt =
-                  indexInfoRepository.findByIndexClassificationAndIndexName(
-                      dto.getIndexClassification(), dto.getIndexName());
-              IndexInfo indexInfo;
+        .map(dto -> {
+          String key = dto.getIndexClassification() + "::" + dto.getIndexName();
+          IndexInfo indexInfo;
 
-              if (existingOpt.isPresent()) {
-                indexInfo = existingOpt.get();
-                indexInfoMapper.updateInfoFromDto(dto, indexInfo);
-              } else {
-                indexInfo = indexInfoMapper.toIndexInfo(dto);
-                indexInfoRepository.save(indexInfo);
-              }
+          if (existingMap.containsKey(key)) {
+            indexInfo = existingMap.get(key);
+            indexInfoMapper.updateInfoFromDto(dto, indexInfo); // 변경 감지 활용
+          } else {
+            indexInfo = indexInfoMapper.toIndexInfo(dto);
+            indexInfoRepository.save(indexInfo);
+          }
 
-              // 중복 방지: 최근 동일한 성공 로그가 있으면 재사용
-              Integration integration;
-              Optional<Integration> latestOpt =
-                  integrationRepository.findTopByIndexInfoAndJobTypeAndWorkerOrderByJobTimeDesc(
-                      indexInfo, JobType.INDEX_INFO, workerIp);
+          Integration integration = latestIntegrationMap.get(indexInfo.getId());
+          if (integration == null) {
+            integration = saveIntegrationInfoLog(indexInfo, workerIp);
+          }
 
-              if (latestOpt.isPresent()) {
-                Integration latest = latestOpt.get();
-                boolean isRecentSuccess =
-                    latest.getResult() == Result.SUCCESS
-                        && latest.getJobTime().isAfter(LocalDateTime.now().minusMinutes(1));
-                if (isRecentSuccess) {
-                  integration = latest;
-                } else {
-                  integration = saveIntegrationInfoLog(indexInfo, workerIp);
-                }
-              } else {
-                integration = saveIntegrationInfoLog(indexInfo, workerIp);
-              }
-
-              return integrationMapper.toSyncJobDto(integration);
-            })
+          return integrationMapper.toSyncJobDto(integration);
+        })
         .toList();
   }
+
 
   @Override
   public List<SyncJobDto> integrateIndexData(IndexDataSyncRequest indexDataSyncRequest, HttpServletRequest request) {

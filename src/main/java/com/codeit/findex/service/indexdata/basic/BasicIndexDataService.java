@@ -12,7 +12,6 @@ import com.codeit.findex.repository.IndexDataRepository;
 import com.codeit.findex.repository.IndexInfoRepository;
 import com.codeit.findex.service.indexdata.IndexDataService;
 import com.opencsv.CSVWriter;
-import com.opencsv.ICSVWriter;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -56,16 +55,16 @@ public class BasicIndexDataService implements IndexDataService {
         indexData.setIndexInfo(indexInfo);
         indexData.setBaseDate(request.baseDate());
 
-        indexData.setOpenPrice(request.marketPrice()); // << 시가
+        indexData.setMarketPrice(request.marketPrice()); // << 시가
 
         indexData.setClosingPrice(request.closingPrice());
         indexData.setHighPrice(request.highPrice());
         indexData.setLowPrice(request.lowPrice());
 
-        indexData.setChangeValue(request.versus());
+        indexData.setVersus(request.versus());
         indexData.setFluctuationRate(request.fluctuationRate());
-        indexData.setTradingVolume(request.tradingQuantity());
-        indexData.setTradingValue(request.tradingPrice());
+        indexData.setTradingQuantity(request.tradingQuantity());
+        indexData.setTradingPrice(request.tradingPrice());
         indexData.setMarketTotalAmount(request.marketTotalAmount());
 
         indexData.setSourceType(SourceType.USER);
@@ -87,15 +86,15 @@ public class BasicIndexDataService implements IndexDataService {
         IndexData indexData = dataRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("IndexData not found!"));
 
-        indexData.setOpenPrice(request.marketPrice()); // <<<
+        indexData.setMarketPrice(request.marketPrice()); // <<<
 
         indexData.setClosingPrice(request.closingPrice());
         indexData.setHighPrice(request.highPrice());
         indexData.setLowPrice(request.lowPrice());
-        indexData.setChangeValue(request.versus());
+        indexData.setVersus(request.versus());
         indexData.setFluctuationRate(request.fluctuationRate());
-        indexData.setTradingVolume(request.tradingQuantity());
-        indexData.setTradingValue(request.tradingPrice());
+        indexData.setTradingQuantity(request.tradingQuantity());
+        indexData.setTradingPrice(request.tradingPrice());
         indexData.setMarketTotalAmount(request.marketTotalAmount());
 
         IndexDataDto indexDataDto = mapper.toDto(indexData);
