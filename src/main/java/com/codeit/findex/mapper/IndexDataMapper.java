@@ -32,7 +32,7 @@ public interface IndexDataMapper {
       source = "item.fltRt",
       qualifiedByName = "doubleToDoubleSafe")
   @Mapping(target = "tradingQuantity", source = "item.trqu", qualifiedByName = "longToIntSafe")
-  @Mapping(target = "tradingValue", source = "item.trPrc", qualifiedByName = "longToLongSafe")
+  @Mapping(target = "tradingPrice", source = "item.trPrc", qualifiedByName = "longToLongSafe")
   @Mapping(
       target = "marketTotalAmount",
       source = "item.lstgMrktTotAmt",
