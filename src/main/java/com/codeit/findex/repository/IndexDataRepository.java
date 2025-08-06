@@ -44,7 +44,7 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
           @Param("indexInfoId") Long indexInfoId,
           @Param("startDate") String startDate,
           @Param("endDate") String endDate,
-          @Param("idAfter") Long idAfter,
+          @Param("idAfter") Long idAfter, // 이걸 서치할 수 있어야 페이지네이션이 정상 작동한다
           Pageable pageable
   );
 
