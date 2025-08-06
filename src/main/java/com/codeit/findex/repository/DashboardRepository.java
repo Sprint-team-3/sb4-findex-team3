@@ -21,6 +21,40 @@ public interface DashboardRepository extends JpaRepository<IndexData, Long> {
   Optional<IndexData> findTopByIndexInfoIdAndBaseDateLessThanEqualOrderByBaseDateDesc(
       long indexInfoId, LocalDate baseDate);
 
+  // ========================== (claude)
+
+  // Get most recent data for each index (instead of exact date)
+  @Query("""
+        SELECT id1 FROM IndexData id1 
+        WHERE id1.indexInfo.id IN :indexInfoIds 
+        AND id1.baseDate = (
+            SELECT MAX(id2.baseDate) 
+            FROM IndexData id2 
+            WHERE id2.indexInfo.id = id1.indexInfo.id 
+            AND id2.baseDate <= :maxDate
+        )
+        """)
+  List<IndexData> findMostRecentByIndexInfoIdsAndMaxDate(
+      @Param("indexInfoIds") List<Long> indexInfoIds,
+      @Param("maxDate") LocalDate maxDate);
+
+  // Get closest past data for comparison
+  @Query("""
+        SELECT id1 FROM IndexData id1 
+        WHERE id1.indexInfo.id IN :indexInfoIds 
+        AND id1.baseDate = (
+            SELECT MAX(id2.baseDate) 
+            FROM IndexData id2 
+            WHERE id2.indexInfo.id = id1.indexInfo.id 
+            AND id2.baseDate <= :targetDate 
+            AND id2.baseDate >= :minDate
+        )
+        """)
+  List<IndexData> findClosestPastByIndexInfoIdsAndTargetDate(
+      @Param("indexInfoIds") List<Long> indexInfoIds,
+      @Param("targetDate") LocalDate targetDate,
+      @Param("minDate") LocalDate minDate);
+
   //  =====================
 
   List<IndexData> findByIndexInfoIdInAndBaseDateIn(List<Long> indexInfoIds, List<LocalDate> baseDates);
