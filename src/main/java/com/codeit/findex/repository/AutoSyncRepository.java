@@ -31,4 +31,12 @@ public interface AutoSyncRepository extends JpaRepository<IndexInfo, Long> {
       @Param("enabled") Boolean enabled,
       @Param("lastId") Long lastId,
       Pageable limit);
+
+  @Query("""
+  SELECT COUNT(i)
+  FROM IndexInfo i
+  WHERE (:indexId IS NULL OR i.id = :indexId)
+    AND (:enabled IS NULL OR i.enabled = :enabled)
+""")
+  long countByFilter(@Param("indexId") Long indexId, @Param("enabled") Boolean enabled);
 }
