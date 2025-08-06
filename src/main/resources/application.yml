@@ -6,7 +6,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update # 운영 배포 시엔 none 또는 validate 권장
+      ddl-auto: none # 운영 배포 시엔 none 또는 validate 권장
     show-sql: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     properties:
