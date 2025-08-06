@@ -6,12 +6,34 @@
 | [![김이준](https://avatars.githubusercontent.com/u/93887188?v=4)](https://github.com/lkim0402) | [![문은서](https://avatars.githubusercontent.com/u/191211966?v=4)](https://github.com/kosy00) | [![신은수](https://avatars.githubusercontent.com/u/94344629?v=4)](https://github.com/Shinsu98) | [![김찬호](https://avatars.githubusercontent.com/u/106953872?v=4)](https://github.com/cheis11) | [![신동진](https://avatars.githubusercontent.com/u/135810601?v=4)](https://github.com/B1uffer) |
 
 ## 📌프로젝트 소개
-한눈에 보는 금융 지수 데이터 대시보드 서비스
+Findex는 외부 Open API와 연동하여 금융 지수 데이터를 제공하는 대시보드 서비스입니다.
+사용자는 직관적인 UI에서 금융 지수의 흐름을 파악하고, 자동 연동 기능을 통해 최신 데이터를 분석할 수 있습니다.
 
-프로젝트 기간: 2025. 07.28. ~ 2025. 08.06.
+**프로젝트 기간**: 2025. 07.28. ~ 2025. 08.06.
 
-## 프로젝트 다이어그램
+**노션 홈페이지 링크**: <a href="https://shimmer-eoraptor-c87.notion.site/Main-home-23e7f3d1ca39800aba72c82b35988091"><img src="https://img.shields.io/badge/Notion-000000?logo=Notion&logoColor=white" alt="Notion" style="vertical-align:middle;"></a>
+
+**📝 개발 일지 리포트**: 
+[김이준](https://docs.google.com/document/d/1hYaLHG8ZehAH6z5b86y9nD2YJ8pJEwFUVhAUPVg5YKw/edit?tab=t.0#heading=h.2qkfea6y3bd0),
+[김찬호](https://docs.google.com/document/d/1aJ27a-1HafvLjO9J0fue56s_bxcZpFkcwlIUuvK1Ok8/edit?tab=t.0), 
+[문은서](https://www.notion.so/2474bbd34b0d80c8a693f5e3b85a82e3?source=copy_link),
+[신동진](https://b1uffer.tistory.com/category/Findex),
+[신은수](https://beginner-development.tistory.com/27)
+
+## 🚀구현 홈페이지
+배포 링크: https://sb4-findex-team3-production.up.railway.app/
+
+![Screenshot 1](src/main/resources/static/screenshot1.png "Screenshot 1")
+![Screenshot 2](src/main/resources/static/screenshot2.png "Screenshot 2")
+![Screenshot 3](src/main/resources/static/screenshot3.png "Screenshot 3")
+![Screenshot 4](src/main/resources/static/screenshot4.png "Screenshot 4")
+
+
+## ⚙️프로젝트 다이어그램
 ![Findex Diagram](src/main/resources/static/findex_diagram.png "Diagram")
+
+저희 프로젝트는 Spring Boot 기반의 백엔드 서버와 PostgreSQL 데이터베이스를 연동하여 구축했으며, Railway를 통해 전체 시스템을 배포했습니다. 
+또한 계층형 아키텍처(Controller/Service/Repository)를 적용하여 역할과 책임을 명확히 분리함으로써 코드의 가독성과 유지보수성을 높였습니다.
 
 # 🤖기술 스택
 ## 백엔드 & 데이터베이스
@@ -249,8 +271,3 @@ sb4-findex-team3 [findex]
 └─ .gitignore
 ````
 
-# 🚀구현 홈페이지
-(링크, 스크린샷 추가)
-프로젝트 회고록
-
-정
