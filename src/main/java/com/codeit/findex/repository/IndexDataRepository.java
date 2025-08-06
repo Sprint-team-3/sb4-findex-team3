@@ -38,11 +38,13 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
         WHERE (:indexInfoId IS NULL OR d.indexInfo.id = :indexInfoId)
           AND (:startDate IS NULL OR d.baseDate >= :startDate)
           AND (:endDate IS NULL OR d.baseDate <= :endDate)
+          AND (:idAfter IS NULL OR d.id > :idAfter)
     """)
   Slice<IndexData> findByConditionsWithCursor(
           @Param("indexInfoId") Long indexInfoId,
           @Param("startDate") String startDate,
           @Param("endDate") String endDate,
+          @Param("idAfter") Long idAfter,
           Pageable pageable
   );
 

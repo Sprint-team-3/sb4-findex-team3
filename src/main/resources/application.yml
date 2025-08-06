@@ -25,7 +25,7 @@ spring:
 batch:
   sync:
     info:
-      fixed-delay: PT40S
+      fixed-delay: PT1H
     enabled-index-data:
       fixed-delay: P1D
 
