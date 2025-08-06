@@ -10,20 +10,11 @@ import org.springframework.data.repository.query.Param;
 
 public interface DashboardRepository extends JpaRepository<IndexData, Long> {
 
-  // ==================================== 즐겨찾기 지수 현황 요약 ====================================
-  /** 특정 indexInfoId에 해당하는 가장 최신 IndexData를 조회합니다. */
+  // 특정 indexInfoId에 해당하는 가장 최신 IndexData를 조회
   Optional<IndexData> findTopByIndexInfoIdOrderByBaseDateDesc(long indexInfoId);
 
-  /**
-   * 특정 날짜(targetDate) 혹은 그 이전의 가장 최신 IndexData를 조회합니다. 주말이나 공휴일처럼 특정 날짜에 IndexData가 없는 경우를 처리하는 데
-   * 핵심적인 역할을 합니다.
-   */
-  Optional<IndexData> findTopByIndexInfoIdAndBaseDateLessThanEqualOrderByBaseDateDesc(
-      long indexInfoId, LocalDate baseDate);
 
-  // ========================== (claude)
-
-  // Get most recent data for each index (instead of exact date)
+  // 각 IndexInfo의 가장 최신 IndexData를 가져옴
   @Query("""
         SELECT id1 FROM IndexData id1 
         WHERE id1.indexInfo.id IN :indexInfoIds 
@@ -38,7 +29,7 @@ public interface DashboardRepository extends JpaRepository<IndexData, Long> {
       @Param("indexInfoIds") List<Long> indexInfoIds,
       @Param("maxDate") LocalDate maxDate);
 
-  // Get closest past data for comparison
+  // 각 IndexInfo의 targetDate과 가장 가까운 최신 IndexData를 가져옴
   @Query("""
         SELECT id1 FROM IndexData id1 
         WHERE id1.indexInfo.id IN :indexInfoIds 
@@ -55,36 +46,10 @@ public interface DashboardRepository extends JpaRepository<IndexData, Long> {
       @Param("targetDate") LocalDate targetDate,
       @Param("minDate") LocalDate minDate);
 
-  //  =====================
 
-  List<IndexData> findByIndexInfoIdInAndBaseDateIn(List<Long> indexInfoIds, List<LocalDate> baseDates);
-
-
-  /** 리스트에 있는 indexInfoId당 특정 indexInfoId에 해당하는 가장 최신 IndexData를 조회합니다. */
-  @Query(
-      "SELECT d FROM IndexData d WHERE d.indexInfo.id IN :indexInfoIds AND d.baseDate = "
-          + "(SELECT MAX(d2.baseDate) FROM IndexData d2 WHERE d2.indexInfo.id = d.indexInfo.id)")
-  List<IndexData> findRecentByIndexInfoIds(@Param("indexInfoIds") List<Long> indexInfoIds);
-
-  /**
-   * For a given list of IndexInfo IDs, finds all their content points that occurred on or before a
-   * specified date. This is used to fetch a superset of all potential comparison content in a single
-   * query.
-   */
-  @Query(
-      "SELECT d FROM IndexData d "
-          + "WHERE d.indexInfo.id IN :indexInfoIds AND d.baseDate <= :maxDate")
-  List<IndexData> findPastByIndexInfoIds(
-      @Param("indexInfoIds") List<Long> indexInfoIds, @Param("maxDate") LocalDate maxDate);
-
-  // ================================================ 차트
-  // ================================================
-  /** 지정된 지수 정보 ID와 기준일자 범위에 해당하는 지수 데이터를 기준일자 오름차순으로 조회합니다. */
+  // 지정된 지수 정보 ID와 기준일자 범위에 해당하는 지수 데이터를 기준일자 오름차순으로 조회
   // Asc - oldest to newest (e.g., Jan 1, Jan 2, Jan 3, ...).
   List<IndexData> findByIndexInfoIdAndBaseDateBetweenOrderByBaseDateAsc(
       long indexInfoId, LocalDate startDate, LocalDate endDate);
-
-  // ==================================== 지수 성과 분석 랭킹 ====================================
-
 
 }

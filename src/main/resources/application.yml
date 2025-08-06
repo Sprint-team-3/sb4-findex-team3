@@ -7,7 +7,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create # 운영 배포 시엔 none 또는 validate 권장
-    show-sql: true
+#    show-sql: true
+    show-sql: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     properties:
       hibernate:
@@ -29,9 +30,10 @@ batch:
 
 logging:
   level:
-    org.springframework.data.jpa.domain.support.AuditingEntityListener : DEBUG
-    org.hibernate.SQL: debug
-    org.hibernate.orm.jdbc.bind: trace
+    org.hibernate: INFO
+#    org.springframework.data.jpa.domain.support.AuditingEntityListener : DEBUG
+#    org.hibernate.SQL: debug
+#    org.hibernate.orm.jdbc.bind: trace
 
 external:
   api:

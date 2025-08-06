@@ -49,7 +49,7 @@ public class BasicDashboardService implements DashboardService {
     LocalDate currentDate = LocalDate.now();
     LocalDate pastDate = calculateMinusDate(periodType);
 
-    // **ROBUST: Get most recent available data (not exact dates)**
+    // 날짜에 맞춰서 가져올 수 있는 가장 가까운 날짜의 IndexData
     List<IndexData> currentDataList = dashboardRepository
         .findMostRecentByIndexInfoIdsAndMaxDate(indexInfoIdList, currentDate);
 
@@ -57,9 +57,9 @@ public class BasicDashboardService implements DashboardService {
         .findClosestPastByIndexInfoIdsAndTargetDate(
             indexInfoIdList,
             pastDate,
-            pastDate.minusDays(30)); // Look back up to 30 days for past data
+            pastDate.minusDays(30)); // 30일 전
 
-    // Convert to maps for O(1) lookup
+    // 시간복잡도 O(1)을 위해 Map으로 변환
     Map<Long, IndexData> currentDataMap = currentDataList.stream()
         .collect(Collectors.toMap(data -> data.getIndexInfo().getId(), Function.identity()));
 
@@ -115,7 +115,7 @@ public class BasicDashboardService implements DashboardService {
                 () ->
                     new NoSuchElementException("IndexInfo does not exist for id: " + indexInfoId));
 
-    Optional<IndexData> latestIndexDataGet = findRecentIndexData(indexInfoId);
+    Optional<IndexData> latestIndexDataGet = dashboardRepository.findTopByIndexInfoIdOrderByBaseDateDesc(indexInfoId);
 
     if (latestIndexDataGet.isEmpty()) {
       return null;
@@ -177,14 +177,15 @@ public class BasicDashboardService implements DashboardService {
         if (i >= ma5Window - 1) {
           ma5DataPoints.add(new ChartDataPoint(currentDate, ma5Sum / ma5Window));
         } else {
-          ma5DataPoints.add(new ChartDataPoint(currentDate, null)); // Add null placeholder
+          // 앞에 빈 DataPoint 필요
+          ma5DataPoints.add(new ChartDataPoint(currentDate, null));
         }
 
         // For MA20, do the same
         if (i >= ma20Window - 1) {
           ma20DataPoints.add(new ChartDataPoint(currentDate, ma20Sum / ma20Window));
         } else {
-          ma20DataPoints.add(new ChartDataPoint(currentDate, null)); // Add null placeholder
+          ma20DataPoints.add(new ChartDataPoint(currentDate, null));
         }
       }
     }
@@ -295,9 +296,10 @@ public class BasicDashboardService implements DashboardService {
     List<RankedIndexPerformanceDto> finalResultList =
         new ArrayList<>(allRankedDtos.subList(0, trueLimit));
 
-    // 유저가 보낸 indexInfoId가 리스트에 있는지 확인
+    // ======================== 여기서 유저가 보낸 indexInfoId가 리스트에 있는지 확인 ========================
     boolean isUserIndexInFinalList =
-        finalResultList.stream().anyMatch(dto -> dto.performance().indexInfoId() == indexInfoId);
+        finalResultList.stream().anyMatch(dto -> Objects.equals(dto.performance().indexInfoId(),
+            indexInfoId));
 
     // 리스트에 없으면 추가하기
     if (!isUserIndexInFinalList) {
@@ -325,14 +327,6 @@ public class BasicDashboardService implements DashboardService {
     };
   }
 
-  private Optional<IndexData> findRecentIndexData(long indexInfoId) {
-    return dashboardRepository.findTopByIndexInfoIdOrderByBaseDateDesc(indexInfoId);
-  }
-
-  private Optional<IndexData> findPastIndexData(long indexInfoId, LocalDate localDate) {
-    return dashboardRepository.findTopByIndexInfoIdAndBaseDateLessThanEqualOrderByBaseDateDesc(
-        indexInfoId, localDate);
-  }
 
   // 차트 메서드
   private List<IndexData> findRangeIndexData(
