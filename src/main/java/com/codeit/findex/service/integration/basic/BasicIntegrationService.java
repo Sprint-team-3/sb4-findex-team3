@@ -99,52 +99,66 @@ public class BasicIntegrationService implements IntegrationService {
 
 
   @Override
+  @Transactional
   public List<SyncJobDto> integrateIndexData(IndexDataSyncRequest indexDataSyncRequest, HttpServletRequest request) {
 
     OpenApiResponseDto openApiDto = externalApiService.fetchStockMarketIndex();
     List<IndexInfo> indexInfos = indexInfoRepository.findAllByIdIn(indexDataSyncRequest.indexInfoIds());
     String workerIp = extractClientIp(request);
-
     List<SyncJobDto> result = new ArrayList<>();
 
     for (IndexInfo indexInfo : indexInfos) {
+
       List<IndexDataDto> indexDataDtos = toIndexDataDtoList(openApiDto, indexInfo, indexDataSyncRequest);
 
-      for (IndexDataDto dto : indexDataDtos) {
-        Optional<IndexData> existingOpt = indexDataRepository.findByIndexInfoIdAndBaseDate(indexInfo.getId(), dto.baseDate());
+      // ✅ 1. baseDate 기준으로 기존 데이터 조회
+      List<LocalDate> baseDates = indexDataDtos.stream()
+          .map(IndexDataDto::baseDate)
+          .toList();
 
+      List<IndexData> existingDataList =
+          indexDataRepository.findAllByIndexInfoAndBaseDateIn(indexInfo, baseDates);
+
+      Map<LocalDate, IndexData> existingDataMap = existingDataList.stream()
+          .collect(Collectors.toMap(IndexData::getBaseDate, Function.identity()));
+
+      // ✅ 2. 최근 Integration 로그 조회 (1분 이내)
+      List<Integration> recentIntegrations =
+          integrationRepository.findRecentLogs(indexInfo.getId(), JobType.INDEX_DATA, workerIp, LocalDateTime.now().minusMinutes(1));
+
+      Map<LocalDate, Integration> integrationMap = recentIntegrations.stream()
+          .collect(Collectors.toMap(
+              i -> i.getIndexData().getBaseDate(),
+              Function.identity()
+          ));
+
+      // ✅ 3. 처리 루프
+      for (IndexDataDto dto : indexDataDtos) {
+        LocalDate baseDate = dto.baseDate();
         IndexData indexData;
-        if (existingOpt.isPresent()) {
-          indexData = existingOpt.get();
-          indexDataMapper.updateDataFromDto(dto, indexData);
+
+        if (existingDataMap.containsKey(baseDate)) {
+          indexData = existingDataMap.get(baseDate);
+          indexDataMapper.updateDataFromDto(dto, indexData); // 변경 감지
         } else {
           indexData = indexDataMapper.toIndexData(dto);
           indexData.setIndexInfo(indexInfo);
           indexDataRepository.save(indexData);
         }
 
-        Optional<Integration> latestOpt = integrationRepository
-            .findTopByIndexInfoAndIndexDataAndJobTypeAndWorkerOrderByJobTimeDesc(
-                indexInfo, indexData, JobType.INDEX_DATA, workerIp);
-
-        boolean isRecentSuccess = latestOpt.isPresent()
-            && latestOpt.get().getResult() == Result.SUCCESS
-            && latestOpt.get().getJobTime().isAfter(LocalDateTime.now().minusMinutes(1));
-
-        Integration integration;
-        if (isRecentSuccess) {
-          integration = latestOpt.get();
-        } else {
+        // 중복 로그 재사용
+        Integration integration = integrationMap.get(baseDate);
+        if (integration == null) {
           integration = saveIntegrationDataLog(indexInfo, indexData, workerIp);
         }
 
-        SyncJobDto dtoResult = integrationMapper.toSyncJobDto(integration);
-        result.add(dtoResult);
+        result.add(integrationMapper.toSyncJobDto(integration));
       }
     }
 
     return result;
   }
+
 
 
   @Override
