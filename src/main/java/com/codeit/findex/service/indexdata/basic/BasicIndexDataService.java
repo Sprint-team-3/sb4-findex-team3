@@ -250,7 +250,13 @@ public class BasicIndexDataService implements IndexDataService {
            String[] header = {"기준일자","시가","종가","고가","저가","전일대비등락","등락률","거래량","거래대금","시가총액"};
             csvWriter.writeNext(header);
 
-           for(IndexData indexData : listData) {
+//           for(IndexData indexData : listData) {
+//               String[] csvRow = CSVStringMapper.mapper(indexData);
+//               csvWriter.writeNext(csvRow);
+//           }
+
+           for(int i=0; i<listData.size(); i++) {
+               IndexData indexData = listData.get(i);
                String[] csvRow = CSVStringMapper.mapper(indexData);
                csvWriter.writeNext(csvRow);
            }
@@ -261,8 +267,6 @@ public class BasicIndexDataService implements IndexDataService {
        } catch(IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CSV create fail", e);
        }
-
-
 
 //        // try-catch
 //            try {

@@ -7,7 +7,7 @@ import java.time.LocalDate;
 public record IndexDataCreateRequest(
     Long indexInfoId, // 지수 정보
     LocalDate baseDate, // 기준 날짜
-    double marketPrice,
+    double marketPrice, // 시가
     double closingPrice, // 종가
     double highPrice, // 고가
     double lowPrice, // 저가

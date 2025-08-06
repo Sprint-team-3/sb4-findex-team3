@@ -1,5 +1,6 @@
 package com.codeit.findex.mapper;
 
+import com.codeit.findex.dto.indexData.request.IndexDataDownloadRequest;
 import com.codeit.findex.entity.IndexData;
 
 public class CSVStringMapper {

@@ -1,5 +1,6 @@
 package com.codeit.findex.repository;
 
+import com.codeit.findex.dto.indexData.request.IndexDataDownloadRequest;
 import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.entity.IndexInfo;
 import java.time.LocalDate;
@@ -72,8 +73,8 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long> {
       CASE WHEN :sortField = 'baseDate' AND :sortDirection = 'ASC' THEN d.baseDate END ASC
 """)
   List<IndexData> findByFilters(@Param("indexInfoId") Long indexInfoId,
-                                @Param("startDate") LocalDate startDate,
-                                @Param("endDate") LocalDate endDate,
-                                @Param("sortField") String sortField,
-                                @Param("sortDirection") String sortDirection);
+                                               @Param("startDate") LocalDate startDate,
+                                               @Param("endDate") LocalDate endDate,
+                                               @Param("sortField") String sortField,
+                                               @Param("sortDirection") String sortDirection);
 }
