@@ -22,6 +22,10 @@ public interface DashboardRepository extends JpaRepository<IndexData, Long> {
       long indexInfoId, LocalDate baseDate);
 
   //  =====================
+
+  List<IndexData> findByIndexInfoIdInAndBaseDateIn(List<Long> indexInfoIds, List<LocalDate> baseDates);
+
+
   /** 리스트에 있는 indexInfoId당 특정 indexInfoId에 해당하는 가장 최신 IndexData를 조회합니다. */
   @Query(
       "SELECT d FROM IndexData d WHERE d.indexInfo.id IN :indexInfoIds AND d.baseDate = "

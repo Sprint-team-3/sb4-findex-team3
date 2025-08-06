@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
@@ -41,44 +42,47 @@ public class BasicDashboardService implements DashboardService {
 
     // 즐겨 찾기한 IndexData리스트 가져오기
     List<IndexInfoDto> favoriteInfos = indexInfoService.findAllByFavorite(true);
-    //    List<IndexInfo> favoriteInfos = null;
-
     // 위의 리스트 토대로 id 리스트 생성
     List<Long> indexInfoIdList = favoriteInfos.stream().map(IndexInfoDto::getId).toList();
 
-    // id 리스트에 있는 IndexInfo당 가장 최신 IndexData 가져오기
-    // key: indexInfoId, value: IndexData
-    List<IndexData> recentIndexDataList =
-        dashboardRepository.findRecentByIndexInfoIds(indexInfoIdList);
-    Map<Long, IndexData> recentIndexDataMap =
-        recentIndexDataList.stream()
-            .collect(Collectors.toMap(i -> i.getIndexInfo().getId(), i -> i));
+    LocalDate currentDate = LocalDate.now();
+    LocalDate pastDate = calculateMinusDate(periodType);
+
+    // pastDate & currentDate 사이 모든 IndexData 가져오기 - 1 query
+    List<IndexData> allIndexDataList = dashboardRepository.findByIndexInfoIdInAndBaseDateIn(
+        indexInfoIdList, List.of(currentDate, pastDate));
+
+    // IndexInfo Id : 오늘 날짜 IndexData 매핑
+    Map<Long, IndexData> currentDataMap = allIndexDataList.stream()
+        .filter(indexData -> indexData.getBaseDate().equals(currentDate))
+        .collect(Collectors.toMap(
+            indexData -> indexData.getIndexInfo().getId(), // key function
+            Function.identity() // value function
+            ));
+
+    // IndexInfo Id : periodType에 따라 다른 과거 IndexData 매핑
+    Map<Long, IndexData> pastDataMap = allIndexDataList.stream()
+        .filter(indexData -> indexData.getBaseDate().equals(pastDate))
+        .collect(Collectors.toMap(
+            indexData -> indexData.getIndexInfo().getId(), // key function
+            Function.identity() // value function
+        ));
+
 
     List<PerformanceDto> performanceDtoList = new ArrayList<>();
     for (IndexInfoDto i : favoriteInfos) {
       long indexInfoId = i.getId();
 
-      IndexData current = recentIndexDataMap.get(indexInfoId);
+      IndexData current = currentDataMap.get(indexInfoId);
+      IndexData past = pastDataMap.get(indexInfoId);
 
-      if (current == null) {
-        continue; // 스킵
-      }
-
-      LocalDate currentDate = current.getBaseDate();
-
-      Optional<IndexData> comparisonData =
-          switch (periodType) {
-            case DAILY -> findPastIndexData(indexInfoId, currentDate.minusDays(1));
-            case WEEKLY -> findPastIndexData(indexInfoId, currentDate.minusDays(7));
-            case MONTHLY -> findPastIndexData(indexInfoId, currentDate.minusMonths(1));
-          };
-
-      if (comparisonData.isEmpty()) {
+      // 둘중 하나라도 없으면 스킵
+      if (current == null || past == null) {
         continue;
       }
 
       double currentPrice = current.getClosingPrice(); // 증가
-      double beforePrice = comparisonData.get().getClosingPrice();
+      double beforePrice = past.getClosingPrice();
       double versus = currentPrice - beforePrice;
       double fluctuationRate = 0.0;
       if (beforePrice != 0) {
@@ -227,12 +231,7 @@ public class BasicDashboardService implements DashboardService {
     IndexData indexData = indexDataGet.get();
 
     LocalDate currentDate = indexData.getBaseDate();
-    LocalDate pastDate =
-        switch (periodType) {
-          case DAILY -> currentDate.minusDays(1);
-          case WEEKLY -> currentDate.minusDays(7);
-          case MONTHLY -> currentDate.minusMonths(1);
-        };
+    LocalDate pastDate = calculateMinusDate(periodType);
 
     // 모든 IndexInfo 조회 (1 query)
     List<IndexInfo> allIndexInfos = indexInfoRepository.findAll();
@@ -329,6 +328,18 @@ public class BasicDashboardService implements DashboardService {
   // ==================================== private 메서드 ====================================
 
   // 즐겨찾기 성과 메서드
+  private LocalDate calculateMinusDate(PeriodType periodType) {
+    LocalDate current = LocalDate.now();
+    return switch (periodType) {
+      case DAILY -> current.minusDays(1);
+      case WEEKLY -> current.minusDays(7);
+      case MONTHLY -> current.minusMonths(1);
+      case QUARTERLY -> current.minusMonths(3L);
+      case YEARLY -> current.minusYears(1L);
+      default -> throw new IllegalStateException("Unexpected value: " + periodType);
+    };
+  }
+
   private Optional<IndexData> findRecentIndexData(long indexInfoId) {
     return dashboardRepository.findTopByIndexInfoIdOrderByBaseDateDesc(indexInfoId);
   }
