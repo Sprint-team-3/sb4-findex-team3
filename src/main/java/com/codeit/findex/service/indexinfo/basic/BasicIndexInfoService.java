@@ -8,10 +8,12 @@ import com.codeit.findex.dto.indexInfo.response.IndexInfoDto;
 import com.codeit.findex.dto.indexInfo.response.IndexInfoSummaryDto;
 import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.entity.IndexInfo;
+import com.codeit.findex.entityEnum.SourceType;
 import com.codeit.findex.mapper.IndexInfoMapper;
 import com.codeit.findex.repository.AutoSyncRepository;
 import com.codeit.findex.repository.IndexDataRepository;
 import com.codeit.findex.repository.IndexInfoRepository;
+import com.codeit.findex.repository.IntegrationRepository;
 import com.codeit.findex.service.indexinfo.IndexInfoService;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -30,6 +32,7 @@ public class BasicIndexInfoService implements IndexInfoService {
   private final IndexInfoMapper indexInfoMapper;
   private final IndexDataRepository indexDataRepository;
   private final AutoSyncRepository autoSyncRepository;
+  private final IntegrationRepository integrationRepository;
 
   @Transactional
   @Override
@@ -187,7 +190,15 @@ public class BasicIndexInfoService implements IndexInfoService {
         indexInfoRepository
             .findById(id)
             .orElseThrow(
-                () -> new IllegalArgumentException("Index info with ID" + id + "not found"));
+                () -> new IllegalArgumentException("Index info with" + id + "not found"));
+    SourceType sourceType = indexInfo.getSourceType();
+
+    if (sourceType == SourceType.OPEN_API) {
+      autoSyncRepository.deleteById(id);
+    }
+
+    integrationRepository.deleteAllByIndexInfoId(id);
+
     List<IndexData> indexDataList = indexDataRepository.findAllByIndexInfoId(id);
     if (!indexDataList.isEmpty()) {
       indexDataRepository.deleteAll(indexDataList);
