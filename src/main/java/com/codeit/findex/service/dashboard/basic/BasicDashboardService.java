@@ -305,21 +305,6 @@ public class BasicDashboardService implements DashboardService {
     int trueLimit = Math.min(limit, allRankedDtos.size());
     return new ArrayList<>(allRankedDtos.subList(0, trueLimit));
 
-//     ======================== 여기서 유저가 보낸 indexInfoId가 리스트에 있는지 확인 ========================
-
-
-//    boolean isUserIndexInFinalList =
-//        finalResultList.stream().anyMatch(dto -> Objects.equals(dto.performance().indexInfoId(),
-//            indexInfoId));
-//
-//    // 리스트에 없으면 추가하기
-//    if (!isUserIndexInFinalList) {
-//      allRankedDtos.stream()
-//          .filter(dto -> Objects.equals(dto.performance().indexInfoId(), indexInfoId))
-//          .findFirst() // Optional<RankedIndexPerformanceDto>
-//          .ifPresent(finalResultList::add); // 존재하면 finalResultList에 추가
-//    }
-
 
   }
 
