@@ -291,25 +291,21 @@ public class BasicDashboardService implements DashboardService {
                         ))
             .toList();
 
-    // limit에 맞춰서 allRankedDtos 자르기
-    int trueLimit = Math.min(limit, allRankedDtos.size());
-    List<RankedIndexPerformanceDto> finalResultList =
-        new ArrayList<>(allRankedDtos.subList(0, trueLimit));
 
-    // ======================== 여기서 유저가 보낸 indexInfoId가 리스트에 있는지 확인 ========================
-    boolean isUserIndexInFinalList =
-        finalResultList.stream().anyMatch(dto -> Objects.equals(dto.performance().indexInfoId(),
-            indexInfoId));
-
-    // 리스트에 없으면 추가하기
-    if (!isUserIndexInFinalList) {
-      allRankedDtos.stream()
+    // ============================ indexInfoId가 존재할 경우 (단일 조회) =======================
+    if (indexInfoId != null) {
+      return allRankedDtos.stream()
           .filter(dto -> Objects.equals(dto.performance().indexInfoId(), indexInfoId))
-          .findFirst() // Optional<RankedIndexPerformanceDto>
-          .ifPresent(finalResultList::add); // 존재하면 finalResultList에 추가
+          .toList();
     }
 
-    return finalResultList;
+    // ============================ indexInfoId가 존재하지 않을 경우 (리스트 조회) =======================
+
+    // limit에 맞춰서 allRankedDtos 자르기
+    int trueLimit = Math.min(limit, allRankedDtos.size());
+    return new ArrayList<>(allRankedDtos.subList(0, trueLimit));
+
+
   }
 
   // ==================================== private 메서드 ====================================
