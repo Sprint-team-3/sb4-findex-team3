@@ -46,7 +46,8 @@ public class IntegrationCustomRepositoryImpl implements IntegrationCustomReposit
 
     var query = queryFactory.selectFrom(integration);
 
-    // 조건 추가
+    // 조건 추가 생략 (기존 그대로)
+
     if (jobType != null) {
       query.where(integration.jobType.eq(jobType));
     }
@@ -56,11 +57,11 @@ public class IntegrationCustomRepositoryImpl implements IntegrationCustomReposit
     }
 
     if (baseDateFrom != null) {
-      query.where(integration.baseDate.goe(baseDateFrom));
+      query.where(integration.targetDate.goe(baseDateFrom));
     }
 
     if (baseDateTo != null) {
-      query.where(integration.baseDate.loe(baseDateTo));
+      query.where(integration.targetDate.loe(baseDateTo));
     }
 
     if (worker != null && !worker.isEmpty()) {
@@ -82,23 +83,39 @@ public class IntegrationCustomRepositoryImpl implements IntegrationCustomReposit
     // 커서 기반 페이징 조건
     if (cursor != null) {
       PathBuilder<Integration> entityPath = new PathBuilder<>(Integration.class, "integration");
-      var sortPath = entityPath.getComparable(sortField, Comparable.class);
 
-      // 커서 정렬 기준과 방향에 따라 조건 추가
-      if ("asc".equalsIgnoreCase(sortDirection)) {
-        query.where(sortPath.gt(cursor));
+      if ("targetDate".equals(sortField)) {
+        var sortPath = entityPath.getComparable("targetDate", LocalDate.class);
+        LocalDate cursorDate = cursor.toLocalDate();
+        if ("asc".equalsIgnoreCase(sortDirection)) {
+          query.where(sortPath.gt(cursorDate));
+        } else {
+          query.where(sortPath.lt(cursorDate));
+        }
+      } else if ("jobTime".equals(sortField)) {
+        var sortPath = entityPath.getComparable("jobTime", LocalDateTime.class);
+        if ("asc".equalsIgnoreCase(sortDirection)) {
+          query.where(sortPath.gt(cursor));
+        } else {
+          query.where(sortPath.lt(cursor));
+        }
       } else {
-        query.where(sortPath.lt(cursor));
+        throw new IllegalArgumentException("Invalid sortField: " + sortField);
       }
     }
 
     // 정렬 추가
     Order order = "asc".equalsIgnoreCase(sortDirection) ? Order.ASC : Order.DESC;
-    query.orderBy(
-        new OrderSpecifier<>(
-            order,
-            new PathBuilder<>(Integration.class, "integration")
-                .getComparable(sortField, Comparable.class)));
+    PathBuilder<Integration> entityPath = new PathBuilder<>(Integration.class, "integration");
+    OrderSpecifier<?> orderSpecifier;
+    if ("targetDate".equals(sortField)) {
+      orderSpecifier = new OrderSpecifier<>(order, entityPath.getComparable("targetDate", LocalDate.class));
+    } else if ("jobTime".equals(sortField)) {
+      orderSpecifier = new OrderSpecifier<>(order, entityPath.getComparable("jobTime", LocalDateTime.class));
+    } else {
+      throw new IllegalArgumentException("Invalid sortField: " + sortField);
+    }
+    query.orderBy(orderSpecifier);
 
     // 페이징
     query.offset(pageable.getOffset());
@@ -141,11 +158,11 @@ public class IntegrationCustomRepositoryImpl implements IntegrationCustomReposit
     }
 
     if (baseDateFrom != null) {
-      query.where(integration.baseDate.goe(baseDateFrom));
+      query.where(integration.targetDate.goe(baseDateFrom));
     }
 
     if (baseDateTo != null) {
-      query.where(integration.baseDate.loe(baseDateTo));
+      query.where(integration.targetDate.loe(baseDateTo));
     }
 
     if (worker != null && !worker.isEmpty()) {

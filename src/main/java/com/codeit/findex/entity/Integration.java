@@ -42,7 +42,7 @@ public class Integration extends BaseEntity {
 
   /** 연동 대상 날짜 */
   @Column(name = "base_date")
-  private LocalDate baseDate;
+  private LocalDate targetDate;
 
   /** 작업을 실행한 주체 (사용자 IP 또는 "system") */
   @Column(name = "worker", length = 100, nullable = false)
