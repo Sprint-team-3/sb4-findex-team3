@@ -20,9 +20,6 @@ public class ExternalApiService {
 
     this.baseUrl = baseUrl;
     this.apiKey = apiKey;
-
-    System.out.println(baseUrl);
-    System.out.println(apiKey);
   }
 
   public OpenApiResponseDto fetchStockMarketIndex() {
@@ -34,7 +31,7 @@ public class ExternalApiService {
                     .path("/getStockMarketIndex")
                     .queryParam("serviceKey", apiKey)
                     .queryParam("resultType", "json")
-                    .queryParam("numOfRows", 50)
+                    .queryParam("numOfRows", 7000)
                     .build())
         .accept(MediaType.APPLICATION_JSON)
         .retrieve()

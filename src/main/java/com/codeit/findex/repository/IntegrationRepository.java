@@ -27,6 +27,18 @@ public interface IntegrationRepository
       @Param("afterTime") LocalDateTime afterTime
   );
 
-  Optional<Integration> findTopByIndexInfoAndIndexDataAndJobTypeAndWorkerOrderByJobTimeDesc(
-      IndexInfo indexInfo, IndexData indexData, JobType jobType, String workerIp);
+  @Query("""
+SELECT i FROM Integration i
+WHERE i.indexInfo.id = :indexInfoId
+  AND i.jobType = :jobType
+  AND i.worker = :worker
+  AND i.result = com.codeit.findex.entityEnum.Result.SUCCESS
+  AND i.jobTime > :afterTime
+""")
+  List<Integration> findRecentLogs(
+      @Param("indexInfoId") Long indexInfoId,
+      @Param("jobType") JobType jobType,
+      @Param("worker") String worker,
+      @Param("afterTime") LocalDateTime afterTime);
+
 }
