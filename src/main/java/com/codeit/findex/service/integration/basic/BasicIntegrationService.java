@@ -20,6 +20,8 @@ import com.codeit.findex.repository.IndexInfoRepository;
 import com.codeit.findex.repository.IntegrationRepository;
 import com.codeit.findex.service.ExternalApiService;
 import com.codeit.findex.service.integration.IntegrationService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
@@ -28,7 +30,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -48,55 +49,80 @@ public class BasicIntegrationService implements IntegrationService {
   private final IndexDataMapper indexDataMapper;
   private final IntegrationMapper integrationMapper;
 
+  @PersistenceContext
+  private EntityManager entityManager;
+
   @Override
   @Transactional
   public List<SyncJobDto> integrateIndexInfo(HttpServletRequest request) {
     OpenApiResponseDto openApiDto = externalApiService.fetchStockMarketIndex();
-    List<IndexInfoDto> indexInfoDtosInOpenApi = toIndexInfoDtoList(openApiDto);
     String workerIp = extractClientIp(request);
 
-    // 1. 필요한 IndexInfo를 모두 조회해서 Map으로 캐싱
-    List<String> keys = indexInfoDtosInOpenApi.stream()
-        .map(dto -> dto.getIndexClassification() + "::" + dto.getIndexName())
-        .distinct()
-        .toList();
+    // 1. OpenAPI → IndexInfoDto 변환
+    List<IndexInfoDto> indexInfoDtosInOpenApi = toIndexInfoDtoList(openApiDto);
 
-    List<IndexInfo> existingInfos = indexInfoRepository.findByCompositeKeys(keys); // Custom query 필요
+    // 2. 중복 제거 (indexClassification + "::" + indexName 기준)
+    Map<String, IndexInfoDto> deduplicatedDtoMap = indexInfoDtosInOpenApi.stream()
+        .collect(Collectors.toMap(
+            dto -> dto.getIndexClassification() + "::" + dto.getIndexName(),
+            Function.identity(),
+            (existing, replacement) -> existing // 중복 시 기존 유지
+        ));
+
+    List<IndexInfoDto> deduplicatedDtos = new ArrayList<>(deduplicatedDtoMap.values());
+    List<String> compositeKeys = new ArrayList<>(deduplicatedDtoMap.keySet());
+
+    // 3. 기존 IndexInfo 캐싱
+    List<IndexInfo> existingInfos = indexInfoRepository.findByCompositeKeys(compositeKeys);
     Map<String, IndexInfo> existingMap = existingInfos.stream()
         .collect(Collectors.toMap(
             i -> i.getIndexClassification() + "::" + i.getIndexName(),
-            Function.identity()));
+            Function.identity()
+        ));
 
-    // 2. 최근 Integration 로그도 미리 조회 (Optional)
+    // 4. 최근 Integration 로그 캐싱
     Map<Long, Integration> latestIntegrationMap =
         integrationRepository.findRecentSuccessLogs(JobType.INDEX_INFO, workerIp, LocalDateTime.now().minusMinutes(1))
             .stream()
-            .collect(Collectors.toMap(i -> i.getIndexInfo().getId(), Function.identity()));
+            .collect(Collectors.toMap(
+                i -> i.getIndexInfo().getId(),
+                Function.identity()
+            ));
 
-    // 3. 처리
-    return indexInfoDtosInOpenApi.stream()
-        .map(dto -> {
-          String key = dto.getIndexClassification() + "::" + dto.getIndexName();
-          IndexInfo indexInfo;
+    // 5. 처리 루프
+    List<SyncJobDto> result = new ArrayList<>();
+    int count = 0;
 
-          if (existingMap.containsKey(key)) {
-            indexInfo = existingMap.get(key);
-            indexInfoMapper.updateInfoFromDto(dto, indexInfo); // 변경 감지 활용
-          } else {
-            indexInfo = indexInfoMapper.toIndexInfo(dto);
-            indexInfoRepository.save(indexInfo);
-          }
+    for (IndexInfoDto dto : deduplicatedDtos) {
+      String key = dto.getIndexClassification() + "::" + dto.getIndexName();
+      IndexInfo indexInfo;
 
-          Integration integration = latestIntegrationMap.get(indexInfo.getId());
-          if (integration == null) {
-            integration = saveIntegrationInfoLog(indexInfo, workerIp);
-          }
+      if (existingMap.containsKey(key)) {
+        indexInfo = existingMap.get(key);
+        indexInfoMapper.updateInfoFromDto(dto, indexInfo); // 변경 감지
+      } else {
+        indexInfo = indexInfoMapper.toIndexInfo(dto);
+        indexInfoRepository.save(indexInfo);
+        existingMap.put(key, indexInfo); // 중간 캐시 업데이트
+      }
 
-          return integrationMapper.toSyncJobDto(integration);
-        })
-        .toList();
+      // Integration 로그 재사용 or 생성
+      Integration integration = latestIntegrationMap.get(indexInfo.getId());
+      if (integration == null) {
+        integration = saveIntegrationInfoLog(indexInfo, workerIp);
+      }
+
+      result.add(integrationMapper.toSyncJobDto(integration));
+
+      // 6. flush/clear 로 메모리 최적화
+      if (++count % 50 == 0) {
+        entityManager.flush();
+        entityManager.clear();
+      }
+    }
+
+    return result;
   }
-
 
   @Override
   @Transactional
@@ -111,7 +137,7 @@ public class BasicIntegrationService implements IntegrationService {
 
       List<IndexDataDto> indexDataDtos = toIndexDataDtoList(openApiDto, indexInfo, indexDataSyncRequest);
 
-      // ✅ 1. baseDate 기준으로 기존 데이터 조회
+      // baseDate 기준으로 기존 데이터 조회
       List<LocalDate> baseDates = indexDataDtos.stream()
           .map(IndexDataDto::baseDate)
           .toList();
@@ -122,7 +148,7 @@ public class BasicIntegrationService implements IntegrationService {
       Map<LocalDate, IndexData> existingDataMap = existingDataList.stream()
           .collect(Collectors.toMap(IndexData::getBaseDate, Function.identity()));
 
-      // ✅ 2. 최근 Integration 로그 조회 (1분 이내)
+      // 최근 Integration 로그 조회 (1분 이내)
       List<Integration> recentIntegrations =
           integrationRepository.findRecentLogs(indexInfo.getId(), JobType.INDEX_DATA, workerIp, LocalDateTime.now().minusMinutes(1));
 
@@ -132,7 +158,7 @@ public class BasicIntegrationService implements IntegrationService {
               Function.identity()
           ));
 
-      // ✅ 3. 처리 루프
+      // 처리 루프
       for (IndexDataDto dto : indexDataDtos) {
         LocalDate baseDate = dto.baseDate();
         IndexData indexData;
@@ -209,7 +235,7 @@ public class BasicIntegrationService implements IntegrationService {
     Long nextIdAfter = null;
 
     List<Integration> content = integrationSlice.getContent();
-    if (content != null && !content.isEmpty()) {
+    if (!content.isEmpty()) {
       int lastIndex = content.size() - 1;
 
       if (integrationSlice.hasNext()) {
@@ -290,7 +316,7 @@ public class BasicIntegrationService implements IntegrationService {
     integration.setIndexInfo(indexInfo);
     integration.setIndexData(null);
     integration.setJobType(JobType.INDEX_INFO);
-    integration.setBaseDate(null);
+    integration.setTargetDate(null);
     integration.setWorker(workerIp);
     integration.setJobTime(LocalDateTime.now());
     integration.setResult(Result.SUCCESS);
@@ -304,7 +330,7 @@ public class BasicIntegrationService implements IntegrationService {
     integration.setIndexInfo(indexInfo);
     integration.setIndexData(indexData);
     integration.setJobType(JobType.INDEX_DATA);
-    integration.setBaseDate(indexData.getBaseDate());
+    integration.setTargetDate(indexData.getBaseDate());
     integration.setWorker(workerIp);
     integration.setJobTime(LocalDateTime.now());
     integration.setResult(Result.SUCCESS);
