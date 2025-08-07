@@ -1,7 +1,7 @@
 package com.codeit.findex.mapper;
 
-import com.codeit.findex.dto.dashboard.OpenApiResponseDto;
 import com.codeit.findex.dto.indexData.response.IndexDataDto;
+import com.codeit.findex.dto.openapi.OpenApiResponseDto;
 import com.codeit.findex.entity.IndexData;
 import com.codeit.findex.entity.IndexInfo;
 import com.codeit.findex.entityEnum.SourceType;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-08-05T22:13:23+0900",
+    date = "2025-08-07T21:26:37+0900",
     comments = "version: 1.5.3.Final, compiler: javac, environment: Java 17.0.12 (Oracle Corporation)"
 )
 @Component
@@ -23,32 +23,33 @@ public class IndexDataMapperImpl implements IndexDataMapper {
             return null;
         }
 
-        Long tradingPrice = null;
-        Long tradingQuantity = null;
         Long indexInfoId = null;
         Long id = null;
         LocalDate baseDate = null;
         SourceType sourceType = null;
+        double marketPrice = 0.0d;
         double closingPrice = 0.0d;
         double highPrice = 0.0d;
         double lowPrice = 0.0d;
+        double versus = 0.0d;
         double fluctuationRate = 0.0d;
+        Long tradingQuantity = null;
+        Long tradingPrice = null;
         Long marketTotalAmount = null;
 
-        tradingPrice = (long) entity.getTradingVolume();
-        tradingQuantity = entity.getTradingValue();
         indexInfoId = entityIndexInfoId( entity );
         id = entity.getId();
         baseDate = entity.getBaseDate();
         sourceType = entity.getSourceType();
+        marketPrice = entity.getMarketPrice();
         closingPrice = entity.getClosingPrice();
         highPrice = entity.getHighPrice();
         lowPrice = entity.getLowPrice();
+        versus = entity.getVersus();
         fluctuationRate = entity.getFluctuationRate();
+        tradingQuantity = (long) entity.getTradingQuantity();
+        tradingPrice = entity.getTradingPrice();
         marketTotalAmount = entity.getMarketTotalAmount();
-
-        double marketPrice = 0.0d;
-        double versus = 0.0d;
 
         IndexDataDto indexDataDto = new IndexDataDto( id, indexInfoId, baseDate, sourceType, marketPrice, closingPrice, highPrice, lowPrice, versus, fluctuationRate, tradingQuantity, tradingPrice, marketTotalAmount );
 
@@ -64,19 +65,21 @@ public class IndexDataMapperImpl implements IndexDataMapper {
         IndexData indexData = new IndexData();
 
         indexData.setIndexInfo( indexDataDtoToIndexInfo( dto ) );
-        if ( dto.tradingPrice() != null ) {
-            indexData.setTradingVolume( dto.tradingPrice().intValue() );
-        }
-        if ( dto.tradingQuantity() != null ) {
-            indexData.setTradingValue( dto.tradingQuantity() );
-        }
         indexData.setId( dto.id() );
         indexData.setBaseDate( dto.baseDate() );
         indexData.setSourceType( dto.sourceType() );
+        indexData.setMarketPrice( dto.marketPrice() );
         indexData.setClosingPrice( dto.closingPrice() );
         indexData.setHighPrice( dto.highPrice() );
         indexData.setLowPrice( dto.lowPrice() );
+        indexData.setVersus( dto.versus() );
         indexData.setFluctuationRate( dto.fluctuationRate() );
+        if ( dto.tradingQuantity() != null ) {
+            indexData.setTradingQuantity( dto.tradingQuantity().intValue() );
+        }
+        if ( dto.tradingPrice() != null ) {
+            indexData.setTradingPrice( dto.tradingPrice() );
+        }
         if ( dto.marketTotalAmount() != null ) {
             indexData.setMarketTotalAmount( dto.marketTotalAmount() );
         }
@@ -95,10 +98,18 @@ public class IndexDataMapperImpl implements IndexDataMapper {
         indexData.setId( dto.id() );
         indexData.setBaseDate( dto.baseDate() );
         indexData.setSourceType( dto.sourceType() );
+        indexData.setMarketPrice( dto.marketPrice() );
         indexData.setClosingPrice( dto.closingPrice() );
         indexData.setHighPrice( dto.highPrice() );
         indexData.setLowPrice( dto.lowPrice() );
+        indexData.setVersus( dto.versus() );
         indexData.setFluctuationRate( dto.fluctuationRate() );
+        if ( dto.tradingQuantity() != null ) {
+            indexData.setTradingQuantity( dto.tradingQuantity().intValue() );
+        }
+        if ( dto.tradingPrice() != null ) {
+            indexData.setTradingPrice( dto.tradingPrice() );
+        }
         if ( dto.marketTotalAmount() != null ) {
             indexData.setMarketTotalAmount( dto.marketTotalAmount() );
         }
@@ -121,10 +132,18 @@ public class IndexDataMapperImpl implements IndexDataMapper {
         if ( dto.sourceType() != null ) {
             entity.setSourceType( dto.sourceType() );
         }
+        entity.setMarketPrice( dto.marketPrice() );
         entity.setClosingPrice( dto.closingPrice() );
         entity.setHighPrice( dto.highPrice() );
         entity.setLowPrice( dto.lowPrice() );
+        entity.setVersus( dto.versus() );
         entity.setFluctuationRate( dto.fluctuationRate() );
+        if ( dto.tradingQuantity() != null ) {
+            entity.setTradingQuantity( dto.tradingQuantity().intValue() );
+        }
+        if ( dto.tradingPrice() != null ) {
+            entity.setTradingPrice( dto.tradingPrice() );
+        }
         if ( dto.marketTotalAmount() != null ) {
             entity.setMarketTotalAmount( dto.marketTotalAmount() );
         }
@@ -147,14 +166,14 @@ public class IndexDataMapperImpl implements IndexDataMapper {
         }
         if ( item != null ) {
             indexData.setBaseDate( stringToLocalDate( item.basDt() ) );
-            indexData.setOpenPrice( doubleToDoubleSafe( item.mkp() ) );
+            indexData.setMarketPrice( doubleToDoubleSafe( item.mkp() ) );
             indexData.setClosingPrice( doubleToDoubleSafe( item.clpr() ) );
             indexData.setHighPrice( doubleToDoubleSafe( item.hipr() ) );
             indexData.setLowPrice( doubleToDoubleSafe( item.lopr() ) );
-            indexData.setChangeValue( doubleToDoubleSafe( item.vs() ) );
+            indexData.setVersus( doubleToDoubleSafe( item.vs() ) );
             indexData.setFluctuationRate( doubleToDoubleSafe( item.fltRt() ) );
-            indexData.setTradingVolume( longToIntSafe( item.trqu() ) );
-            indexData.setTradingValue( longToLongSafe( item.trPrc() ) );
+            indexData.setTradingQuantity( longToIntSafe( item.trqu() ) );
+            indexData.setTradingPrice( longToLongSafe( item.trPrc() ) );
             indexData.setMarketTotalAmount( longToLongSafe( item.lstgMrktTotAmt() ) );
         }
 
