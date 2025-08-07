@@ -7,7 +7,10 @@ import com.codeit.findex.entityEnum.JobType;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -41,4 +44,8 @@ WHERE i.indexInfo.id = :indexInfoId
       @Param("worker") String worker,
       @Param("afterTime") LocalDateTime afterTime);
 
+  @Modifying
+  @Query("DELETE FROM Integration i WHERE i.indexInfo.id = :indexInfoId")
+  void deleteAllByIndexInfoId(@Param("indexInfoId") Long indexInfoId);
 }
+
