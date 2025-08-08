@@ -60,16 +60,16 @@ public class BasicIndexDataService implements IndexDataService {
         indexData.setIndexInfo(indexInfo);
         indexData.setBaseDate(request.baseDate());
 
-        indexData.setOpenPrice(request.marketPrice()); // << 시가
+        indexData.setMarketPrice(request.marketPrice()); // << 시가
 
         indexData.setClosingPrice(request.closingPrice());
         indexData.setHighPrice(request.highPrice());
         indexData.setLowPrice(request.lowPrice());
 
-        indexData.setChangeValue(request.versus());
+        indexData.setVersus(request.versus());
         indexData.setFluctuationRate(request.fluctuationRate());
-        indexData.setTradingVolume(request.tradingQuantity());
-        indexData.setTradingValue(request.tradingPrice());
+        indexData.setTradingQuantity(request.tradingQuantity());
+        indexData.setTradingPrice(request.tradingPrice());
         indexData.setMarketTotalAmount(request.marketTotalAmount());
 
         indexData.setSourceType(SourceType.USER);
@@ -92,15 +92,15 @@ public class BasicIndexDataService implements IndexDataService {
                 .orElseThrow(() -> new EntityNotFoundException("IndexData not found!"));
 
         // 만약 이 값들이 dataRepository에 이미 존재한다면, 실행하지 않는다
-            indexData.setOpenPrice(request.marketPrice()); // <<<
+            indexData.setMarketPrice(request.marketPrice()); // <<<
 
             indexData.setClosingPrice(request.closingPrice());
             indexData.setHighPrice(request.highPrice());
             indexData.setLowPrice(request.lowPrice());
-            indexData.setChangeValue(request.versus());
+            indexData.setVersus(request.versus());
             indexData.setFluctuationRate(request.fluctuationRate());
-            indexData.setTradingVolume(request.tradingQuantity());
-            indexData.setTradingValue(request.tradingPrice());
+            indexData.setTradingQuantity(request.tradingQuantity());
+            indexData.setTradingPrice(request.tradingPrice());
             indexData.setMarketTotalAmount(request.marketTotalAmount());
 
         IndexDataDto indexDataDto = mapper.toDto(indexData);
@@ -318,14 +318,14 @@ public class BasicIndexDataService implements IndexDataService {
                 for(IndexData d : slice.getContent()) {
                     writer.writeNext(new String[] {
                             String.valueOf(d.getBaseDate()),
-                            String.valueOf(d.getOpenPrice()),
+                            String.valueOf(d.getMarketPrice()),
                             String.valueOf(d.getClosingPrice()),
                             String.valueOf(d.getHighPrice()),
                             String.valueOf(d.getLowPrice()),
-                            String.valueOf(d.getChangeValue()),
+                            String.valueOf(d.getVersus()),
                             String.valueOf(d.getFluctuationRate()),
-                            String.valueOf(d.getTradingVolume()),
-                            String.valueOf(d.getTradingValue()),
+                            String.valueOf(d.getTradingQuantity()),
+                            String.valueOf(d.getTradingPrice()),
                             String.valueOf(d.getMarketTotalAmount())
                     });
                 } // for문 끝

@@ -225,13 +225,33 @@ public class BasicDashboardService implements DashboardService {
             pastDate,
             pastDate.minusDays(30)); // Look back up to 30 days for past data
 
-    // Convert to maps for O(1) lookup
-    Map<Long, IndexData> currentDataMap = currentDataList.stream()
-        .collect(Collectors.toMap(data -> data.getIndexInfo().getId(), Function.identity()));
+    // 추가된 부분입니다. IndexData를 서로 비교하여 중복된다면 더 큰것으로 남기는 구조라고 합니다.
+    Comparator<IndexData> byDateThenId = Comparator.comparing(IndexData::getBaseDate).thenComparing(IndexData::getId);
 
     Map<Long, IndexData> pastDataMap = pastDataList.stream()
-        .collect(Collectors.toMap(data -> data.getIndexInfo().getId(), Function.identity()));
+            .collect(Collectors.toMap(
+                    d -> d.getIndexInfo().getId(),
+                    Function.identity(),
+                    // 충돌 시 더 최신(날짜/ID 큰 것)으로 남김
+                    (a, b) -> byDateThenId.compare(a, b) >= 0 ? a : b
+            ));
 
+    Map<Long, IndexData> currentDataMap = currentDataList.stream()
+            .collect(Collectors.toMap(
+                    d -> d.getIndexInfo().getId(),
+                    Function.identity(),
+                    (a, b) -> byDateThenId.compare(a, b) >= 0 ? a : b
+            ));
+    // 추가된 부분 끝
+
+// 주석처리한 부분입니다. , (a, b) -> byDateThenId.compare(a, b) >= 0 ? a : b 를 추가했습니다.
+//    // Convert to maps for O(1) lookup
+//    Map<Long, IndexData> currentDataMap = currentDataList.stream()
+//        .collect(Collectors.toMap(data -> data.getIndexInfo().getId(), Function.identity()));
+//
+//    Map<Long, IndexData> pastDataMap = pastDataList.stream() // 에러발생
+//        .collect(Collectors.toMap(data -> data.getIndexInfo().getId(), Function.identity()));
+// 주석처리한 부분입니다.
 
     // 1) indexInfo당 위의 맵으로 currentData, pastData 구함
     // 2) fluctuationRate 계산
