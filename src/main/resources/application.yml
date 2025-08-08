@@ -6,8 +6,9 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update # 운영 배포 시엔 none 또는 validate 권장
-    show-sql: true
+      ddl-auto: none # 운영 배포 시엔 none 또는 validate 권장
+#    show-sql: true
+    show-sql: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     properties:
       hibernate:
@@ -20,20 +21,19 @@ spring:
     scheduling:
       enabled: true
 
-
-
 batch:
   sync:
     info:
-      fixed-delay: PT1H
+      fixed-delay: P1D
     enabled-index-data:
       fixed-delay: P1D
 
 logging:
   level:
-    org.springframework.data.jpa.domain.support.AuditingEntityListener : DEBUG
-    org.hibernate.SQL: debug
-    org.hibernate.orm.jdbc.bind: trace
+    org.hibernate: INFO
+#    org.springframework.data.jpa.domain.support.AuditingEntityListener : DEBUG
+#    org.hibernate.SQL: debug
+#    org.hibernate.orm.jdbc.bind: trace
 
 external:
   api:

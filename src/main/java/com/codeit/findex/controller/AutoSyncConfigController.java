@@ -36,13 +36,13 @@ public class AutoSyncConfigController {
   public ResponseEntity<CursorPageResponseAutoSyncConfigDto> list(
       @RequestParam(required = false) Long indexInfoId, // indexId
       @RequestParam(required = false) Boolean enabled,
-      @RequestParam(required = false) Long lastId,
+      @RequestParam(required = false) Long idAfter,
       @RequestParam(defaultValue = "20") int size,
       @RequestParam(defaultValue = "id") String sortBy,
       @RequestParam(defaultValue = "asc") String sortDir) {
     CursorPageResponseAutoSyncConfigDto dto =
         autoSyncConfigService.listAutoSyncConfigs(
-            indexInfoId, enabled, lastId, size, sortBy, sortDir);
+            indexInfoId, enabled, idAfter, size, sortBy, sortDir);
     return ResponseEntity.ok(dto);
   }
 }

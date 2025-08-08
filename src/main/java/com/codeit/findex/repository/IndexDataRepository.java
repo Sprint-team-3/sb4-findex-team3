@@ -25,8 +25,8 @@ public interface IndexDataRepository extends JpaRepository<IndexData, Long>, Ind
   Page<IndexData> findByIndexInfoAndBaseDateBetween(
       IndexInfo indexInfo, LocalDate startDate, LocalDate endDate, Pageable pageable);
 
-  // BasicIntegrationService에서 사용하는 메서드입니다.
-  Optional<IndexData> findByIndexInfoIdAndBaseDate(long id, LocalDate localDate);
+  @Query("SELECT d FROM IndexData d WHERE d.indexInfo = :indexInfo AND d.baseDate IN :baseDates")
+  List<IndexData> findAllByIndexInfoAndBaseDateIn(@Param("indexInfo") IndexInfo indexInfo, @Param("baseDates") List<LocalDate> baseDates);
 
   Optional<IndexData> findTopByIndexInfoOrderByBaseDateDesc(IndexInfo indexInfo);
 

@@ -3,6 +3,7 @@ package com.codeit.findex.repository;
 import com.codeit.findex.entity.IndexInfo;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,11 +25,22 @@ public interface AutoSyncRepository extends JpaRepository<IndexInfo, Long> {
                    WHERE (:indexId IS NULL   OR i.id      = :indexId)
                      AND (:enabled IS NULL   OR i.enabled = :enabled)
                      AND (:lastId  IS NULL   OR i.id     >  :lastId)
-                   ORDER BY i.id ASC
               """)
-  List<IndexInfo> findByFilterAfterId(
+  Slice<IndexInfo> findByFilterAfterId(
       @Param("indexId") Long indexId,
       @Param("enabled") Boolean enabled,
       @Param("lastId") Long lastId,
       Pageable limit);
+
+  @Query("""
+  SELECT COUNT(i)
+    FROM IndexInfo i
+   WHERE (:indexId IS NULL   OR i.id      = :indexId)
+     AND (:enabled   IS NULL OR i.enabled = :enabled)
+""")
+  long countByFilter(
+          @Param("indexId") Long indexId,
+          @Param("enabled") Boolean enabled
+  );
+
 }

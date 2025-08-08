@@ -53,8 +53,11 @@ public interface IndexInfoRepository extends JpaRepository<IndexInfo, Long> {
 
   List<IndexInfo> findAllByFavorite(Boolean favorite);
 
-  Optional<IndexInfo> findByIndexClassificationAndIndexName(
-      String indexClassification, String indexName);
+  @Query("""
+    select i from IndexInfo i 
+    where concat(i.indexClassification, '::', i.indexName) in :keys
+""")
+  List<IndexInfo> findByCompositeKeys(@Param("keys") List<String> keys);
 
   List<IndexInfo> findAllByIdIn(List<Long> ids);
 }

@@ -29,6 +29,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -219,26 +220,42 @@ public class BasicAutoSyncConfigService implements AutoSyncConfigService {
   @Transactional(readOnly = true)
   public CursorPageResponseAutoSyncConfigDto listAutoSyncConfigs(
       Long indexId, Boolean enabled, Long lastId, int size, String sortBy, String sortDir) {
-    // 1) Sort & Pageable 세팅
+    // 1) Sort & Pageable 세팅 (여전히 size 로만 조회)
     Sort.Direction direction = Sort.Direction.fromString(sortDir);
     Pageable pageReq = PageRequest.of(0, size, Sort.by(direction, sortBy));
 
-    // 2) 커서 페이징 조회
-    List<IndexInfo> entities =
-        autoSyncRepository.findByFilterAfterId(indexId, enabled, lastId, pageReq);
+    // 2) Slice<IndexInfo> 조회 (Spring Data가 size+1, hasNext, slicing 처리)
+    Slice<IndexInfo> slice = autoSyncRepository.findByFilterAfterId(
+            indexId, enabled, lastId, pageReq
+    );
 
-    // 3) 엔티티 → DTO 매핑
-    List<AutoSyncConfigDto> content = autoSyncMapper.toAutoSyncConfigDtoList(entities);
+    // 3) 전체 개수 조회
+    long totalElements = autoSyncRepository.countByFilter(indexId, enabled);
 
-    // 4) 다음 커서 계산
-    long nextIdAfter = content.isEmpty() ? 0L : content.get(content.size() - 1).id();
-    String nextCursor = nextIdAfter != 0L ? Long.toString(nextIdAfter) : null;
+    // 4) Slice에서 바로 content와 hasNext 추출
+    List<IndexInfo> pageEntities = slice.getContent();       // 최대 size 개
+    boolean hasNext = slice.hasNext();
 
-    boolean hasNext = content.size() == size;
+    // 5) 엔티티 → DTO 매핑
+    List<AutoSyncConfigDto> content = autoSyncMapper.toAutoSyncConfigDtoList(pageEntities);
 
-    // 5) 응답 생성
+    // 6) 다음 커서 계산
+    Long nextIdAfter = !pageEntities.isEmpty()
+            ? pageEntities.get(pageEntities.size() - 1).getId()
+            : null;
+    String nextCursor = nextIdAfter != null
+            ? nextIdAfter.toString()
+            : null;
+
+    // 7) 응답 생성
     return new CursorPageResponseAutoSyncConfigDto(
-        content, nextCursor, nextIdAfter, size, content.size(), hasNext);
+            content,
+            nextCursor,
+            nextIdAfter,
+            size,
+            totalElements,
+            hasNext
+    );
   }
 
   /** 문자열 날짜를 LocalDate로 변환 (yyyyMMdd → LocalDate) */
