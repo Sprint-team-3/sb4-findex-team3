@@ -18,7 +18,8 @@ public interface IndexDataService {
     // 지수, 날짜로 지수 데이터 목록을 조회하는 메서드
     CursorPageResponseIndexDataDto searchByIndexAndDate(Long indexInfoId,
                                                         String startDate,
-                                                        String endDate,
+                                                        String
+                                                                endDate,
                                                         Long idAfter,
                                                         String cursor,
                                                         String sortField,
@@ -33,5 +34,5 @@ public interface IndexDataService {
     void deleteIndexData(long id);
 
     // 지수 데이터 Export(지수 데이터 다운로드)
-    byte[] downloadIndexData(Long indexInfoId, LocalDate startDate, LocalDate endDate, String sortField, String sortDirection);
+    byte[] downloadIndexData(Long indexInfoId, String startDate, String endDate, String sortField, String sortDirection);
 }

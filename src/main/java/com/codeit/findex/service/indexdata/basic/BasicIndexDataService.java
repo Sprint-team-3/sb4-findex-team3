@@ -16,6 +16,7 @@ import com.opencsv.ICSVWriter;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,10 +25,13 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.function.BiPredicate;
 
 @Service
 @RequiredArgsConstructor
@@ -87,16 +91,17 @@ public class BasicIndexDataService implements IndexDataService {
         IndexData indexData = dataRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("IndexData not found!"));
 
-        indexData.setOpenPrice(request.marketPrice()); // <<<
+        // 만약 이 값들이 dataRepository에 이미 존재한다면, 실행하지 않는다
+            indexData.setOpenPrice(request.marketPrice()); // <<<
 
-        indexData.setClosingPrice(request.closingPrice());
-        indexData.setHighPrice(request.highPrice());
-        indexData.setLowPrice(request.lowPrice());
-        indexData.setChangeValue(request.versus());
-        indexData.setFluctuationRate(request.fluctuationRate());
-        indexData.setTradingVolume(request.tradingQuantity());
-        indexData.setTradingValue(request.tradingPrice());
-        indexData.setMarketTotalAmount(request.marketTotalAmount());
+            indexData.setClosingPrice(request.closingPrice());
+            indexData.setHighPrice(request.highPrice());
+            indexData.setLowPrice(request.lowPrice());
+            indexData.setChangeValue(request.versus());
+            indexData.setFluctuationRate(request.fluctuationRate());
+            indexData.setTradingVolume(request.tradingQuantity());
+            indexData.setTradingValue(request.tradingPrice());
+            indexData.setMarketTotalAmount(request.marketTotalAmount());
 
         IndexDataDto indexDataDto = mapper.toDto(indexData);
         return indexDataDto;
@@ -114,53 +119,99 @@ public class BasicIndexDataService implements IndexDataService {
     @Transactional
     @Override
     public CursorPageResponseIndexDataDto searchByIndexAndDate(Long indexInfoId, String startDate, String endDate, Long idAfter, String cursor, String sortField, String sortDirection, int size) {
-        // source
-
-        // 1. Create Sort and Pageable objects (this is common for both cases)
         Sort sort = createSort(sortField, sortDirection);
-        Pageable pageable = PageRequest.of(0, size, sort);
 
-        // 2. Declare variables for the data slice and total count
-        Slice<IndexData> sliceData;
-        Long totalElements;
 
-        // 3. Conditional Logic: Branch based on whether indexInfoId is present
-        if (indexInfoId != null) {
-            // --- CASE 1: indexInfoId IS PROVIDED ---
-            // First, validate that the ID exists, just like before.
-            if (!infoRepository.existsById(indexInfoId)) {
-                throw new EntityNotFoundException("IndexInfo not found with id: " + indexInfoId);
-            }
+        // 날짜 변환
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate start = (startDate != null && !startDate.isEmpty())
+                ? LocalDate.parse(startDate, formatter) : null;
+        LocalDate end = (endDate != null && !endDate.isEmpty())
+                ? LocalDate.parse(endDate, formatter) : null;
 
-            // Call repository methods that filter by indexInfoId
-            sliceData = indexDataRepository.findByConditionsWithCursor(indexInfoId, startDate, endDate, idAfter, pageable);
-            totalElements = indexDataRepository.countByIndexInfoId(indexInfoId);
-
-        } else {
-            // --- CASE 2: indexInfoId IS NULL (search all) ---
-            // You need repository methods that DON'T filter by indexInfoId.
-            // NOTE: You will need to add these methods to your IndexDataRepository.
-
-            // For example:
-            sliceData = indexDataRepository.findAllByDateRangeWithCursor(startDate, endDate, pageable);
-            totalElements = indexDataRepository.countByDateRange(startDate, endDate);
+        // indexInfoId가 null이 아니고 infoRepository에 indexInfoId가 없다면
+        if (indexInfoId != null && !infoRepository.existsById(indexInfoId)) {
+            throw new EntityNotFoundException("IndexInfo not found with id: " + indexInfoId);
         }
 
-        // 4. Process the results (this logic remains the same)
+        // 커스텀 레포지토리
+        Slice<IndexData> sliceData = indexDataRepository.findSlice(indexInfoId,start,end,idAfter,size,sort);
+        Long totalElements = indexDataRepository.countAll(indexInfoId, start, end);
+
         List<IndexData> content = sliceData.getContent();
         List<IndexDataDto> indexDataDto = content.stream()
-            .map(mapper::toDto).toList();
+                .map(mapper::toDto)
+                .toList();
 
         boolean hasNext = sliceData.hasNext();
-        Long nextIdAfter = !content.isEmpty() ? content.get(content.size() - 1).getId() : null; // Use null for consistency
+        Long nextIdAfter = !content.isEmpty() ? content.get(content.size() - 1).getId() : null;
 
-        // Your cursor logic seems to depend on the date, which is fine
-        String nextcursor = null;
-        if (indexDataDto.isEmpty()) {
-            nextcursor = startDate;
-        }
+        String nextcursor = indexDataDto.isEmpty() ? startDate : null;
 
-        return new CursorPageResponseIndexDataDto(indexDataDto, nextcursor, nextIdAfter, size, totalElements, hasNext);
+        return new CursorPageResponseIndexDataDto(
+                indexDataDto, nextcursor, nextIdAfter, size, totalElements, hasNext
+        );
+
+        // 위가 수정내용
+
+        //        // source
+//
+//        // 1. Create Sort and Pageable objects (this is common for both cases)
+//        Sort sort = createSort(sortField, sortDirection);
+//        Pageable pageable = PageRequest.of(0, size, sort);
+//
+//        // 2. Declare variables for the data slice and total count
+//        Slice<IndexData> sliceData;
+//        Long totalElements;
+//
+//        // 3. Conditional Logic: Branch based on whether indexInfoId is present
+//        if (indexInfoId != null) {
+//            // --- CASE 1: indexInfoId IS PROVIDED ---
+//            // First, validate that the ID exists, just like before.
+//            if (!infoRepository.existsById(indexInfoId)) {
+//                throw new EntityNotFoundException("IndexInfo not found with id: " + indexInfoId);
+//            }
+//
+//            ////////// 추가된 부분, String타입을 LocalDate로 형변환
+//            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//            LocalDate start = (startDate != null && !startDate.isEmpty()) ? LocalDate.parse(startDate,formatter) : null;
+//            LocalDate end = (endDate != null && !endDate.isEmpty()) ? LocalDate.parse(endDate,formatter) : null;
+//            /////////
+//
+//            // Call repository methods that filter by indexInfoId
+//            sliceData = indexDataRepository.findByConditionsWithCursor(indexInfoId, start, end, idAfter, pageable);
+//            totalElements = indexDataRepository.countByIndexInfoId(indexInfoId);
+//
+//        } else {
+//            // --- CASE 2: indexInfoId IS NULL (search all) ---
+//            // You need repository methods that DON'T filter by indexInfoId.
+//            // NOTE: You will need to add these methods to your IndexDataRepository.
+//
+//            // indexInfoId가 null일때도 LocalDate로 형변환해준다
+//            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//            LocalDate start = (startDate != null && !startDate.isEmpty()) ? LocalDate.parse(startDate,formatter) : null;
+//            LocalDate end = (endDate != null && !endDate.isEmpty()) ? LocalDate.parse(endDate,formatter) : null;
+//
+//            // For example:
+//            sliceData = indexDataRepository.findAllByDateRangeWithCursor(start, end , pageable);
+//            totalElements = indexDataRepository.countByDateRange(start, end);
+//        }
+//
+//        // 4. Process the results (this logic remains the same)
+//        List<IndexData> content = sliceData.getContent();
+//        List<IndexDataDto> indexDataDto = content.stream()
+//            .map(mapper::toDto).toList();
+//
+//        boolean hasNext = sliceData.hasNext();
+//        Long nextIdAfter = !content.isEmpty() ? content.get(content.size() - 1).getId() : null; // Use null for consistency
+//
+//        // Your cursor logic seems to depend on the date, which is fine
+//        String nextcursor = null;
+//        if (indexDataDto.isEmpty()) {
+//            nextcursor = startDate;
+//        }
+//
+//        return new CursorPageResponseIndexDataDto(indexDataDto, nextcursor, nextIdAfter, size, totalElements, hasNext);
 
         // end source
 
@@ -239,34 +290,88 @@ public class BasicIndexDataService implements IndexDataService {
      * CSVWriter.
      */
     @Override
-    public byte[] downloadIndexData(Long indexInfoId, LocalDate startDate, LocalDate endDate, String sortField, String sortDirection) {
+    public byte[] downloadIndexData(Long indexInfoId, String startDate, String endDate, String sortField, String sortDirection) {
+    // startDate, endDate를 String으로 바꿔줌
 
-       List<IndexData> listData = dataRepository.findByFilters(indexInfoId, startDate, endDate, sortField, sortDirection);
+        Sort sort = createSort(sortField, sortDirection); // createSort
 
-       try(ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-            OutputStreamWriter osw = new OutputStreamWriter(byteStream, StandardCharsets.UTF_8);
-            CSVWriter csvWriter = new CSVWriter(osw)) {
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate start = (startDate != null && !startDate.isBlank()) ? LocalDate.parse(startDate, fmt) : null;
+        LocalDate end = (endDate != null && !endDate.isBlank()) ? LocalDate.parse(endDate, fmt) : null;
 
-           String[] header = {"기준일자","시가","종가","고가","저가","전일대비등락","등락률","거래량","거래대금","시가총액"};
-            csvWriter.writeNext(header);
+        try(ByteArrayOutputStream out = new ByteArrayOutputStream();
+            CSVWriter writer = new CSVWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8))) {
 
-//           for(IndexData indexData : listData) {
+            writer.writeNext(new String[] {
+                    "기준일자","시가","종가","고가","저가","전일대비등락","등락률","거래량","거래대금","시가총액"
+            });
+
+            // 지수 데이터 목록과 동일한 커서 페이지네이션 루프, 정렬과 필터를 그대로 적용하기
+            final int pageSize = 1000;
+            Long idAfter = null;
+
+            while(true) {
+                Slice<IndexData> slice = indexDataRepository.findSlice(
+                        indexInfoId, start, end, idAfter, pageSize, sort // 지수 데이터 목록과 같은 조건
+                );
+
+                for(IndexData d : slice.getContent()) {
+                    writer.writeNext(new String[] {
+                            String.valueOf(d.getBaseDate()),
+                            String.valueOf(d.getOpenPrice()),
+                            String.valueOf(d.getClosingPrice()),
+                            String.valueOf(d.getHighPrice()),
+                            String.valueOf(d.getLowPrice()),
+                            String.valueOf(d.getChangeValue()),
+                            String.valueOf(d.getFluctuationRate()),
+                            String.valueOf(d.getTradingVolume()),
+                            String.valueOf(d.getTradingValue()),
+                            String.valueOf(d.getMarketTotalAmount())
+                    });
+                } // for문 끝
+
+                if(!slice.hasNext()) {break;}
+                idAfter = slice.getContent().get(slice.getNumberOfElements() - 1).getId(); // 커서를 갱신한다
+            } // while문 끝
+
+            writer.flush();
+            return out.toByteArray();
+
+        } catch(IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
+
+        //0808
+
+//       List<IndexData> listData = dataRepository.findByFilters(indexInfoId, startDate, endDate, sortField, sortDirection);
+//
+//       try(ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+//            OutputStreamWriter osw = new OutputStreamWriter(byteStream, StandardCharsets.UTF_8);
+//            CSVWriter csvWriter = new CSVWriter(osw)) {
+//
+//           String[] header = {"기준일자","시가","종가","고가","저가","전일대비등락","등락률","거래량","거래대금","시가총액"};
+//            csvWriter.writeNext(header);
+//
+////           for(IndexData indexData : listData) {
+////               String[] csvRow = CSVStringMapper.mapper(indexData);
+////               csvWriter.writeNext(csvRow);
+////           }
+//
+//           for(int i=0; i<listData.size(); i++) {
+//               IndexData indexData = listData.get(i);
 //               String[] csvRow = CSVStringMapper.mapper(indexData);
 //               csvWriter.writeNext(csvRow);
 //           }
+//
+//           csvWriter.flush();
+//           return byteStream.toByteArray();
+//
+//       } catch(IOException e) {
+//            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CSV create fail", e);
+//       }
 
-           for(int i=0; i<listData.size(); i++) {
-               IndexData indexData = listData.get(i);
-               String[] csvRow = CSVStringMapper.mapper(indexData);
-               csvWriter.writeNext(csvRow);
-           }
-
-           csvWriter.flush();
-           return byteStream.toByteArray();
-
-       } catch(IOException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "CSV create fail", e);
-       }
+        // 0808
 
 //        // try-catch
 //            try {

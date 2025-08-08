@@ -9,12 +9,12 @@ public record IndexDataDto(
     Long indexInfoId,
     LocalDate baseDate,
     SourceType sourceType,
-    double marketPrice,
+    double marketPrice, // 시가
     double closingPrice,
     double highPrice,
     double lowPrice,
     double versus,
     double fluctuationRate,
-    Long tradingQuantity,
+    Long tradingQuantity, // 거래량
     Long tradingPrice,
     Long marketTotalAmount) {}

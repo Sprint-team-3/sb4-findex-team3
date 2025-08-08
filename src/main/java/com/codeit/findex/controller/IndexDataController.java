@@ -50,7 +50,6 @@ public class IndexDataController {
                     indexInfoId, startDate, endDate, idAfter, cursor,
                     sortField, sortDirection, size);
 
-//            Page<IndexDataDto> searchData = indexDataService.searchByIndexAndDate(request, pageable);
             return ResponseEntity.ok(cursorPageResponseIndexDataDto);
     }
 
@@ -87,8 +86,8 @@ public class IndexDataController {
     @GetMapping("index-data/export/csv")
     public ResponseEntity<byte[]> exportCsv(
         @RequestParam(required = false) Long indexInfoId,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) String startDate,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) String endDate,
         @RequestParam(required = false, defaultValue = "baseDate") String sortField,
         @RequestParam(required = false, defaultValue = "DESC") String sortDirection
     ) {
@@ -100,10 +99,14 @@ public class IndexDataController {
         }
 
         HttpHeaders headers = new HttpHeaders(); // HttpHeaders 객체를 만듬
-        headers.setContentType(MediaType.parseMediaType("text/csv; charset=utf-8"));
+        headers.add("Content-Disposition","attachment; filename=IndexData.csv");
 
-        headers.setContentDisposition(ContentDisposition.attachment().filename("IndexData.csv", StandardCharsets.UTF_8).build());
-        headers.setContentLength(response.length);
+        // 0808 csv
+//        headers.setContentType(MediaType.parseMediaType("text/csv; charset=utf-8"));
+//
+//        headers.setContentDisposition(ContentDisposition.attachment().filename("IndexData.csv", StandardCharsets.UTF_8).build());
+//        headers.setContentLength(response.length);
+        // 0808
 
 //        // Headername, HeaderValue를 적는데, 말 그대로 header 이름이랑 다운로드되는 file의 이름을 입력한다.
 //        headers.add("Content-Disposition", "attachment; filename=IndexData.csv");
