@@ -27,7 +27,7 @@ public class AutoSyncConfigController {
    *
    * @param indexInfoId (optional) 지수 ID 필터
    * @param enabled (optional) 활성화 여부 필터
-   * @param lastId (optional) 이전 페이지 마지막 요소 ID (커서)
+   * @param idAfter (optional) 이전 페이지 마지막 요소 ID (커서)
    * @param size (optional) 한 페이지 크기, 기본 20
    * @param sortBy (optional) 정렬 컬럼, 기본 "id"
    * @param sortDir (optional) 정렬 방향, 기본 "asc"
