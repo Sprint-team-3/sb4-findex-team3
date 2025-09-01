@@ -34,7 +34,6 @@ public class BasicDashboardService implements DashboardService {
 
   private final IndexInfoRepository indexInfoRepository;
   private final DashboardRepository dashboardRepository;
-
   private final IndexInfoService indexInfoService;
 
   /** 주요 지수 */
@@ -251,7 +250,6 @@ public class BasicDashboardService implements DashboardService {
           IndexData currentData = currentDataMap.get(indexInfo.getId());
           IndexData pastData = pastDataMap.get(indexInfo.getId());
 
-          // Skip if either data point is missing
           if (currentData == null || pastData == null) {
             return null;
           }
