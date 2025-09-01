@@ -159,8 +159,7 @@ public class BasicDashboardService implements DashboardService {
       ma5Sum += currentClosingPrice;
       ma20Sum += currentClosingPrice;
 
-      // window가 slide하면, window 밖에 있는 요소를 빼기
-      // 그 전 요소만 빼기
+      // window가 slide하면, window 밖에 있는 요소를 빼기 -> 그 전 요소만 빼기
       if (i >= ma5Window) {
         ma5Sum -= indexDataList.get(i - ma5Window).getClosingPrice();
       }
@@ -168,12 +167,12 @@ public class BasicDashboardService implements DashboardService {
         ma20Sum -= indexDataList.get(i - ma20Window).getClosingPrice();
       }
 
-      // startDate 이후에만 content point 더함
+      // startDate 이후에만 content point 더하기
       if (currentDate.isEqual(startDate) || currentDate.isAfter(startDate)) {
         dataPoints.add(new ChartDataPoint(currentDate, currentData.getClosingPrice()));
 
         // window 사이즈 이후
-        // 0,1,2,3,4 -> 5개니까 4부터 시작
+        // 설명: 0,1,2,3,4 -> 5개니까 4부터 시작
         if (i >= ma5Window - 1) {
           ma5DataPoints.add(new ChartDataPoint(currentDate, ma5Sum / ma5Window));
         } else {
@@ -181,7 +180,7 @@ public class BasicDashboardService implements DashboardService {
           ma5DataPoints.add(new ChartDataPoint(currentDate, null));
         }
 
-        // For MA20, do the same
+        // ma20도 ma5와 비슷하게
         if (i >= ma20Window - 1) {
           ma20DataPoints.add(new ChartDataPoint(currentDate, ma20Sum / ma20Window));
         } else {
@@ -215,7 +214,6 @@ public class BasicDashboardService implements DashboardService {
     LocalDate currentDate = LocalDate.now();
     LocalDate pastDate = calculateMinusDate(periodType);
 
-    // **ROBUST: Get most recent available data (not exact dates)**
     List<IndexData> currentDataList = dashboardRepository
         .findMostRecentByIndexInfoIdsAndMaxDate(indexInfoIdList, currentDate);
 
@@ -223,9 +221,9 @@ public class BasicDashboardService implements DashboardService {
         .findClosestPastByIndexInfoIdsAndTargetDate(
             indexInfoIdList,
             pastDate,
-            pastDate.minusDays(30)); // Look back up to 30 days for past data
+            pastDate.minusDays(30)); // 공휴일을 참고해서 30일 전부터 자겨오기
 
-    // 추가된 부분입니다. IndexData를 서로 비교하여 중복된다면 더 큰것으로 남기는 구조라고 합니다.
+    // 추가된 부분: IndexData를 서로 비교하여 중복된다면 더 큰것으로 남기는 구조
     Comparator<IndexData> byDateThenId = Comparator.comparing(IndexData::getBaseDate).thenComparing(IndexData::getId);
 
     Map<Long, IndexData> pastDataMap = pastDataList.stream()
@@ -244,14 +242,6 @@ public class BasicDashboardService implements DashboardService {
             ));
     // 추가된 부분 끝
 
-// 주석처리한 부분입니다. , (a, b) -> byDateThenId.compare(a, b) >= 0 ? a : b 를 추가했습니다.
-//    // Convert to maps for O(1) lookup
-//    Map<Long, IndexData> currentDataMap = currentDataList.stream()
-//        .collect(Collectors.toMap(data -> data.getIndexInfo().getId(), Function.identity()));
-//
-//    Map<Long, IndexData> pastDataMap = pastDataList.stream() // 에러발생
-//        .collect(Collectors.toMap(data -> data.getIndexInfo().getId(), Function.identity()));
-// 주석처리한 부분입니다.
 
     // 1) indexInfo당 위의 맵으로 currentData, pastData 구함
     // 2) fluctuationRate 계산
@@ -284,10 +274,10 @@ public class BasicDashboardService implements DashboardService {
               currentPrice,
               pastPrice);
         })
-        .filter(Objects::nonNull) // Remove nulls
+        .filter(Objects::nonNull) // null 값 빼기
         .toList();
 
-    // Early return if no valid performance data
+    // 빈 리스트면 일찍 return
     if (performanceDtoList.isEmpty()) {
       return Collections.emptyList();
     }

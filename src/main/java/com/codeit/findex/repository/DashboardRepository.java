@@ -29,8 +29,7 @@ public interface DashboardRepository extends JpaRepository<IndexData, Long> {
       @Param("indexInfoIds") List<Long> indexInfoIds,
       @Param("maxDate") LocalDate maxDate);
 
-  // 각 IndexInfo의 targetDate과 가장 가까운 최신 IndexData를 가져옴
-
+  // 여러 주가지수(IndexInfo의 id 리스트)에 대해 targetDate과 가장 가까운 최신 IndexData를 가져옴
   @Query("""
         SELECT id1 FROM IndexData id1
         WHERE id1.indexInfo.id IN :indexInfoIds
@@ -38,8 +37,7 @@ public interface DashboardRepository extends JpaRepository<IndexData, Long> {
             SELECT MAX(id2.baseDate)
             FROM IndexData id2
             WHERE id2.indexInfo.id = id1.indexInfo.id
-            AND id2.baseDate <= :targetDate
-            AND id2.baseDate >= :minDate
+            AND id2.baseDate <= :targetDate AND id2.baseDate >= :minDate
         )
         """)
   List<IndexData> findClosestPastByIndexInfoIdsAndTargetDate(
