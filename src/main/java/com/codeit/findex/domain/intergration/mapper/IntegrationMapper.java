@@ -1,0 +1,18 @@
+package com.codeit.findex.domain.intergration.mapper;
+
+import com.codeit.findex.domain.intergration.dto.SyncJobDto;
+import com.codeit.findex.domain.base.entity.Integration;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+
+@Mapper(componentModel = "spring")
+public interface IntegrationMapper {
+
+  @Mapping(target = "id", source = "integration.id")
+  @Mapping(target = "jobType", source = "integration.jobType")
+  @Mapping(target = "indexInfoId", source = "integration.indexInfo.id")
+  @Mapping(target = "worker", source = "integration.worker")
+  @Mapping(target = "jobTime", source = "integration.jobTime")
+  @Mapping(target = "result", source = "integration.result")
+  SyncJobDto toSyncJobDto(Integration integration);
+}
