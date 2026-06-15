@@ -1,7 +1,6 @@
 package com.codeit.findex.mapper;
 
-import com.codeit.findex.dto.indexData.request.IndexDataDownloadRequest;
-import com.codeit.findex.entity.IndexData;
+import com.codeit.findex.domain.base.entity.IndexData;
 
 public class CSVStringMapper {
   public static String[] mapper(IndexData indexData) { // 메모리 낭빈데?

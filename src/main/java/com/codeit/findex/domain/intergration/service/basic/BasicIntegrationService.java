@@ -1,0 +1,350 @@
+package com.codeit.findex.domain.intergration.service.basic;
+
+import com.codeit.findex.dto.openapi.OpenApiResponseDto;
+import com.codeit.findex.domain.indexData.dto.response.IndexDataDto;
+import com.codeit.findex.domain.indexinfo.dto.response.IndexInfoDto;
+import com.codeit.findex.domain.intergration.dto.CursorPageResponseSyncJobDto;
+import com.codeit.findex.domain.intergration.dto.IndexDataSyncRequest;
+import com.codeit.findex.domain.intergration.dto.SyncJobDto;
+import com.codeit.findex.domain.base.entity.IndexData;
+import com.codeit.findex.domain.base.entity.IndexInfo;
+import com.codeit.findex.domain.base.entity.Integration;
+import com.codeit.findex.domain.base.entityEnum.JobType;
+import com.codeit.findex.domain.base.entityEnum.Result;
+import com.codeit.findex.domain.base.entityEnum.SourceType;
+import com.codeit.findex.domain.indexData.mapper.IndexDataMapper;
+import com.codeit.findex.domain.indexinfo.mapper.IndexInfoMapper;
+import com.codeit.findex.domain.intergration.mapper.IntegrationMapper;
+import com.codeit.findex.domain.indexData.repository.IndexDataRepository;
+import com.codeit.findex.domain.indexinfo.repository.IndexInfoRepository;
+import com.codeit.findex.domain.intergration.repository.IntegrationRepository;
+import com.codeit.findex.domain.api.ExternalApiService;
+import com.codeit.findex.domain.intergration.service.IntegrationService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.stereotype.Service;
+
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class BasicIntegrationService implements IntegrationService {
+  private final IndexInfoRepository indexInfoRepository;
+  private final IndexDataRepository indexDataRepository;
+  private final IntegrationRepository integrationRepository;
+  private final ExternalApiService externalApiService;
+  private final IndexInfoMapper indexInfoMapper;
+  private final IndexDataMapper indexDataMapper;
+  private final IntegrationMapper integrationMapper;
+
+  @PersistenceContext
+  private EntityManager entityManager;
+
+  @Override
+  @Transactional
+  public List<SyncJobDto> integrateIndexInfo(HttpServletRequest request) {
+    OpenApiResponseDto openApiDto = externalApiService.fetchStockMarketIndex();
+    String workerIp = extractClientIp(request);
+
+    // 1. OpenAPI → IndexInfoDto 변환
+    List<IndexInfoDto> indexInfoDtosInOpenApi = toIndexInfoDtoList(openApiDto);
+
+    // 2. 중복 제거 (indexClassification + "::" + indexName 기준)
+    Map<String, IndexInfoDto> deduplicatedDtoMap = indexInfoDtosInOpenApi.stream()
+        .collect(Collectors.toMap(
+            dto -> dto.getIndexClassification() + "::" + dto.getIndexName(),
+            Function.identity(),
+            (existing, replacement) -> existing // 중복 시 기존 유지
+        ));
+
+    List<IndexInfoDto> deduplicatedDtos = new ArrayList<>(deduplicatedDtoMap.values());
+    List<String> compositeKeys = new ArrayList<>(deduplicatedDtoMap.keySet());
+
+    // 3. 기존 IndexInfo 캐싱
+    List<IndexInfo> existingInfos = indexInfoRepository.findByCompositeKeys(compositeKeys);
+    Map<String, IndexInfo> existingMap = existingInfos.stream()
+        .collect(Collectors.toMap(
+            i -> i.getIndexClassification() + "::" + i.getIndexName(),
+            Function.identity()
+        ));
+
+    // 4. 최근 Integration 로그 캐싱
+    Map<Long, Integration> latestIntegrationMap =
+        integrationRepository.findRecentSuccessLogs(JobType.INDEX_INFO, workerIp, LocalDateTime.now().minusMinutes(1))
+            .stream()
+            .collect(Collectors.toMap(
+                i -> i.getIndexInfo().getId(),
+                Function.identity()
+            ));
+
+    // 5. 처리 루프
+    List<SyncJobDto> result = new ArrayList<>();
+    int count = 0;
+
+    for (IndexInfoDto dto : deduplicatedDtos) {
+      String key = dto.getIndexClassification() + "::" + dto.getIndexName();
+      IndexInfo indexInfo;
+
+      if (existingMap.containsKey(key)) {
+        indexInfo = existingMap.get(key);
+        indexInfoMapper.updateInfoFromDto(dto, indexInfo); // 변경 감지
+      } else {
+        indexInfo = indexInfoMapper.toIndexInfo(dto);
+        indexInfoRepository.save(indexInfo);
+        existingMap.put(key, indexInfo); // 중간 캐시 업데이트
+      }
+
+      // Integration 로그 재사용 or 생성
+      Integration integration = latestIntegrationMap.get(indexInfo.getId());
+      if (integration == null) {
+        integration = saveIntegrationInfoLog(indexInfo, workerIp);
+      }
+
+      result.add(integrationMapper.toSyncJobDto(integration));
+
+      // 6. flush/clear 로 메모리 최적화
+      if (++count % 50 == 0) {
+        entityManager.flush();
+        entityManager.clear();
+      }
+    }
+
+    return result;
+  }
+
+  @Override
+  @Transactional
+  public List<SyncJobDto> integrateIndexData(IndexDataSyncRequest indexDataSyncRequest, HttpServletRequest request) {
+
+    OpenApiResponseDto openApiDto = externalApiService.fetchStockMarketIndex();
+    List<IndexInfo> indexInfos = indexInfoRepository.findAllByIdIn(indexDataSyncRequest.indexInfoIds());
+    String workerIp = extractClientIp(request);
+    List<SyncJobDto> result = new ArrayList<>();
+
+    for (IndexInfo indexInfo : indexInfos) {
+
+      List<IndexDataDto> indexDataDtos = toIndexDataDtoList(openApiDto, indexInfo, indexDataSyncRequest);
+
+      // baseDate 기준으로 기존 데이터 조회
+      List<LocalDate> baseDates = indexDataDtos.stream()
+          .map(IndexDataDto::baseDate)
+          .toList();
+
+      List<IndexData> existingDataList =
+          indexDataRepository.findAllByIndexInfoAndBaseDateIn(indexInfo, baseDates);
+
+      Map<LocalDate, IndexData> existingDataMap = existingDataList.stream()
+          .collect(Collectors.toMap(IndexData::getBaseDate, Function.identity()));
+
+      // 최근 Integration 로그 조회 (1분 이내)
+      List<Integration> recentIntegrations =
+          integrationRepository.findRecentLogs(indexInfo.getId(), JobType.INDEX_DATA, workerIp, LocalDateTime.now().minusMinutes(1));
+
+      Map<LocalDate, Integration> integrationMap = recentIntegrations.stream()
+          .collect(Collectors.toMap(
+              i -> i.getIndexData().getBaseDate(),
+              Function.identity()
+          ));
+
+      // 처리 루프
+      for (IndexDataDto dto : indexDataDtos) {
+        LocalDate baseDate = dto.baseDate();
+        IndexData indexData;
+
+        if (existingDataMap.containsKey(baseDate)) {
+          indexData = existingDataMap.get(baseDate);
+          indexDataMapper.updateDataFromDto(dto, indexData); // 변경 감지
+        } else {
+          indexData = indexDataMapper.toIndexData(dto);
+          indexData.setIndexInfo(indexInfo);
+          indexDataRepository.save(indexData);
+        }
+
+        // 중복 로그 재사용
+        Integration integration = integrationMap.get(baseDate);
+        if (integration == null) {
+          integration = saveIntegrationDataLog(indexInfo, indexData, workerIp);
+        }
+
+        result.add(integrationMapper.toSyncJobDto(integration));
+      }
+    }
+
+    return result;
+  }
+
+
+
+  @Override
+  public CursorPageResponseSyncJobDto integrateCursorPage(
+      JobType jobType,
+      Long indexInfoId,
+      LocalDate baseDateFrom,
+      LocalDate baseDateTo,
+      String worker,
+      LocalDateTime jobTimeFrom,
+      LocalDateTime jobTimeTo,
+      Result status,
+      Long idAfter,
+      String cursor,
+      String sortField,
+      String sortDirection,
+      int size) {
+    PageRequest pageRequest = PageRequest.of(0, size);
+
+    // 커서 시간 파싱
+    LocalDateTime cursorDateTime = null;
+    if (cursor != null && !cursor.isEmpty()) {
+      cursorDateTime = LocalDateTime.parse(cursor);
+    }
+
+    // 데이터 조회
+    Slice<Integration> integrationSlice =
+        integrationRepository.searchIntegrations(
+            jobType,
+            indexInfoId,
+            baseDateFrom,
+            baseDateTo,
+            worker,
+            jobTimeFrom,
+            jobTimeTo,
+            status,
+            cursorDateTime,
+            sortField,
+            sortDirection,
+            pageRequest);
+
+    // 전체 갯수 조회
+    long totalElements =
+        integrationRepository.countIntegrations(
+            jobType, indexInfoId, baseDateFrom, baseDateTo, worker, jobTimeFrom, jobTimeTo, status);
+
+    String nextCursor = null;
+    Long nextIdAfter = null;
+
+    List<Integration> content = integrationSlice.getContent();
+    if (!content.isEmpty()) {
+      int lastIndex = content.size() - 1;
+
+      if (integrationSlice.hasNext()) {
+        Integration lastIntegration = content.get(lastIndex);
+        nextCursor = lastIntegration.getJobTime().toString();
+        nextIdAfter = lastIntegration.getId();
+      }
+    }
+
+    List<SyncJobDto> syncJobDtos =
+        integrationSlice.getContent().stream().map(integrationMapper::toSyncJobDto).toList();
+
+    // 응답 생성
+    return CursorPageResponseSyncJobDto.of(
+        syncJobDtos,
+        nextCursor, // 이번 페이지 마지막 아이템의 jobTime 커서 (다음 페이지 요청 때 사용)
+        nextIdAfter, // 이번 페이지 마지막 아이템의 id (동일 jobTime 내 중복 방지용)
+        size,
+        totalElements,
+        integrationSlice.hasNext());
+  }
+
+  private List<IndexInfoDto> toIndexInfoDtoList(OpenApiResponseDto responseDto) {
+    return responseDto.response().body().items().item().stream()
+        .map(
+            indexItemDto ->
+                new IndexInfoDto(
+                    null,
+                    indexItemDto.idxCsf(),
+                    indexItemDto.idxNm(),
+                    indexItemDto.epyItmsCnt(),
+                    LocalDate.parse(
+                        indexItemDto.basPntm(), DateTimeFormatter.ofPattern("yyyyMMdd")),
+                    indexItemDto.basIdx(),
+                    SourceType.OPEN_API,
+                    false))
+        .toList();
+  }
+
+  private List<IndexDataDto> toIndexDataDtoList(
+      OpenApiResponseDto responseDto,
+      IndexInfo indexInfo,
+      IndexDataSyncRequest indexDataSyncRequest) {
+    String indexName = indexInfo.getIndexName();
+    String indexClassification = indexInfo.getIndexClassification();
+
+    return responseDto.response().body().items().item().stream()
+        .filter(item -> indexName.equals(item.idxNm()))
+        .filter(item -> indexClassification.equals(item.idxCsf()))
+        .filter(
+            item -> {
+              LocalDate itemDate =
+                  LocalDate.parse(item.basDt(), DateTimeFormatter.ofPattern("yyyyMMdd"));
+              return !itemDate.isBefore(indexDataSyncRequest.baseDateFrom())
+                  && !itemDate.isAfter(indexDataSyncRequest.baseDateTo());
+            })
+        .map(
+            item ->
+                new IndexDataDto(
+                    null,
+                    indexInfo.getId(),
+                    LocalDate.parse(item.basDt(), DateTimeFormatter.ofPattern("yyyyMMdd")),
+                    SourceType.OPEN_API,
+                    item.mkp(),
+                    item.clpr(),
+                    item.hipr(),
+                    item.lopr(),
+                    item.vs(),
+                    item.fltRt(),
+                    item.trqu(),
+                    item.trPrc(),
+                    item.lstgMrktTotAmt()))
+        .toList();
+  }
+
+  private Integration saveIntegrationInfoLog(IndexInfo indexInfo, String workerIp) {
+    Integration integration = new Integration();
+    integration.setIndexInfo(indexInfo);
+    integration.setIndexData(null);
+    integration.setJobType(JobType.INDEX_INFO);
+    integration.setTargetDate(null);
+    integration.setWorker(workerIp);
+    integration.setJobTime(LocalDateTime.now());
+    integration.setResult(Result.SUCCESS);
+
+    return integrationRepository.save(integration);
+  }
+
+  private Integration saveIntegrationDataLog(
+      IndexInfo indexInfo, IndexData indexData, String workerIp) {
+    Integration integration = new Integration();
+    integration.setIndexInfo(indexInfo);
+    integration.setIndexData(indexData);
+    integration.setJobType(JobType.INDEX_DATA);
+    integration.setTargetDate(indexData.getBaseDate());
+    integration.setWorker(workerIp);
+    integration.setJobTime(LocalDateTime.now());
+    integration.setResult(Result.SUCCESS);
+
+    return integrationRepository.save(integration);
+  }
+
+  private String extractClientIp(HttpServletRequest request) {
+    String xForwardedFor = request.getHeader("X-Forwarded-For");
+    if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+      // 다중 프록시일 경우 제일 앞의 IP가 실제 클라이언트 IP
+      return xForwardedFor.split(",")[0].trim();
+    }
+    return request.getRemoteAddr(); // fallback
+  }
+
+}

@@ -1,12 +1,12 @@
 package com.codeit.findex.controller.api;
 
-import com.codeit.findex.dto.indexInfo.request.IndexInfoCreateRequest;
-import com.codeit.findex.dto.indexInfo.request.IndexInfoSearchCond;
-import com.codeit.findex.dto.indexInfo.request.IndexInfoUpdateRequest;
-import com.codeit.findex.dto.indexInfo.response.CursorPageResponseIndexInfoDto;
-import com.codeit.findex.dto.indexInfo.response.ErrorResponse;
-import com.codeit.findex.dto.indexInfo.response.IndexInfoDto;
-import com.codeit.findex.dto.indexInfo.response.IndexInfoSummaryDto;
+import com.codeit.findex.domain.indexinfo.dto.request.IndexInfoCreateRequest;
+import com.codeit.findex.domain.indexinfo.dto.request.IndexInfoSearchCond;
+import com.codeit.findex.domain.indexinfo.dto.request.IndexInfoUpdateRequest;
+import com.codeit.findex.domain.indexinfo.dto.response.CursorPageResponseIndexInfoDto;
+import com.codeit.findex.domain.indexinfo.dto.response.ErrorResponse;
+import com.codeit.findex.domain.indexinfo.dto.response.IndexInfoDto;
+import com.codeit.findex.domain.indexinfo.dto.response.IndexInfoSummaryDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
