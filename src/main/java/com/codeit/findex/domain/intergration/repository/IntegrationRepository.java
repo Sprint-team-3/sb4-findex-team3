@@ -17,7 +17,7 @@ public interface IntegrationRepository
     SELECT i FROM Integration i
     WHERE i.jobType = :jobType
       AND i.worker = :worker
-      AND i.result = com.codeit.findex.entityEnum.Result.SUCCESS
+      AND i.result = com.codeit.findex.domain.base.entityEnum.Result.SUCCESS
       AND i.jobTime > :afterTime
 """)
   List<Integration> findRecentSuccessLogs(
@@ -31,7 +31,7 @@ SELECT i FROM Integration i
 WHERE i.indexInfo.id = :indexInfoId
   AND i.jobType = :jobType
   AND i.worker = :worker
-  AND i.result = com.codeit.findex.entityEnum.Result.SUCCESS
+  AND i.result = com.codeit.findex.domain.base.entityEnum.Result.SUCCESS
   AND i.jobTime > :afterTime
 """)
   List<Integration> findRecentLogs(

@@ -2,7 +2,7 @@ package com.codeit.findex.domain.intergration.repository.custom;
 
 import com.codeit.findex.domain.base.entity.Integration;
 import com.codeit.findex.domain.intergration.repository.IntegrationCustomRepository;
-import com.codeit.findex.entity.QIntegration;
+import com.codeit.findex.domain.base.entity.QIntegration;
 import com.codeit.findex.domain.base.entityEnum.JobType;
 import com.codeit.findex.domain.base.entityEnum.Result;
 import com.querydsl.core.types.Order;

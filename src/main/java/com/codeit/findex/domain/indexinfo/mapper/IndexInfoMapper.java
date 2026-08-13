@@ -18,7 +18,7 @@ public interface IndexInfoMapper {
 
   IndexInfoSummaryDto toIndexInfoSummaryDto(IndexInfo indexInfo);
 
-  @Mapping(target = "sourceType", expression = "java(com.codeit.findex.entityEnum.SourceType.USER)")
+  @Mapping(target = "sourceType", expression = "java(com.codeit.findex.domain.base.entityEnum.SourceType.USER)")
   IndexInfo IndexInfoCreateDtoToIndexInfo(IndexInfoCreateRequest dto);
 
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
